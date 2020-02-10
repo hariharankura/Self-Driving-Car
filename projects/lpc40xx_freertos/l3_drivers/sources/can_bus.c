@@ -376,41 +376,30 @@ bool can__tx(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms) {
     return false;
   }
 
-  bool ok = false;
+  bool status = false;
   can_struct_t *pStruct = CAN_STRUCT_PTR(can);
   LPC_CAN_TypeDef *CANx = pStruct->can_reg_ptr;
 
-  /* Try transmitting to one of the available buffers */
+  // Enqueue the message first to preserve FIFO order of transmission through can__tx()
+  if (taskSCHEDULER_RUNNING == xTaskGetSchedulerState()) {
+    status = xQueueSend(pStruct->tx_q, msg_ptr, RTOS_MS_TO_TICKS(timeout_ms));
+  } else {
+    status = xQueueSend(pStruct->tx_q, msg_ptr, 0);
+  }
+
+  /* There is possibility that before we queued the message, we got interrupted and all hw buffers were emptied
+   * meanwhile, and our queued message will now sit in the queue forever until another Tx interrupt takes place.
+   */
   taskENTER_CRITICAL();
   do {
-    ok = can__tx_now(pStruct, msg_ptr);
+    can__msg_t msg;
+    if (tx_all_avail == (CANx->SR & tx_all_avail) && xQueueReceive(pStruct->tx_q, &msg, 0)) {
+      status = can__tx_now(pStruct, &msg);
+    }
   } while (0);
   taskEXIT_CRITICAL();
 
-  /* If HW buffer not available, then just queue the message */
-  if (!ok) {
-    if (taskSCHEDULER_RUNNING == xTaskGetSchedulerState()) {
-      ok = xQueueSend(pStruct->tx_q, msg_ptr, RTOS_MS_TO_TICKS(timeout_ms));
-    } else {
-      ok = xQueueSend(pStruct->tx_q, msg_ptr, 0);
-    }
-
-    /* There is possibility that before we queued the message, we got interrupted
-     * and all hw buffers were emptied meanwhile, and our queued message will now
-     * sit in the queue forever until another Tx interrupt takes place.
-     * So we dequeue it here if all are empty and send it over.
-     */
-    taskENTER_CRITICAL();
-    do {
-      can__msg_t msg;
-      if (tx_all_avail == (CANx->SR & tx_all_avail) && xQueueReceive(pStruct->tx_q, &msg, 0)) {
-        ok = can__tx_now(pStruct, &msg);
-      }
-    } while (0);
-    taskEXIT_CRITICAL();
-  }
-
-  return ok;
+  return status;
 }
 
 bool can__rx(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms) {
