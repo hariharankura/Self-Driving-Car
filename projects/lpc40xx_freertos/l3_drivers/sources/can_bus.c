@@ -186,8 +186,8 @@ static bool can__tx_now(can_struct_t *struct_ptr, can__msg_t *msg_ptr) {
 }
 
 static void can__handle_isr(const can__num_e can) {
-  can_struct_t *pStruct = CAN_STRUCT_PTR(can);
-  LPC_CAN_TypeDef *pCAN = pStruct->can_reg_ptr;
+  can_struct_t *can_instance_ptr = CAN_STRUCT_PTR(can);
+  LPC_CAN_TypeDef *pCAN = can_instance_ptr->can_reg_ptr;
   const uint32_t rbs = (1 << 0);
   const uint32_t ibits = pCAN->ICR;
   UBaseType_t count;
@@ -195,26 +195,26 @@ static void can__handle_isr(const can__num_e can) {
 
   /* Handle the received message */
   if ((ibits & intr_rx) | (pCAN->GSR & rbs)) {
-    if ((count = uxQueueMessagesWaitingFromISR(pStruct->rx_q)) > pStruct->rx_q_watermark) {
-      pStruct->rx_q_watermark = count;
+    if ((count = uxQueueMessagesWaitingFromISR(can_instance_ptr->rx_q)) > can_instance_ptr->rx_q_watermark) {
+      can_instance_ptr->rx_q_watermark = count;
     }
 
     can__msg_t *hw_msg_reg_ptr = (can__msg_t *)&(pCAN->RFS);
-    if (xQueueSendFromISR(pStruct->rx_q, hw_msg_reg_ptr, NULL)) {
-      pStruct->rx_msg_count++;
+    if (xQueueSendFromISR(can_instance_ptr->rx_q, hw_msg_reg_ptr, NULL)) {
+      can_instance_ptr->rx_msg_count++;
     } else {
-      pStruct->dropped_rx_msgs++;
+      can_instance_ptr->dropped_rx_msgs++;
     }
     pCAN->CMR = 0x04; // Release the receive buffer, no need to bitmask
   }
 
   /* A transmit finished, send any queued message(s) */
   if (ibits & intr_all_tx) {
-    if ((count = uxQueueMessagesWaitingFromISR(pStruct->tx_q)) > pStruct->tx_q_watermark) {
-      pStruct->tx_q_watermark = count;
+    if ((count = uxQueueMessagesWaitingFromISR(can_instance_ptr->tx_q)) > can_instance_ptr->tx_q_watermark) {
+      can_instance_ptr->tx_q_watermark = count;
     }
-    if (xQueueReceiveFromISR(pStruct->tx_q, &msg, NULL)) {
-      can__tx_now(pStruct, &msg);
+    if (xQueueReceiveFromISR(can_instance_ptr->tx_q, &msg, NULL)) {
+      can__tx_now(can_instance_ptr, &msg);
     }
   }
 
@@ -222,10 +222,10 @@ static void can__handle_isr(const can__num_e can) {
    * to check for the callback function being NULL
    */
   if (ibits & can__bus_error_interrupt) {
-    pStruct->bus_error(ibits);
+    can_instance_ptr->bus_error(ibits);
   }
   if (ibits & intr_ovrn) {
-    pStruct->data_overrun(ibits);
+    can_instance_ptr->data_overrun(ibits);
   }
 }
 
@@ -254,8 +254,8 @@ bool can__init(can__num_e can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16
     return false;
   }
 
-  can_struct_t *pStruct = CAN_STRUCT_PTR(can);
-  LPC_CAN_TypeDef *pCAN = pStruct->can_reg_ptr;
+  can_struct_t *can_instance_ptr = CAN_STRUCT_PTR(can);
+  LPC_CAN_TypeDef *pCAN = can_instance_ptr->can_reg_ptr;
   bool failed = true;
 
   /* Enable CAN Power, and select the PINS
@@ -280,11 +280,11 @@ bool can__init(can__num_e can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16
   }
 
   /* Create the queues with minimum size of 1 to avoid NULL pointer reference */
-  if (!pStruct->rx_q) {
-    pStruct->rx_q = xQueueCreate(rxq_size ? rxq_size : 1, sizeof(can__msg_t));
+  if (!can_instance_ptr->rx_q) {
+    can_instance_ptr->rx_q = xQueueCreate(rxq_size ? rxq_size : 1, sizeof(can__msg_t));
   }
-  if (!pStruct->tx_q) {
-    pStruct->tx_q = xQueueCreate(txq_size ? txq_size : 1, sizeof(can__msg_t));
+  if (!can_instance_ptr->tx_q) {
+    can_instance_ptr->tx_q = xQueueCreate(txq_size ? txq_size : 1, sizeof(can__msg_t));
   }
 
   // Note: CAN operates at the same clock as the peripherals and we do not need to configure CAN clock
@@ -357,12 +357,12 @@ bool can__init(can__num_e can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16
 
     /* Enable BUS-off interrupt and callback if given */
     if (bus_off_cb) {
-      pStruct->bus_error = bus_off_cb;
+      can_instance_ptr->bus_error = bus_off_cb;
       pCAN->IER |= can__bus_error_interrupt;
     }
     /* Enable data-overrun interrupt and callback if given */
     if (data_ovr_cb) {
-      pStruct->data_overrun = data_ovr_cb;
+      can_instance_ptr->data_overrun = data_ovr_cb;
       pCAN->IER |= intr_ovrn;
     }
   }
@@ -377,14 +377,14 @@ bool can__tx(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms) {
   }
 
   bool status = false;
-  can_struct_t *pStruct = CAN_STRUCT_PTR(can);
-  LPC_CAN_TypeDef *CANx = pStruct->can_reg_ptr;
+  can_struct_t *can_instance_ptr = CAN_STRUCT_PTR(can);
+  LPC_CAN_TypeDef *CANx = can_instance_ptr->can_reg_ptr;
 
   // Enqueue the message first to preserve FIFO order of transmission through can__tx()
   if (taskSCHEDULER_RUNNING == xTaskGetSchedulerState()) {
-    status = xQueueSend(pStruct->tx_q, msg_ptr, RTOS_MS_TO_TICKS(timeout_ms));
+    status = xQueueSend(can_instance_ptr->tx_q, msg_ptr, RTOS_MS_TO_TICKS(timeout_ms));
   } else {
-    status = xQueueSend(pStruct->tx_q, msg_ptr, 0);
+    status = xQueueSend(can_instance_ptr->tx_q, msg_ptr, 0);
   }
 
   /* There is possibility that before we queued the message, we got interrupted and all hw buffers were emptied
@@ -393,8 +393,8 @@ bool can__tx(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms) {
   taskENTER_CRITICAL();
   do {
     can__msg_t msg;
-    if (tx_all_avail == (CANx->SR & tx_all_avail) && xQueueReceive(pStruct->tx_q, &msg, 0)) {
-      status = can__tx_now(pStruct, &msg);
+    if (tx_all_avail == (CANx->SR & tx_all_avail) && xQueueReceive(can_instance_ptr->tx_q, &msg, 0)) {
+      status = can__tx_now(can_instance_ptr, &msg);
     }
   } while (0);
   taskEXIT_CRITICAL();
@@ -403,14 +403,14 @@ bool can__tx(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms) {
 }
 
 bool can__rx(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms) {
-  bool ok = false;
+  bool status = false;
 
   if (CAN_VALID(can) && msg_ptr) {
     if (taskSCHEDULER_RUNNING == xTaskGetSchedulerState()) {
-      ok = xQueueReceive(CAN_STRUCT_PTR(can)->rx_q, msg_ptr, RTOS_MS_TO_TICKS(timeout_ms));
+      status = xQueueReceive(CAN_STRUCT_PTR(can)->rx_q, msg_ptr, RTOS_MS_TO_TICKS(timeout_ms));
     } else {
       const uint64_t msg_timeout = sys_time__get_uptime_ms() + timeout_ms;
-      while (!(ok = xQueueReceive(CAN_STRUCT_PTR(can)->rx_q, msg_ptr, 0))) {
+      while (!(status = xQueueReceive(CAN_STRUCT_PTR(can)->rx_q, msg_ptr, 0))) {
         if (sys_time__get_uptime_ms() > msg_timeout) {
           break;
         }
@@ -418,7 +418,7 @@ bool can__rx(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms) {
     }
   }
 
-  return ok;
+  return status;
 }
 
 bool can__is_bus_off(can__num_e can) {
