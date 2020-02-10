@@ -22,7 +22,7 @@
 
 /// CAN index: enum to struct index conversion
 #define CAN_INDEX(can) (can)
-#define CAN_STRUCT_PTR(can) (&(g_can_structs[CAN_INDEX(can)]))
+#define CAN_STRUCT_PTR(can) (&(can__struct_instances[CAN_INDEX(can)]))
 #define CAN_VALID(x) (can1 == x || can2 == x)
 
 // Used by CAN_CT_ASSERT().  Obtained from http://www.pixelbeat.org/programming/gcc/static_assert.html
@@ -34,9 +34,9 @@
 // Check the sizes of the structs because the size needs to match the HW registers
 CAN_CT_ASSERT(2 == sizeof(can_std_id_t));
 CAN_CT_ASSERT(4 == sizeof(can_ext_id_t));
-CAN_CT_ASSERT(8 == sizeof(can_data_t));
-CAN_CT_ASSERT(16 == sizeof(can_msg_t));
-CAN_CT_ASSERT(12 == sizeof(can_fullcan_msg_t));
+CAN_CT_ASSERT(8 == sizeof(can__data_t));
+CAN_CT_ASSERT(16 == sizeof(can__msg_t));
+CAN_CT_ASSERT(12 == sizeof(can__fullcan_msg_t));
 
 /// Interrupt masks of the CANxIER and CANxICR registers
 typedef enum {
@@ -92,25 +92,26 @@ typedef struct {
   LPC_CAN_TypeDef *can_reg_ptr; ///< The pointer to the CAN registers
   QueueHandle_t rx_q;           ///< TX queue
   QueueHandle_t tx_q;           ///< RX queue
-  uint16_t dropped_rx_msgs;  ///< Number of messages dropped if no space found during the CAN interrupt that queues the
-                             ///< RX messages
-  uint16_t rx_q_watermark;   ///< Watermark of the FreeRTOS Rx Queue
-  uint16_t tx_q_watermark;   ///< Watermark of the FreeRTOS Tx Queue
-  uint16_t tx_msg_count;     ///< Number of messages sent
-  uint16_t rx_msg_count;     ///< Number of received messages
-  can_void_func_t bus_error; ///< When serious BUS error occurs
+
+  uint16_t dropped_rx_msgs; ///< # of msgs dropped if no space found during the CAN interrupt that queues the RX msgs
+  uint16_t rx_q_watermark;  ///< Watermark of the FreeRTOS Rx Queue
+  uint16_t tx_q_watermark;  ///< Watermark of the FreeRTOS Tx Queue
+  uint16_t tx_msg_count;    ///< Number of messages sent
+  uint16_t rx_msg_count;    ///< Number of received messages
+
+  can_void_func_t bus_error;    ///< When serious BUS error occurs
   can_void_func_t data_overrun; ///< When we read the CAN buffer too late for incoming message
 } can_struct_t;
 
 /// Structure of both CANs
-static can_struct_t g_can_structs[can_max] = {{LPC_CAN1}, {LPC_CAN2}};
+static can_struct_t can__struct_instances[can_max] = {{LPC_CAN1}, {LPC_CAN2}};
 
 /**
  * This type of CAN interrupt should lead to "bus error", but note that intr_berr is not the right
  * one as that one is triggered upon each type of CAN error which may be a simple "retry" that
  * can be recovered.  intr_epi or intr_warn should work for this selection.
  */
-static const can_intr_t g_can_bus_err_intr = intr_epi;
+static const can_intr_t can__bus_error_interrupt = intr_epi;
 
 /** @{ Private functions */
 /**
@@ -127,7 +128,7 @@ static const can_intr_t g_can_bus_err_intr = intr_epi;
  *
  * @warning This should be called from critical section since this method is not thread-safe
  */
-static bool can__tx_now(can_struct_t *struct_ptr, can_msg_t *msg_ptr) {
+static bool can__tx_now(can_struct_t *struct_ptr, can__msg_t *msg_ptr) {
   // 32-bit command of CMR register to start transmission of one of the buffers
   enum {
     go_cmd_invalid = 0,
@@ -138,21 +139,21 @@ static bool can__tx_now(can_struct_t *struct_ptr, can_msg_t *msg_ptr) {
 
   LPC_CAN_TypeDef *pCAN = struct_ptr->can_reg_ptr;
   const uint32_t can_sr_reg = pCAN->SR;
-  volatile can_msg_t *hw_msg_reg_ptr = NULL;
+  volatile can__msg_t *hw_msg_reg_ptr = NULL;
   uint32_t go_cmd = go_cmd_invalid;
 
   if (can_sr_reg & tx1_avail) {
-    hw_msg_reg_ptr = (can_msg_t *)&(pCAN->TFI1);
+    hw_msg_reg_ptr = (can__msg_t *)&(pCAN->TFI1);
     go_cmd = go_cmd_tx1;
   }
   // This logic is disabled as it needs further testing
 #if 0
     else if (can_sr_reg & tx2_avail){
-        hw_msg_reg_ptr = (can_msg_t*)&(pCAN->TFI2);
+        hw_msg_reg_ptr = (can__msg_t*)&(pCAN->TFI2);
         go_cmd = go_cmd_tx2;
     }
     else if (can_sr_reg & tx3_avail){
-        hw_msg_reg_ptr = (can_msg_t*)&(pCAN->TFI3);
+        hw_msg_reg_ptr = (can__msg_t*)&(pCAN->TFI3);
         go_cmd = go_cmd_tx3;
     }
 #endif
@@ -184,13 +185,13 @@ static bool can__tx_now(can_struct_t *struct_ptr, can_msg_t *msg_ptr) {
   return true;
 }
 
-static void can__handle_isr(const can_t can) {
+static void can__handle_isr(const can__num_e can) {
   can_struct_t *pStruct = CAN_STRUCT_PTR(can);
   LPC_CAN_TypeDef *pCAN = pStruct->can_reg_ptr;
   const uint32_t rbs = (1 << 0);
   const uint32_t ibits = pCAN->ICR;
   UBaseType_t count;
-  can_msg_t msg;
+  can__msg_t msg;
 
   /* Handle the received message */
   if ((ibits & intr_rx) | (pCAN->GSR & rbs)) {
@@ -198,7 +199,7 @@ static void can__handle_isr(const can_t can) {
       pStruct->rx_q_watermark = count;
     }
 
-    can_msg_t *hw_msg_reg_ptr = (can_msg_t *)&(pCAN->RFS);
+    can__msg_t *hw_msg_reg_ptr = (can__msg_t *)&(pCAN->RFS);
     if (xQueueSendFromISR(pStruct->rx_q, hw_msg_reg_ptr, NULL)) {
       pStruct->rx_msg_count++;
     } else {
@@ -220,14 +221,13 @@ static void can__handle_isr(const can_t can) {
   /* We only enable interrupt when a valid callback exists, so no need
    * to check for the callback function being NULL
    */
-  if (ibits & g_can_bus_err_intr) {
+  if (ibits & can__bus_error_interrupt) {
     pStruct->bus_error(ibits);
   }
   if (ibits & intr_ovrn) {
     pStruct->data_overrun(ibits);
   }
 }
-/** @} */
 
 /**
  * This interrupt is shared between CAN1, and CAN2
@@ -243,8 +243,12 @@ static void can__isr(void) {
     can__handle_isr(can2);
   }
 }
+/** @} */
 
-bool can__init(can_t can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t txq_size, can_void_func_t bus_off_cb,
+//
+// Public functions
+//
+bool can__init(can__num_e can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t txq_size, can_void_func_t bus_off_cb,
                can_void_func_t data_ovr_cb) {
   if (!CAN_VALID(can)) {
     return false;
@@ -277,10 +281,10 @@ bool can__init(can_t can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t tx
 
   /* Create the queues with minimum size of 1 to avoid NULL pointer reference */
   if (!pStruct->rx_q) {
-    pStruct->rx_q = xQueueCreate(rxq_size ? rxq_size : 1, sizeof(can_msg_t));
+    pStruct->rx_q = xQueueCreate(rxq_size ? rxq_size : 1, sizeof(can__msg_t));
   }
   if (!pStruct->tx_q) {
-    pStruct->tx_q = xQueueCreate(txq_size ? txq_size : 1, sizeof(can_msg_t));
+    pStruct->tx_q = xQueueCreate(txq_size ? txq_size : 1, sizeof(can__msg_t));
   }
 
   // Note: CAN operates at the same clock as the peripherals and we do not need to configure CAN clock
@@ -318,7 +322,7 @@ bool can__init(can_t can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t tx
    * http://www.kvaser.com/en/support/bit-timing-calculator.html
    */
   do {
-    const uint32_t baudDiv = clock__get_peripheral_clock_hz() / (1000 * baudrate_kbps);
+    const uint32_t baud_divider = clock__get_peripheral_clock_hz() / (1000 * baudrate_kbps);
     const uint32_t SJW = 3;
     const uint32_t SAM = 0;
     uint32_t BRP = 0, TSEG1 = 0, TSEG2 = 0, NT = 0;
@@ -330,8 +334,8 @@ bool can__init(can_t can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t tx
      */
     failed = true;
     for (NT = 24; NT > 0; NT -= 2) {
-      if ((baudDiv % NT) == 0) {
-        BRP = baudDiv / NT - 1;
+      if ((baud_divider % NT) == 0) {
+        BRP = baud_divider / NT - 1;
         NT--;
         TSEG2 = (NT / 3) - 1;
         TSEG1 = NT - (NT / 3) - 1;
@@ -354,7 +358,7 @@ bool can__init(can_t can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t tx
     /* Enable BUS-off interrupt and callback if given */
     if (bus_off_cb) {
       pStruct->bus_error = bus_off_cb;
-      pCAN->IER |= g_can_bus_err_intr;
+      pCAN->IER |= can__bus_error_interrupt;
     }
     /* Enable data-overrun interrupt and callback if given */
     if (data_ovr_cb) {
@@ -367,8 +371,8 @@ bool can__init(can_t can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t tx
   return (false == failed);
 }
 
-bool can__tx(can_t can, can_msg_t *pCanMsg, uint32_t timeout_ms) {
-  if (!CAN_VALID(can) || !pCanMsg || can__is_bus_off(can)) {
+bool can__tx(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms) {
+  if (!CAN_VALID(can) || !msg_ptr || can__is_bus_off(can)) {
     return false;
   }
 
@@ -379,16 +383,16 @@ bool can__tx(can_t can, can_msg_t *pCanMsg, uint32_t timeout_ms) {
   /* Try transmitting to one of the available buffers */
   taskENTER_CRITICAL();
   do {
-    ok = can__tx_now(pStruct, pCanMsg);
+    ok = can__tx_now(pStruct, msg_ptr);
   } while (0);
   taskEXIT_CRITICAL();
 
   /* If HW buffer not available, then just queue the message */
   if (!ok) {
     if (taskSCHEDULER_RUNNING == xTaskGetSchedulerState()) {
-      ok = xQueueSend(pStruct->tx_q, pCanMsg, RTOS_MS_TO_TICKS(timeout_ms));
+      ok = xQueueSend(pStruct->tx_q, msg_ptr, RTOS_MS_TO_TICKS(timeout_ms));
     } else {
-      ok = xQueueSend(pStruct->tx_q, pCanMsg, 0);
+      ok = xQueueSend(pStruct->tx_q, msg_ptr, 0);
     }
 
     /* There is possibility that before we queued the message, we got interrupted
@@ -398,7 +402,7 @@ bool can__tx(can_t can, can_msg_t *pCanMsg, uint32_t timeout_ms) {
      */
     taskENTER_CRITICAL();
     do {
-      can_msg_t msg;
+      can__msg_t msg;
       if (tx_all_avail == (CANx->SR & tx_all_avail) && xQueueReceive(pStruct->tx_q, &msg, 0)) {
         ok = can__tx_now(pStruct, &msg);
       }
@@ -409,15 +413,15 @@ bool can__tx(can_t can, can_msg_t *pCanMsg, uint32_t timeout_ms) {
   return ok;
 }
 
-bool can__rx(can_t can, can_msg_t *pCanMsg, uint32_t timeout_ms) {
+bool can__rx(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms) {
   bool ok = false;
 
-  if (CAN_VALID(can) && pCanMsg) {
+  if (CAN_VALID(can) && msg_ptr) {
     if (taskSCHEDULER_RUNNING == xTaskGetSchedulerState()) {
-      ok = xQueueReceive(CAN_STRUCT_PTR(can)->rx_q, pCanMsg, RTOS_MS_TO_TICKS(timeout_ms));
+      ok = xQueueReceive(CAN_STRUCT_PTR(can)->rx_q, msg_ptr, RTOS_MS_TO_TICKS(timeout_ms));
     } else {
-      uint64_t msg_timeout = sys_time__get_uptime_ms() + timeout_ms;
-      while (!(ok = xQueueReceive(CAN_STRUCT_PTR(can)->rx_q, pCanMsg, 0))) {
+      const uint64_t msg_timeout = sys_time__get_uptime_ms() + timeout_ms;
+      while (!(ok = xQueueReceive(CAN_STRUCT_PTR(can)->rx_q, msg_ptr, 0))) {
         if (sys_time__get_uptime_ms() > msg_timeout) {
           break;
         }
@@ -428,12 +432,12 @@ bool can__rx(can_t can, can_msg_t *pCanMsg, uint32_t timeout_ms) {
   return ok;
 }
 
-bool can__is_bus_off(can_t can) {
+bool can__is_bus_off(can__num_e can) {
   const uint32_t bus_off_mask = (1 << 7);
   return (!CAN_VALID(can)) ? true : !!(CAN_STRUCT_PTR(can)->can_reg_ptr->GSR & bus_off_mask);
 }
 
-void can__reset_bus(can_t can) {
+void can__reset_bus(can__num_e can) {
   if (CAN_VALID(can)) {
     CAN_STRUCT_PTR(can)->can_reg_ptr->MOD = can_mod_reset;
 
@@ -445,19 +449,19 @@ void can__reset_bus(can_t can) {
   }
 }
 
-uint16_t can__get_rx_watermark(can_t can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->rx_q_watermark : 0; }
+uint16_t can__get_rx_watermark(can__num_e can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->rx_q_watermark : 0; }
 
-uint16_t can__get_tx_watermark(can_t can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->tx_q_watermark : 0; }
+uint16_t can__get_tx_watermark(can__num_e can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->tx_q_watermark : 0; }
 
-uint16_t can__get_tx_count(can_t can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->tx_msg_count : 0; }
+uint16_t can__get_tx_count(can__num_e can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->tx_msg_count : 0; }
 
-uint16_t can__get_rx_count(can_t can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->rx_msg_count : 0; }
+uint16_t can__get_rx_count(can__num_e can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->rx_msg_count : 0; }
 
-uint16_t can__get_rx_dropped_count(can_t can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->dropped_rx_msgs : 0; }
+uint16_t can__get_rx_dropped_count(can__num_e can) { return CAN_VALID(can) ? CAN_STRUCT_PTR(can)->dropped_rx_msgs : 0; }
 
 void can__bypass_filter_accept_all_msgs(void) { LPC_CANAF->AFMR = afmr_bypass; }
 
-can_std_id_t can__gen_sid(can_t can, uint16_t id) {
+can_std_id_t can__gen_sid(can__num_e can, uint16_t id) {
   /* SCC in datasheet is defined as can controller - 1 */
   const uint16_t scc = (can);
   can_std_id_t ret;
@@ -470,7 +474,7 @@ can_std_id_t can__gen_sid(can_t can, uint16_t id) {
   return ret;
 }
 
-can_ext_id_t can__gen_eid(can_t can, uint32_t id) {
+can_ext_id_t can__gen_eid(can__num_e can, uint32_t id) {
   /* SCC in datasheet is defined as can controller - 1 */
   const uint16_t scc = (can);
   can_ext_id_t ret;
@@ -481,7 +485,7 @@ can_ext_id_t can__gen_eid(can_t can, uint32_t id) {
   return ret;
 }
 
-bool can__fullcan_add_entry(can_t can, can_std_id_t id1, can_std_id_t id2) {
+bool can__fullcan_add_entry(can__num_e can, can_std_id_t id1, can_std_id_t id2) {
   /* Return if invalid CAN given */
   if (!CAN_VALID(can)) {
     return false;
@@ -491,7 +495,7 @@ bool can__fullcan_add_entry(can_t can, can_std_id_t id1, can_std_id_t id2) {
    * Each entry takes 2-byte entry, and 12-byte message RAM.
    */
   const uint16_t existing_entries = can__fullcan_get_num_entries();
-  const uint16_t size_per_entry = sizeof(can_std_id_t) + sizeof(can_fullcan_msg_t);
+  const uint16_t size_per_entry = sizeof(can_std_id_t) + sizeof(can__fullcan_msg_t);
   if ((existing_entries * size_per_entry) >= sizeof(LPC_CANAF_RAM->mask)) {
     return false;
   }
@@ -521,7 +525,7 @@ bool can__fullcan_add_entry(can_t can, can_std_id_t id1, can_std_id_t id2) {
   return true;
 }
 
-can_fullcan_msg_t *can__fullcan_get_entry_ptr(can_std_id_t fc_id) {
+can__fullcan_msg_t *can__fullcan_get_entry_ptr(can_std_id_t fc_id) {
   /* Number of entries depends on how far SFF_sa is from base of 0 */
   const uint16_t num_entries = can__fullcan_get_num_entries();
   uint16_t idx = 0;
@@ -547,18 +551,18 @@ can_fullcan_msg_t *can__fullcan_get_entry_ptr(can_std_id_t fc_id) {
     }
   }
 
-  can_fullcan_msg_t *real_entry = NULL;
+  can__fullcan_msg_t *real_entry = NULL;
   if (idx < num_entries) {
     /* If we find an index, we have to convert it to the actual message pointer */
-    can_fullcan_msg_t *base_msg_entry =
-        (can_fullcan_msg_t *)(((uint8_t *)&(LPC_CANAF_RAM->mask[0])) + LPC_CANAF->ENDofTable);
+    can__fullcan_msg_t *base_msg_entry =
+        (can__fullcan_msg_t *)(((uint8_t *)&(LPC_CANAF_RAM->mask[0])) + LPC_CANAF->ENDofTable);
     real_entry = (base_msg_entry + idx);
   }
 
   return real_entry;
 }
 
-bool can__fullcan_read_msg_copy(can_fullcan_msg_t *pMsg, can_fullcan_msg_t *pMsgCopy) {
+bool can__fullcan_read_msg_copy(can__fullcan_msg_t *pMsg, can__fullcan_msg_t *pMsgCopy) {
   const uint8_t *can_ram_base = (uint8_t *)&(LPC_CANAF_RAM->mask[0]);
   const uint8_t *start = can_ram_base + LPC_CANAF->ENDofTable;     // Actual FullCAN msgs are stored after this
   const uint8_t *end = can_ram_base + sizeof(LPC_CANAF_RAM->mask); // Last byte of CAN RAM + 1
@@ -605,7 +609,7 @@ bool can__setup_filter(const can_std_id_t *std_id_list, uint16_t sid_cnt, const 
 
     /* FullCAN entries take up 2 bytes each at beginning RAM, and 12-byte sections at the end */
     const uint32_t can_ram_end_addr =
-        can_ram_base_addr + sizeof(LPC_CANAF_RAM->mask) - (sizeof(can_fullcan_msg_t) * can__fullcan_get_num_entries());
+        can_ram_base_addr + sizeof(LPC_CANAF_RAM->mask) - (sizeof(can__fullcan_msg_t) * can__fullcan_get_num_entries());
 
     /* Our filter RAM is after FullCAN entries */
     uint32_t *ptr = (uint32_t *)(can_ram_base_addr + LPC_CANAF->SFF_sa);
@@ -672,25 +676,25 @@ bool can__setup_filter(const can_std_id_t *std_id_list, uint16_t sid_cnt, const 
 }
 
 #if CAN_TESTING
-#include <printf_lib.h>
+#include <stdio.h>
 #define CAN_ASSERT(x)                                                                                                  \
   if (!(x)) {                                                                                                          \
-    u0_dbg_printf("Failed at %i, BUS: %s MOD: 0x%08x, GSR: 0x%08x\n"                                                   \
-                  "IER/ICR: 0x%08X/0x%08x BTR: 0x%08x"                                                                 \
-                  "\nLine %i: %s\n",                                                                                   \
-                  __LINE__, can__is_bus_off(can1) ? "OFF" : "ON", (int)LPC_CAN1->MOD, (int)LPC_CAN1->GSR,              \
-                  (int)LPC_CAN1->IER, (int)LPC_CAN1->ICR, (int)LPC_CAN1->BTR, __LINE__, #x);                           \
+    printf("Failed at %i, BUS: %s MOD: 0x%08x, GSR: 0x%08x\n"                                                          \
+           "IER/ICR: 0x%08X/0x%08x BTR: 0x%08x"                                                                        \
+           "\nLine %i: %s\n",                                                                                          \
+           __LINE__, can__is_bus_off(can1) ? "OFF" : "ON", (int)LPC_CAN1->MOD, (int)LPC_CAN1->GSR, (int)LPC_CAN1->IER, \
+           (int)LPC_CAN1->ICR, (int)LPC_CAN1->BTR, __LINE__, #x);                                                      \
     return false;                                                                                                      \
   }
-void can__test_bufoff_cb(uint32_t d) { u0_dbg_printf("CB: BUS OFF\n"); }
-void can__test_bufovr_cb(uint32_t d) { u0_dbg_printf("CB: DATA OVR\n"); }
+void can__test_bufoff_cb(uint32_t d) { printf("CB: BUS OFF\n"); }
+void can__test_bufovr_cb(uint32_t d) { printf("CB: DATA OVR\n"); }
 
 bool can__test(void) {
   uint32_t i = 0;
 
 #define can_test_msg(msg, id, rxtrue)                                                                                  \
   do {                                                                                                                 \
-    u0_dbg_printf("Send ID: 0x%08X\n", id);                                                                            \
+    printf("Send ID: 0x%08X\n", id);                                                                                   \
     msg.msg_id = id;                                                                                                   \
     CAN_ASSERT(can__tx(can1, &msg, 0));                                                                                \
     msg.msg_id = 0;                                                                                                    \
@@ -699,26 +703,26 @@ bool can__test(void) {
       CAN_ASSERT(id == msg.msg_id);                                                                                    \
   } while (0)
 
-  u0_dbg_printf("  Test init()\n");
+  printf("  Test init()\n");
   CAN_ASSERT(!can__init(can_max, 100, 0, 0, NULL, NULL));
   CAN_ASSERT(can__init(can1, 100, 5, 5, can__test_bufoff_cb, can__test_bufovr_cb));
   CAN_ASSERT(LPC_CAN1->MOD == can_mod_reset);
   can__bypass_filter_accept_all_msgs();
 
-  CAN_ASSERT(g_can_rx_qs[0] != NULL);
-  CAN_ASSERT(g_can_tx_qs[0] != NULL);
+  CAN_ASSERT(can__struct_instances[0].rx_q != NULL);
+  CAN_ASSERT(can__struct_instances[0].tx_q != NULL);
   CAN_ASSERT(LPC_CANAF->SFF_sa == 0);
   CAN_ASSERT(LPC_CANAF->SFF_GRP_sa == 0);
   CAN_ASSERT(LPC_CANAF->EFF_sa == 0);
   CAN_ASSERT(LPC_CANAF->EFF_GRP_sa == 0);
   CAN_ASSERT(LPC_CANAF->ENDofTable == 0);
 
-  CAN_reset_bus(can1);
+  can__reset_bus(can1);
   CAN_ASSERT(LPC_CAN1->MOD == can_mod_selftest);
 
   /* Create a message, and test tx with bad input */
   uint32_t id = 0x100;
-  can_msg_t msg;
+  can__msg_t msg;
   memset(&msg, 0, sizeof(msg));
   msg.frame = 0;
   msg.msg_id = id;
@@ -729,7 +733,7 @@ bool can__test(void) {
   CAN_ASSERT(!can__rx(can1, NULL, 0));    // Invalid message pointer
 
   /* Send msg and test receive */
-  u0_dbg_printf("  Test Tx/Rx\n");
+  printf("  Test Tx/Rx\n");
   can_test_msg(msg, 0x100, true);
   can_test_msg(msg, 0x200, true);
   can_test_msg(msg, 0x300, true);
@@ -748,7 +752,7 @@ bool can__test(void) {
   const can_ext_grp_id_t eglist[] = {{can__gen_eid(can1, 0xA000), can__gen_eid(can1, 0xB000)}}; // Group 1
 
   /* Test filter setup */
-  u0_dbg_printf("  Test filter setup\n");
+  printf("  Test filter setup\n");
   can__setup_filter(slist, 4, sglist, 2, elist, 2, eglist, 1);
 
   /* We use offset of zero if 2 FullCAN messages are added, otherwise 4 if none were added above */
@@ -759,18 +763,18 @@ bool can__test(void) {
   CAN_ASSERT(LPC_CANAF->EFF_GRP_sa == 28 - offset);
   CAN_ASSERT(LPC_CANAF->ENDofTable == 36 - offset);
   for (i = 0; i < 10; i++) {
-    u0_dbg_printf("%2i: 0x%08X\n", i, (uint32_t)LPC_CANAF_RAM->mask[i]);
+    printf("%2d: 0x%08X\n", (unsigned)i, (unsigned)LPC_CANAF_RAM->mask[i]);
   }
 
   /* Send a message defined in filter */
-  u0_dbg_printf("  Test filter messages\n");
+  printf("  Test filter messages\n");
   msg.frame = 0;
   msg.frame_fields.is_29bit = 0;
   msg.frame_fields.data_len = 8;
   msg.data.qword = 0x1122334455667788;
 
   /* Test reception of messages defined in the filter */
-  u0_dbg_printf("  Test message reception according to filter\n");
+  printf("  Test message reception according to filter\n");
   msg.frame_fields.is_29bit = 0;
   can_test_msg(msg, 0x100, true); // standard id
   can_test_msg(msg, 0x110, true); // standard id
@@ -787,7 +791,7 @@ bool can__test(void) {
   can_test_msg(msg, 0xA000, true); // extended id group start
   can_test_msg(msg, 0xB000, true); // extended id group end
 
-  u0_dbg_printf("  Test messages that should not be received\n");
+  printf("  Test messages that should not be received\n");
   /* Send a message not defined in filter */
   msg.frame_fields.is_29bit = 0;
   can_test_msg(msg, 0x0FF, false);
@@ -805,7 +809,7 @@ bool can__test(void) {
   can_test_msg(msg, 0xB000 + 1, false);
 
   /* Test FullCAN */
-  u0_dbg_printf("  Test FullCAN\n");
+  printf("  Test FullCAN\n");
   can__init(can1, 100, 5, 5, can__test_bufoff_cb, can__test_bufovr_cb);
   can__reset_bus(can1);
   id = 0x100;
@@ -824,19 +828,19 @@ bool can__test(void) {
   CAN_ASSERT(LPC_CANAF->SFF_sa == 8);
 
   for (i = 0; i < 3; i++) {
-    u0_dbg_printf("%2i: 0x%08X\n", i, (uint32_t)LPC_CANAF_RAM->mask[i]);
+    printf("%2i: 0x%08X\n", (unsigned)i, (unsigned)LPC_CANAF_RAM->mask[i]);
   }
 
-  can_fullcan_msg_t *fc1 = can__fullcan_get_entry_ptr(can__gen_sid(can1, id));
-  can_fullcan_msg_t *fc2 = can__fullcan_get_entry_ptr(can__gen_sid(can1, id + 1));
-  can_fullcan_msg_t *fc3 = can__fullcan_get_entry_ptr(can__gen_sid(can1, id + 2));
-  can_fullcan_msg_t *fc4 = can__fullcan_get_entry_ptr(can__gen_sid(can1, id + 3));
+  can__fullcan_msg_t *fc1 = can__fullcan_get_entry_ptr(can__gen_sid(can1, id));
+  can__fullcan_msg_t *fc2 = can__fullcan_get_entry_ptr(can__gen_sid(can1, id + 1));
+  can__fullcan_msg_t *fc3 = can__fullcan_get_entry_ptr(can__gen_sid(can1, id + 2));
+  can__fullcan_msg_t *fc4 = can__fullcan_get_entry_ptr(can__gen_sid(can1, id + 3));
   CAN_ASSERT((LPC_CANAF_RAM_BASE + LPC_CANAF->SFF_sa) == (uint32_t)fc1);
-  CAN_ASSERT((LPC_CANAF_RAM_BASE + LPC_CANAF->SFF_sa + 1 * sizeof(can_fullcan_msg_t)) == (uint32_t)fc2);
-  CAN_ASSERT((LPC_CANAF_RAM_BASE + LPC_CANAF->SFF_sa + 2 * sizeof(can_fullcan_msg_t)) == (uint32_t)fc3);
-  CAN_ASSERT((LPC_CANAF_RAM_BASE + LPC_CANAF->SFF_sa + 3 * sizeof(can_fullcan_msg_t)) == (uint32_t)fc4);
+  CAN_ASSERT((LPC_CANAF_RAM_BASE + LPC_CANAF->SFF_sa + 1 * sizeof(can__fullcan_msg_t)) == (uint32_t)fc2);
+  CAN_ASSERT((LPC_CANAF_RAM_BASE + LPC_CANAF->SFF_sa + 2 * sizeof(can__fullcan_msg_t)) == (uint32_t)fc3);
+  CAN_ASSERT((LPC_CANAF_RAM_BASE + LPC_CANAF->SFF_sa + 3 * sizeof(can__fullcan_msg_t)) == (uint32_t)fc4);
 
-  can_fullcan_msg_t fc_temp;
+  can__fullcan_msg_t fc_temp;
   CAN_ASSERT(!can__fullcan_read_msg_copy(fc1, &fc_temp));
   CAN_ASSERT(!can__fullcan_read_msg_copy(fc2, &fc_temp));
   CAN_ASSERT(!can__fullcan_read_msg_copy(fc3, &fc_temp));
@@ -865,7 +869,7 @@ bool can__test(void) {
   can_test_fullcan_msg(fc4, fc_temp, id + 3);
   CAN_ASSERT(!can__fullcan_read_msg_copy(fc1, &fc_temp));
 
-  u0_dbg_printf("  \n--> All tests successful! <--\n");
+  printf("  \n--> All tests successful! <--\n");
   return true;
 }
 #endif
