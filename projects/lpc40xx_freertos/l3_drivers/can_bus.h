@@ -94,11 +94,11 @@ typedef void (*can_void_func_t)(uint32_t);
 /**
  * Initializes the CAN controller with the given baud-rate.
  * @warning This leaves the CAN BUS DISABLED!!!  The next steps are :
- *          - Optionally, configure the FullCAN.  @see CAN_fullcan_add_entry()
- *          - Optionally, configure CAN filters.  @see CAN_setup_filter()
+ *          - Optionally, configure the FullCAN.  @see can__fullcan_add_entry()
+ *          - Optionally, configure CAN filters.  @see can__setup_filter()
  *          - If filters are not configured, and you wish to accept all messages,
- *             call CAN_bypass_filter_accept_all_msgs()
- *          - Call CAN_reset_bus() to enable the CAN BUS
+ *             call can__bypass_filter_accept_all_msgs()
+ *          - Call can__reset_bus() to enable the CAN BUS
  *
  * @param can  The can bus type.  @see can_t
  * @param baudrate_kbps  The CAN Bus baud-rate, such as 100, 250, 500, 1000
@@ -114,10 +114,10 @@ typedef void (*can_void_func_t)(uint32_t);
  *
  * @note  Each CAN BUS has separate receive and transmit queues
  * @post  The CAN bus is initialized, and by default, no messages are accepted until
- *        CAN filter is setup, and CAN_reset_bus() is called.
+ *        CAN filter is setup, and can__reset_bus() is called.
  */
-bool CAN_init(can_t can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t txq_size, can_void_func_t bus_off_cb,
-              can_void_func_t data_ovr_cb);
+bool can__init(can_t can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t txq_size, can_void_func_t bus_off_cb,
+               can_void_func_t data_ovr_cb);
 
 /**
  * Receive a message of the given CAN BUS.
@@ -127,7 +127,7 @@ bool CAN_init(can_t can, uint32_t baudrate_kbps, uint16_t rxq_size, uint16_t txq
  *                    Otherwise we will poll and wait this timeout to receive a message.
  * @returns true if message was captured within the given timeout.
  */
-bool CAN_rx(can_t can, can_msg_t *msg, uint32_t timeout_ms);
+bool can__rx(can_t can, can_msg_t *msg, uint32_t timeout_ms);
 
 /**
  * Send a CAN message over the CAN BUS
@@ -150,33 +150,33 @@ bool CAN_rx(can_t can, can_msg_t *msg, uint32_t timeout_ms);
  *      msg.frame_fields.is_29bit = 1;
  *      msg.frame_fields.data_len = 8;       // Send 8 bytes
  *      msg.data.qword = 0x1122334455667788; // Write all 8 bytes of data at once
- *      CAN_tx(can_1, &msg, portMAX_DELAY);
+ *      can__tx(can_1, &msg, portMAX_DELAY);
  * @endcode
  */
-bool CAN_tx(can_t can, can_msg_t *msg, uint32_t timeout_ms);
+bool can__tx(can_t can, can_msg_t *msg, uint32_t timeout_ms);
 
 /** @{ CAN Bus Error and Reset API
  * If the CAN BUS encounters error(s), it may turn off, in which case no more
  * transmissions will take place.  This must be corrected by the user.
  */
-bool CAN_is_bus_off(can_t can);
-void CAN_reset_bus(can_t can);
+bool can__is_bus_off(can_t can);
+void can__reset_bus(can_t can);
 /** @} */
 
 /** @{ Watermark and counter API */
-uint16_t CAN_get_rx_watermark(can_t can); ///< RX FreeRTOS Queue watermark
-uint16_t CAN_get_tx_watermark(can_t can); ///< TX FreeRTOS Queue watermark
-uint16_t CAN_get_tx_count(can_t can);     ///< Number of messages written to the CAN HW
+uint16_t can__get_rx_watermark(can_t can); ///< RX FreeRTOS Queue watermark
+uint16_t can__get_tx_watermark(can_t can); ///< TX FreeRTOS Queue watermark
+uint16_t can__get_tx_count(can_t can);     ///< Number of messages written to the CAN HW
 uint16_t
-CAN_get_rx_count(can_t can); ///< Number of messages successfully queued from CAN interrupt (not including dropped)
+can__get_rx_count(can_t can); ///< Number of messages successfully queued from CAN interrupt (not including dropped)
 /** @} */
 
 /**
  * @returns The number of CAN messages dropped
  * Messages can be dropped out either if the receive queue is too small, or if there is no consumer or task
- * that dequeues the received messages quickly enough from the CAN_rx() API
+ * that dequeues the received messages quickly enough from the can__rx() API
  */
-uint16_t CAN_get_rx_dropped_count(can_t can);
+uint16_t can__get_rx_dropped_count(can_t can);
 
 /**
  * Enables CAN bypass mode to accept all messages on the bus.
@@ -185,7 +185,7 @@ uint16_t CAN_get_rx_dropped_count(can_t can);
  *
  * @note  The filter is for BOTH CANs
  */
-void CAN_bypass_filter_accept_all_msgs(void);
+void can__bypass_filter_accept_all_msgs(void);
 
 /* ---------------------------------------------------------------------------------------
  * Rest of the API is for filtering specific messages.
@@ -240,53 +240,53 @@ typedef struct {     ///< CAN extended ID group
 /**
  * @{
  * Generate and return the ID used to create the standard and extended id
- * list member.  @see CAN_setup_filter()
+ * list member.  @see can__setup_filter()
  *
  * To generate a disabled slot, just pass 0xFFFF (id) as the message id,
  * which will disable the message.  This is used to generate an empty slot
  * to make an even number of entries as required by the standard id filter.
  */
-can_std_id_t CAN_gen_sid(can_t can, uint16_t id);
-can_ext_id_t CAN_gen_eid(can_t can, uint32_t id);
+can_std_id_t can__gen_sid(can_t can, uint16_t id);
+can_ext_id_t can__gen_eid(can_t can, uint32_t id);
 /** @} */
 
 /**
  * Adds two FullCAN entries to the acceptance filter and enables the FullCAN reception.
  * The entries must be added in groups of 2.  If the second entry is not needed, simply
- * pass 0xFFFF to CAN_gen_sid() to generate a disabled entry.
+ * pass 0xFFFF to can__gen_sid() to generate a disabled entry.
  *
  * @returns true if successful.
  * @note Only 11-bit IDs can use FullCAN.
  *
- * @warning This must be done BEFORE setting up other filters using CAN_setup_filter()
+ * @warning This must be done BEFORE setting up other filters using can__setup_filter()
  * @warning CAN BUS should not be enabled to do this because the CAN Filter is put to
  *          OFF mode while the entry is added.
  *
  * @note TO DO: Enabling fc_intr bit (FullCAN interrupts) is not yet supported
  */
-bool CAN_fullcan_add_entry(can_t can, can_std_id_t id1, can_std_id_t id2);
+bool can__fullcan_add_entry(can_t can, can_std_id_t id1, can_std_id_t id2);
 
 /**
  * Once all the FulLCAN entries are added, and CAN filters are setup, you can get
  * the pointer in memory where the actual CAN message (FullCAN entry) is stored in memory.
- * @param fc_id The FullCAN entry originally passed to CAN_fullcan_add_entry()
+ * @param fc_id The FullCAN entry originally passed to can__fullcan_add_entry()
  */
-can_fullcan_msg_t *CAN_fullcan_get_entry_ptr(can_std_id_t fc_id);
+can_fullcan_msg_t *can__fullcan_get_entry_ptr(can_std_id_t fc_id);
 
 /**
  * FullCAN entries may update at any time by the HW, so this method provides a means
  * to safely read the copy of the FullCAN message.
- * @param msg_copy_ptr  The same message returned from CAN_fullcan_get_entry_ptr()
+ * @param msg_copy_ptr  The same message returned from can__fullcan_get_entry_ptr()
  * @param fc_msg_ptr    The copy of the message you wish to read the data to
  * @returns true if a NEW message has been captured since the last call to this method.
  *          false if HW did not receive a new message
  */
-bool CAN_fullcan_read_msg_copy(can_fullcan_msg_t *fc_msg_ptr, can_fullcan_msg_t *msg_copy_ptr);
+bool can__fullcan_read_msg_copy(can_fullcan_msg_t *fc_msg_ptr, can_fullcan_msg_t *msg_copy_ptr);
 
 /**
  * @returns the number of FullCAN entries being used
  */
-uint8_t CAN_fullcan_get_num_entries(void);
+uint8_t can__fullcan_get_num_entries(void);
 
 /**
  * Enable CAN filter for BOTH CANs; hardware doesn't allow to enable for just ONE CAN controller.
@@ -320,22 +320,22 @@ uint8_t CAN_fullcan_get_num_entries(void);
  * Here is sample code that enables HW filtering of selected CAN messages.
  * Note that some messages are for CAN2 while most are for CAN1
  * @code
- *      const can_std_id_t slist[]      = { CAN_gen_sid(can1, 0x100), CAN_gen_sid(can1, 0x110),   // 2 entries
- *                                          CAN_gen_sid(can1, 0x120), CAN_gen_sid(can1, 0x130)    // 2 entries
+ *      const can_std_id_t slist[]      = { can__gen_sid(can1, 0x100), can__gen_sid(can1, 0x110),   // 2 entries
+ *                                          can__gen_sid(can1, 0x120), can__gen_sid(can1, 0x130)    // 2 entries
  *                                        };
- *      const can_std_grp_id_t sglist[] = { {CAN_gen_sid(can1, 0x150), CAN_gen_sid(can1, 0x200)}, // Group 1
- *                                          {CAN_gen_sid(can2, 0x300), CAN_gen_sid(can2, 0x400)}  // Group 2
+ *      const can_std_grp_id_t sglist[] = { {can__gen_sid(can1, 0x150), can__gen_sid(can1, 0x200)}, // Group 1
+ *                                          {can__gen_sid(can2, 0x300), can__gen_sid(can2, 0x400)}  // Group 2
  *                                        };
  *      const can_ext_id_t *elist       = NULL; // Not used, so set it to NULL
- *      const can_ext_grp_id_t eglist[] = { {CAN_gen_eid(can1, 0x3500), CAN_gen_eid(can1, 0x4500)} }; // Group 1
+ *      const can_ext_grp_id_t eglist[] = { {can__gen_eid(can1, 0x3500), can__gen_eid(can1, 0x4500)} }; // Group 1
  *
- *      CAN_setup_filter(slist, 4, sglist, 2,
+ *      can__setup_filter(slist, 4, sglist, 2,
  *                       elist, 0, eglist, 1);
  * @endcode
  */
 // clang-format off
-bool CAN_setup_filter(const can_std_id_t *std_id_list,           uint16_t sid_cnt,
-                      const can_std_grp_id_t *std_group_id_list, uint16_t sgp_cnt,
-                      const can_ext_id_t *ext_id_list,           uint16_t eid_cnt,
-                      const can_ext_grp_id_t *ext_group_id_list, uint16_t egp_cnt);
+bool can__setup_filter(const can_std_id_t *std_id_list,           uint16_t sid_cnt,
+                       const can_std_grp_id_t *std_group_id_list, uint16_t sgp_cnt,
+                       const can_ext_id_t *ext_id_list,           uint16_t eid_cnt,
+                       const can_ext_grp_id_t *ext_group_id_list, uint16_t egp_cnt);
 // clang-format on
