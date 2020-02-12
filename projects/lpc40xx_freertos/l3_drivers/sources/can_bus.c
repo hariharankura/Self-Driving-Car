@@ -1,8 +1,7 @@
-#include <string.h>
+#include <string.h> // memset
 
 #include "FreeRTOS.h"
 #include "queue.h"
-#include "task.h"
 
 #include "can_bus.h"
 
@@ -188,9 +187,11 @@ static bool can__tx_now(can_struct_t *struct_ptr, can__msg_t *msg_ptr) {
 static void can__handle_isr(const can__num_e can) {
   can_struct_t *can_instance_ptr = CAN_STRUCT_PTR(can);
   LPC_CAN_TypeDef *pCAN = can_instance_ptr->can_reg_ptr;
+
   const uint32_t rbs = (1 << 0);
   const uint32_t ibits = pCAN->ICR;
-  UBaseType_t count;
+
+  UBaseType_t count = 0;
   can__msg_t msg;
 
   /* Handle the received message */
