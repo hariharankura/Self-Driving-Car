@@ -1,37 +1,30 @@
 #include "periodic_callbacks.h"
 
 #include "board_io.h"
+#include "can_bus_initializer.h"
 #include "gpio.h"
+#include "sensor_can_handler.h"
+#include "ultrasonic_sensor_handler.h"
 
-/******************************************************************************
- * Your board will reset if the periodic function does not return within its deadline
- * For 1Hz, the function must return within 1000ms
- * For 1000Hz, the function must return within 1ms
- */
 void periodic_callbacks__initialize(void) {
-  // This method is invoked once when the periodic tasks are created
+  can_bus_initializer__initialize_can1();
+  ultrasonic_sensor_handler__initialize_sensors();
 }
 
 void periodic_callbacks__1Hz(uint32_t callback_count) {
   gpio__toggle(board_io__get_led0());
-  // Add your code here
+  can_bus_initializer__reset_if_bus_off_can1();
 }
 
 void periodic_callbacks__10Hz(uint32_t callback_count) {
   gpio__toggle(board_io__get_led1());
-  // Add your code here
+  sensor_can_handler__transmit_messages_10hz();
 }
-void periodic_callbacks__100Hz(uint32_t callback_count) {
-  gpio__toggle(board_io__get_led2());
-  // Add your code here
-}
+void periodic_callbacks__100Hz(uint32_t callback_count) { gpio__toggle(board_io__get_led2()); }
 
 /**
  * @warning
  * This is a very fast 1ms task and care must be taken to use this
  * This may be disabled based on intialization of periodic_scheduler__initialize()
  */
-void periodic_callbacks__1000Hz(uint32_t callback_count) {
-  gpio__toggle(board_io__get_led3());
-  // Add your code here
-}
+void periodic_callbacks__1000Hz(uint32_t callback_count) { gpio__toggle(board_io__get_led3()); }
