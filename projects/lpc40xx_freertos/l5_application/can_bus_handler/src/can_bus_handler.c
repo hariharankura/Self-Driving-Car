@@ -7,7 +7,6 @@
 // User-Defined Header Files
 #include "can_bus.h"
 #include "driver_logic.h"
-#include "project.h"
 
 // Constants for CAN BUS
 static const uint16_t CAN_BAUD_RATE = 100;
