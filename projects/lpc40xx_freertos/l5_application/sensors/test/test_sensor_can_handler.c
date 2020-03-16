@@ -27,3 +27,20 @@ void test_sensor_can_handler__transmit_messages_10hz(void) {
 
   sensor_can_handler__transmit_messages_10hz();
 }
+
+void test_sensor_can_handler__handle_all_incoming_messages(void) {
+  can__msg_t sensor_can_msg = {};
+  dbc_SENSOR_USONARS_s decoded_sensor_cmd = {};
+
+  can__rx_ExpectAnyArgsAndReturn(true);
+  const dbc_message_header_t header = {
+      .message_id = sensor_can_msg.msg_id,
+      .message_dlc = sensor_can_msg.frame_fields.data_len,
+  };
+
+  dbc_decode_SENSOR_USONARS(&decoded_sensor_cmd, header, sensor_can_msg.data.bytes);
+
+  can__rx_ExpectAnyArgsAndReturn(false);
+
+  sensor_can_handler__handle_all_incoming_messages();
+}
