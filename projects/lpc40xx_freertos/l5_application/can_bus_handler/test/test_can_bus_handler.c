@@ -45,3 +45,14 @@ void test_can_bus_handler__process_all_received_messages(void) {
   driver_logic__process_ultrasonic_sensors_data_IgnoreArg_sensor_data();
   can_bus_handler__process_all_received_messages();
 }
+
+void test_can_bus_handler__transmit_message(void) {
+  dbc_DRIVER_STEER_s steer_info = {};
+  dbc_MOTOR_SPEED_s speed_info = {};
+  can__msg_t send_msg = {};
+  driver_logic__check_if_steer_data_to_send_ExpectAndReturn(&steer_info, true);
+  driver_logic__check_if_speed_data_to_send_ExpectAndReturn(&speed_info, false);
+  can__tx_ExpectAndReturn(test_CAN_BUS, &send_msg, 0, true);
+  can__tx_IgnoreArg_can_message_ptr();
+  can_bus_handler__transmit_message();
+}
