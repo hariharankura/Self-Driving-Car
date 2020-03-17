@@ -1,34 +1,45 @@
-#include "FreeRTOS.h"
-
 #include "driver_logic.h"
-#include "queue.h"
 #include <string.h>
 
-static QueueHandle_t steer_data_queue;
-static QueueHandle_t speed_data_queue;
-static dbc_SENSOR_USONARS_s sensor_data;
+static dbc_SENSOR_USONARS_s ultrasonic_sensor_data;
 
-void driver_logic__init(){
-  steer_data_queue = xQueueCreate(10, sizeof(dbc_SENSOR_USONARS_s));
-  speed_data_queue = xQueueCreate(10, sizeof(dbc_MOTOR_SPEED_s));
+const static uint16_t threshold_ultrasonic_sensor = 500;
+
+void driver_logic__process_ultrasonic_sensors_data(const dbc_SENSOR_USONARS_s sensor_data) {
+  ultrasonic_sensor_data = sensor_data;
+  printf("Data is received\n");
 }
 
-void driver_logic__process_ultrasonic_sensors_data(dbc_SENSOR_USONARS_s l_sensor_data) {
-
-}
-
-bool driver_logic__check_if_steer_data_to_send(dbc_DRIVER_STEER_s *steer_info) {
-  bool return_flag = false;
-  if (pdTRUE == xQueueReceive(steer_data_queue, steer_info, 0)) {
-    return_flag = true;
+dbc_DRIVER_STEER_s driver_logic__get_motor_command(void) {
+  dbc_DRIVER_STEER_s motor_info = {};
+  if (ultrasonic_sensor_data.SENSOR_USONARS_front < threshold_ultrasonic_sensor) {
+    motor_info.DRIVER_STEER_move = DRIVER_STEER_move_FORWARD;
+    if ((ultrasonic_sensor_data.SENSOR_USONARS_right > threshold_ultrasonic_sensor) &&
+        (ultrasonic_sensor_data.SENSOR_USONARS_left < threshold_ultrasonic_sensor)) {
+      motor_info.DRIVER_STEER_direction = DRIVER_STEER_direction_SOFT_LEFT;
+    } else if ((ultrasonic_sensor_data.SENSOR_USONARS_left > threshold_ultrasonic_sensor) &&
+               (ultrasonic_sensor_data.SENSOR_USONARS_right < threshold_ultrasonic_sensor)) {
+      motor_info.DRIVER_STEER_direction = DRIVER_STEER_direction_SOFT_RIGHT;
+    } else {
+      motor_info.DRIVER_STEER_direction = DRIVER_STEER_direction_STRAIGHT;
+    }
+  } else if (ultrasonic_sensor_data.SENSOR_USONARS_back < threshold_ultrasonic_sensor) {
+    motor_info.DRIVER_STEER_move = DRIVER_STEER_move_REVERSE;
+    if ((ultrasonic_sensor_data.SENSOR_USONARS_right > threshold_ultrasonic_sensor) &&
+        (ultrasonic_sensor_data.SENSOR_USONARS_left < threshold_ultrasonic_sensor)) {
+      motor_info.DRIVER_STEER_direction =
+          DRIVER_STEER_direction_SOFT_RIGHT; // turn slight left, reverse so wheel direction to right
+    } else if ((ultrasonic_sensor_data.SENSOR_USONARS_left > threshold_ultrasonic_sensor) &&
+               (ultrasonic_sensor_data.SENSOR_USONARS_right < threshold_ultrasonic_sensor)) {
+      motor_info.DRIVER_STEER_direction = DRIVER_STEER_direction_SOFT_LEFT; // turn slight right
+    } else {
+      motor_info.DRIVER_STEER_direction = DRIVER_STEER_direction_STRAIGHT;
+    }
+  } else {
+    motor_info.DRIVER_STEER_move = DRIVER_STEER_move_STOP;
+    motor_info.DRIVER_STEER_direction = DRIVER_STEER_direction_STRAIGHT;
   }
-  return return_flag;
-}
-
-bool driver_logic__check_if_speed_data_to_send(dbc_MOTOR_SPEED_s *speed_info) {
-  bool return_flag = false;
-  if (pdTRUE == xQueueReceive(speed_data_queue, speed_info, 0)) {
-    return_flag = true;
-  }
-  return return_flag;
+  printf("Motor Direction = %d\n", motor_info.DRIVER_STEER_direction);
+  printf("Motor Move = %d\n", motor_info.DRIVER_STEER_move);
+  return motor_info;
 }
