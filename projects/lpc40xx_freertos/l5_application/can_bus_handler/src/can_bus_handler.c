@@ -59,6 +59,7 @@ void can_bus_handler__transmit_message_in_10hz(void) {
 void can_bus_handler__manage_mia_10hz(void) {
   const uint32_t mia_increment_value = 100;
   if (dbc_service_mia_SENSOR_USONARS(&sensor_data, mia_increment_value)) {
+    driver_logic__process_ultrasonic_sensors_data(sensor_data);
     gpio__reset(board_io__get_led0());
   }
 }
