@@ -3,8 +3,8 @@
 #include "board_io.h"
 #include "gpio.h"
 
-#include "can_bus_initializer.h"
-#include "can_handler.h"
+#include "motor_can_handler.h"
+#include "motor_logic.h"
 
 /******************************************************************************
  * Your board will reset if the periodic function does not return within its deadline
@@ -14,14 +14,12 @@
 void periodic_callbacks__initialize(void) {
   // This method is invoked once when the periodic tasks are created
   init_can_driver();
+  init_led();
 }
 
 void periodic_callbacks__1Hz(uint32_t callback_count) {}
 
-void periodic_callbacks__10Hz(uint32_t callback_count) {
-  can_bus_handler__process_all_received_messages();
-  can_handler__manage_mia_10hz();
-}
+void periodic_callbacks__10Hz(uint32_t callback_count) { can_bus_handler__process_all_received_messages(); }
 
 void periodic_callbacks__100Hz(uint32_t callback_count) {}
 
