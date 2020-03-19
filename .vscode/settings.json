@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "can_bus_initializer.h": "c",
+        "mocksensor_can_handler.h": "c",
+        "ultrasonic_sensor_handler.h": "c",
+        "gpio.h": "c"
+    }
+}
