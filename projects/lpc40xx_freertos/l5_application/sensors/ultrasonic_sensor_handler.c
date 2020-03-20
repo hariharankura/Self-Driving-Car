@@ -53,9 +53,8 @@ uint16_t ultrasonic_sensor_handler__get_sensor_value_back(void) {
   uint16_t sensor_value = 0;
   uint16_t converted_sensor_value = 0;
 
-  // TODO: add support to ADC driver for channel 3
-  // sensor_value = adc__get_adc_value(ADC__CHANNEL_3);
-  // converted_sensor_value = ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(sensor_value);
+  sensor_value = adc__get_adc_value(ADC__CHANNEL_3);
+  converted_sensor_value = ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(sensor_value);
 
   return converted_sensor_value;
 }

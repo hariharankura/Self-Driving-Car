@@ -28,6 +28,12 @@ void adc__initialize(void) {
       break;
     }
   }
+
+  // set to analog mode
+  LPC_IOCON->P0_25 &= ~(1 << 7);
+  LPC_IOCON->P1_30 &= ~(1 << 7);
+  LPC_IOCON->P1_31 &= ~(1 << 7);
+  LPC_IOCON->P0_26 &= ~(1 << 7);
 }
 
 uint16_t adc__get_adc_value(adc_channel_e channel_num) {
@@ -38,7 +44,8 @@ uint16_t adc__get_adc_value(adc_channel_e channel_num) {
   const uint32_t start_conversion_mask = (7 << 24); // 3bits - B26:B25:B24
   const uint32_t adc_conversion_complete = (1 << 31);
 
-  if ((ADC__CHANNEL_2 == channel_num) || (ADC__CHANNEL_4 == channel_num) || (ADC__CHANNEL_5 == channel_num)) {
+  if ((ADC__CHANNEL_2 == channel_num) || (ADC__CHANNEL_4 == channel_num) || (ADC__CHANNEL_5 == channel_num) ||
+      (ADC__CHANNEL_3 == channel_num)) {
     LPC_ADC->CR &= ~(channel_masks | start_conversion_mask);
     // Set the channel number and start the conversion now
     LPC_ADC->CR |= (1 << channel_num) | start_conversion;
