@@ -50,10 +50,10 @@ void can_bus_handler__process_all_received_messages_in_10hz(void) {
 
 void can_bus_handler__transmit_message_in_10hz(void) {
   // receive data from queue and then encode and transmit
-  dbc_DRIVER_STEER_s steer_info = {};
+  dbc_DRIVER_STEER_SPEED_s steer_info = {};
   can__msg_t can_transmit_msg = {};
   steer_info = driver_logic__get_motor_command();
-  dbc_encode_and_send_DRIVER_STEER(&can_transmit_msg, &steer_info);
+  dbc_encode_and_send_DRIVER_STEER_SPEED(&can_transmit_msg, &steer_info);
 }
 
 void can_bus_handler__manage_mia_10hz(void) {
