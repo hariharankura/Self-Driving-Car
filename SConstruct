@@ -13,7 +13,10 @@ import sys
 
 
 def main():
-    project_dirname = GetOption("project")
+    # project_dirname = GetOption("project")
+    project_dirname = GetOption("dbc_node_name")
+    if None == project_dirname:
+        project_dirname = GetOption("project")
     project_dirnode = Dir("#/projects").Dir(project_dirname)
 
     if not os.path.isdir(project_dirnode.abspath):
