@@ -1,6 +1,8 @@
 #include "unity.h"
 
 #include "Mockboard_io.h"
+#include "Mockbridge_can_handler.h"
+#include "Mockbridge_controller_handler.h"
 #include "Mockcan_bus_initializer.h"
 #include "Mockgpio.h"
 #include "Mocksensor_can_handler.h"
@@ -25,6 +27,7 @@ void test__periodic_callbacks__initialize(void) {
 
   can_bus_initializer__initialize_can1_Expect();
   ultrasonic_sensor_handler__initialize_sensors_Expect();
+  bridge_controller_handler__initialize_bluetooth_module_Expect();
   periodic_callbacks__initialize();
 }
 
@@ -36,6 +39,8 @@ void test__periodic_callbacks__1Hz(void) {
 void test__periodic_callbacks__10Hz(void) {
   sensor_can_handler__transmit_messages_10hz_Expect();
   // sensor_can_handler__handle_all_incoming_messages_Expect(); //for testing
+  bridge_can_handler__transmit_messages_10hz_Expect();
+  // bridge_can_handler__handle_all_incoming_messages_Expect(); //for testing
   periodic_callbacks__10Hz(0);
 }
 
