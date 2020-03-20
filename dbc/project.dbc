@@ -52,8 +52,8 @@ BO_ 400 GEO_GPS: 8 GEO
  SG_ GEO_GPS_longitude : 32|32@1- (1E-007,-181.1111111) [-181.1111111|181.1111111] "" DRIVER
 
 BO_ 401 GEO_COMPASS: 4 GEO
- SG_ GEO_COMPASS_current_heading : 0|16@1+ (1,0) [0|360] “degree” DRIVER
- SG_ GEO_COMPASS_desitination_heading : 0|16@1+ (1,0) [0|360] “degree” DRIVER
+ SG_ GEO_COMPASS_current_heading : 0|16@1+ (1,0) [0|360] "degree" DRIVER
+ SG_ GEO_COMPASS_desitination_heading : 16|16@1+ (1,0) [0|360] "degree" DRIVER
 
 BO_ 500 BRIDGE_GPS: 8 SENSOR_BRIDGE
  SG_ BRIDGE_GPS_latitude : 0|32@1- (1E-007,-91.1111111) [-91.1111111|91.1111111] "" DRIVER
@@ -64,7 +64,7 @@ BO_ 500 BRIDGE_GPS: 8 SENSOR_BRIDGE
 CM_ BU_ DRIVER "The driver controller driving the car";
 CM_ BU_ MOTOR "The motor controller of the car";
 CM_ BU_ SENSOR_BRIDGE "The sensor and bridge controller of the car";
-CM_ BU_ GEO “The geo controller of the car”;
+CM_ BU_ GEO "The geo controller of the car";
 CM_ BO_ 100 "Sync message used to synchronize the controllers";
 CM_ SG_ 100 DRIVER_HEARTBEAT_cmd "Heartbeat command from the driver";
 
