@@ -11,7 +11,7 @@ void init_led(void) {
   rev_led = gpio__construct_as_output(GPIO__PORT_2, 3);
 }
 
-void motor_steer_logic(dbc_DRIVER_STEER_s *steer_data) {
+void motor_steer_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
 
   if (steer_data->DRIVER_STEER_direction < 0) {
     gpio__reset(left_led);
@@ -27,11 +27,11 @@ void motor_steer_logic(dbc_DRIVER_STEER_s *steer_data) {
     printf("Direction: STRAIGHT\n");
   }
 
-  if (steer_data->DRIVER_STEER_move == 0) {
+  if (steer_data->DRIVER_STEER_move_speed > 0) {
     gpio__reset(fwd_led);
     gpio__set(rev_led);
     printf("Move: FORWARD\n\n");
-  } else if (steer_data->DRIVER_STEER_move == 1) {
+  } else if (steer_data->DRIVER_STEER_move_speed < 0) {
     gpio__set(fwd_led);
     gpio__reset(rev_led);
     printf("Move: REVERSE\n\n");

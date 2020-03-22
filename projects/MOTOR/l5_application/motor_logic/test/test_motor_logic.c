@@ -21,9 +21,9 @@ void test_init_led(void) {
 }
 
 void test_motor_logic_steer_left_move_forward(void) {
-  dbc_DRIVER_STEER_s test_steer_data = {};
+  dbc_DRIVER_STEER_SPEED_s test_steer_data = {};
   test_steer_data.DRIVER_STEER_direction = -1;
-  test_steer_data.DRIVER_STEER_move = 0;
+  test_steer_data.DRIVER_STEER_move_speed = 5;
   gpio__reset_Expect(left_led);
   gpio__set_Expect(right_led);
   gpio__reset_Expect(fwd_led);
@@ -32,9 +32,9 @@ void test_motor_logic_steer_left_move_forward(void) {
 }
 
 void test_motor_logic_steer_right_move_forward(void) {
-  dbc_DRIVER_STEER_s test_steer_data = {};
+  dbc_DRIVER_STEER_SPEED_s test_steer_data = {};
   test_steer_data.DRIVER_STEER_direction = 1;
-  test_steer_data.DRIVER_STEER_move = 0;
+  test_steer_data.DRIVER_STEER_move_speed = 5;
   gpio__set_Expect(left_led);
   gpio__reset_Expect(right_led);
   gpio__reset_Expect(fwd_led);
@@ -43,9 +43,9 @@ void test_motor_logic_steer_right_move_forward(void) {
 }
 
 void test_motor_logic_steer_straight_move_forward(void) {
-  dbc_DRIVER_STEER_s test_steer_data = {};
+  dbc_DRIVER_STEER_SPEED_s test_steer_data = {};
   test_steer_data.DRIVER_STEER_direction = 0;
-  test_steer_data.DRIVER_STEER_move = 0;
+  test_steer_data.DRIVER_STEER_move_speed = 5;
   gpio__set_Expect(left_led);
   gpio__set_Expect(right_led);
   gpio__reset_Expect(fwd_led);
@@ -54,9 +54,9 @@ void test_motor_logic_steer_straight_move_forward(void) {
 }
 
 void test_motor_logic_steer_straight_move_reverse(void) {
-  dbc_DRIVER_STEER_s test_steer_data = {};
+  dbc_DRIVER_STEER_SPEED_s test_steer_data = {};
   test_steer_data.DRIVER_STEER_direction = 0;
-  test_steer_data.DRIVER_STEER_move = 1;
+  test_steer_data.DRIVER_STEER_move_speed = -5;
   gpio__set_Expect(left_led);
   gpio__set_Expect(right_led);
   gpio__set_Expect(fwd_led);
@@ -65,9 +65,9 @@ void test_motor_logic_steer_straight_move_reverse(void) {
 }
 
 void test_motor_logic_steer_right_move_reverse(void) {
-  dbc_DRIVER_STEER_s test_steer_data = {};
+  dbc_DRIVER_STEER_SPEED_s test_steer_data = {};
   test_steer_data.DRIVER_STEER_direction = 1;
-  test_steer_data.DRIVER_STEER_move = 1;
+  test_steer_data.DRIVER_STEER_move_speed = -5;
   gpio__set_Expect(left_led);
   gpio__reset_Expect(right_led);
   gpio__set_Expect(fwd_led);
@@ -76,9 +76,9 @@ void test_motor_logic_steer_right_move_reverse(void) {
 }
 
 void test_motor_logic_steer_left_move_reverse(void) {
-  dbc_DRIVER_STEER_s test_steer_data = {};
+  dbc_DRIVER_STEER_SPEED_s test_steer_data = {};
   test_steer_data.DRIVER_STEER_direction = -1;
-  test_steer_data.DRIVER_STEER_move = 1;
+  test_steer_data.DRIVER_STEER_move_speed = -5;
   gpio__reset_Expect(left_led);
   gpio__set_Expect(right_led);
   gpio__set_Expect(fwd_led);
@@ -87,9 +87,9 @@ void test_motor_logic_steer_left_move_reverse(void) {
 }
 
 void test_motor_logic_steer_straight_and_stop(void) {
-  dbc_DRIVER_STEER_s test_steer_data = {};
+  dbc_DRIVER_STEER_SPEED_s test_steer_data = {};
   test_steer_data.DRIVER_STEER_direction = 0;
-  test_steer_data.DRIVER_STEER_move = 2;
+  test_steer_data.DRIVER_STEER_move_speed = 0;
   gpio__set_Expect(left_led);
   gpio__set_Expect(right_led);
   gpio__set_Expect(fwd_led);
