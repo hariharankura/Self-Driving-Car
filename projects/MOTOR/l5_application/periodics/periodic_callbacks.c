@@ -3,7 +3,7 @@
 #include "board_io.h"
 #include "gpio.h"
 
-#include "motor_can_handler.h"
+#include "can_handler.h"
 #include "motor_logic.h"
 
 /******************************************************************************

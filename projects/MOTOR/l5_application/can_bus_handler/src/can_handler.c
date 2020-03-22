@@ -1,4 +1,4 @@
-#include "motor_can_handler.h"
+#include "can_handler.h"
 #include "board_io.h"
 #include "can_bus.h"
 #include "gpio.h"
@@ -13,7 +13,7 @@ void init_can_driver(void) {
 
 void can_bus_handler__process_all_received_messages(void) {
   can__msg_t can_msg = {};
-  dbc_DRIVER_STEER_s steer_data = {};
+  dbc_DRIVER_STEER_SPEED_s steer_data = {};
 
   // Receive all messages
   while (can__rx(can1, &can_msg, 0)) {
@@ -22,7 +22,7 @@ void can_bus_handler__process_all_received_messages(void) {
         .message_dlc = can_msg.frame_fields.data_len,
     };
 
-    if (dbc_decode_DRIVER_STEER(&steer_data, header, can_msg.data.bytes)) {
+    if (dbc_decode_DRIVER_STEER_SPEED(&steer_data, header, can_msg.data.bytes)) {
       motor_steer_logic(&steer_data);
     }
   }
