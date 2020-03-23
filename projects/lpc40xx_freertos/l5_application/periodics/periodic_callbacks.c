@@ -1,18 +1,13 @@
 #include "periodic_callbacks.h"
 
-#include "board_io.h"
 #include "bridge_can_handler.h"
 #include "bridge_controller_handler.h"
 #include "can_bus_initializer.h"
-#include "gpio.h"
+#include "led_handler.h"
 #include "sensor_can_handler.h"
 #include "ultrasonic_sensor_handler.h"
 
 void periodic_callbacks__initialize(void) {
-  gpio__set(board_io__get_led0());
-  gpio__set(board_io__get_led1());
-  gpio__set(board_io__get_led2());
-  gpio__set(board_io__get_led3());
   can_bus_initializer__initialize_can1();
   ultrasonic_sensor_handler__initialize_sensors();
   bridge_controller_handler__initialize_bluetooth_module();
