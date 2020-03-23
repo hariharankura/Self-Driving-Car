@@ -7,6 +7,7 @@
 #include "Mockcan_bus.h"
 #include "Mockcompass.h"
 #include "Mockgpio.h"
+#include "Mockgps.h"
 #include "Mocki2c.h"
 
 #include "can_bus_handler.c"

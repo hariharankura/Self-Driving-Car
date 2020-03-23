@@ -1,4 +1,5 @@
 #include "compass.h"
+#include "gps.h"
 #include "i2c.h"
 #include "math.h"
 
@@ -8,6 +9,13 @@ static const uint16_t NUMBER_OF_SAMPLES_COMPASS = 50;
 static uint8_t READ_ANGLE_DATA[2];
 static dbc_BRIDGE_GPS_s destination_gps_coordinates;
 static dbc_BRIDGE_GPS_s current_gps_coordinates;
+
+void compass__read_current_gps_coordinate() {
+  gps__run_once();
+  gps_coordinates_t current = gps__get_coordinates();
+  current_gps_coordinates.BRIDGE_GPS_latitude = current.latitude;
+  current_gps_coordinates.BRIDGE_GPS_longitude = current.longitude;
+}
 
 static float compass__read_angle_from_i2c_cmps12(void) {
   uint16_t value;

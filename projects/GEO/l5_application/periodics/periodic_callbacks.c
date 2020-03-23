@@ -1,10 +1,11 @@
 #include "periodic_callbacks.h"
 
 #include "board_io.h"
+#include "can_bus_handler.h"
+#include "compass.h"
 #include "gpio.h"
 #include "gps.h"
 #include <stdio.h>
-
 /******************************************************************************
  * Your board will reset if the periodic function does not return within its deadline
  * For 1Hz, the function must return within 1000ms
@@ -18,10 +19,7 @@ void periodic_callbacks__1Hz(uint32_t callback_count) {
 }
 
 void periodic_callbacks__10Hz(uint32_t callback_count) {
-  gps__run_once();
-  gps_coordinates_t temp_coordinates;
-  temp_coordinates = gps__get_coordinates();
-  printf("Latitude = %f and Longitude = %f\n", (double)temp_coordinates.latitude, (double)temp_coordinates.longitude);
+  compass__read_current_gps_coordinate();
   can_bus_handler__transmit_message_in_10hz();
   can_bus_handler__process_all_received_messages_in_10hz();
 }

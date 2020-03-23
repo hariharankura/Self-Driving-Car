@@ -8,6 +8,7 @@
 // - This will auto-generate "Mock" versions based on the header file
 #include "Mockboard_io.h"
 #include "Mockcan_bus_handler.h"
+#include "Mockcompass.h"
 #include "Mockgpio.h"
 #include "Mockgps.h"
 // Include the source we wish to test
@@ -30,9 +31,10 @@ void test__periodic_callbacks__1Hz(void) {
 }
 
 void test__periodic_callbacks__10Hz(void) {
-  gps_coordinates_t temp_coordinates;
-  gps__run_once_Ignore();
-  gps__get_coordinates_ExpectAndReturn(temp_coordinates);
+  // gps_coordinates_t temp_coordinates;
+  // gps__run_once_Ignore();
+  // gps__get_coordinates_ExpectAndReturn(temp_coordinates);
+  compass__read_current_gps_coordinate_Expect();
   can_bus_handler__transmit_message_in_10hz_Expect();
   can_bus_handler__process_all_received_messages_in_10hz_Expect();
   periodic_callbacks__10Hz(0);

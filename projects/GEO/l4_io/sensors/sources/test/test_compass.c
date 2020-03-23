@@ -2,6 +2,7 @@
 
 #include "Mocki2c.h"
 
+#include "Mockgps.h"
 #include "project.h"
 
 #include "compass.c"
