@@ -33,11 +33,18 @@ void can_bus_handler__init(void) {
 void can_bus_handler__reset_if_bus_off(void) {
   if (can__is_bus_off(CAN_BUS)) {
     can__reset_bus(CAN_BUS);
+<<<<<<< HEAD
     printf("buss off\n");
   }
 }
 
 void can_bus_handler__process_all_received_messages_in_1hz(void) {
+=======
+  }
+}
+
+void can_bus_handler__process_all_received_messages_in_10hz(void) {
+>>>>>>> GEO BOARD: COMPASS ANGLE LOGIC
   can__msg_t can_receive_msg = {};
   while (can__rx(CAN_BUS, &can_receive_msg, 0)) {
     const dbc_message_header_t header = {.message_id = can_receive_msg.msg_id,

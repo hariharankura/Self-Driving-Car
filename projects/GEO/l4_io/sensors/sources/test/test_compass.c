@@ -2,7 +2,10 @@
 
 #include "Mocki2c.h"
 
+<<<<<<< HEAD
 #include "Mockgps.h"
+=======
+>>>>>>> GEO BOARD: COMPASS ANGLE LOGIC
 #include "project.h"
 
 #include "compass.c"
