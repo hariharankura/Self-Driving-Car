@@ -8,6 +8,7 @@
 #include "ultrasonic_sensor_handler.h"
 
 void periodic_callbacks__initialize(void) {
+  led_handler__turn_off_all_sjtwo_leds();
   can_bus_initializer__initialize_can1();
   ultrasonic_sensor_handler__initialize_sensors();
   bridge_controller_handler__initialize_bluetooth_module();
@@ -17,9 +18,7 @@ void periodic_callbacks__1Hz(uint32_t callback_count) { can_bus_initializer__res
 
 void periodic_callbacks__10Hz(uint32_t callback_count) {
   sensor_can_handler__transmit_messages_10hz();
-  // sensor_can_handler__handle_all_incoming_messages(); //for testing
   bridge_can_handler__transmit_messages_10hz();
-  // bridge_can_handler__handle_all_incoming_messages(); //for testing
 }
 void periodic_callbacks__100Hz(uint32_t callback_count) {}
 

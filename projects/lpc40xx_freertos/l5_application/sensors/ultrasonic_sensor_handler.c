@@ -12,11 +12,13 @@ void ultrasonic_sensor_handler__initialize_sensors(void) {
 }
 
 uint16_t ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(uint16_t adc_value) {
-  float range_in_cm = 0;
+  float distance_in_cm = 0;
+  float slope = 0.077656;
+  float y_intercept = -9.706729;
 
-  range_in_cm = adc_value / 8;
+  distance_in_cm = (slope * adc_value) + y_intercept;
 
-  return range_in_cm;
+  return distance_in_cm;
 }
 
 uint16_t ultrasonic_sensor_handler__get_sensor_value_left(void) {
