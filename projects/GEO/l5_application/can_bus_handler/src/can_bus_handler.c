@@ -33,6 +33,7 @@ void can_bus_handler__init(void) {
 void can_bus_handler__reset_if_bus_off(void) {
   if (can__is_bus_off(CAN_BUS)) {
     can__reset_bus(CAN_BUS);
+    printf("buss off\n");
   }
 }
 
