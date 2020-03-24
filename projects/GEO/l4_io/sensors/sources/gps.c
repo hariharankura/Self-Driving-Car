@@ -74,7 +74,7 @@ void gps__uart_pin_function_set() {
 void gps__init(void) {
   gps__uart_pin_function_set();
   line_buffer__init(&line, line_buffer, sizeof(line_buffer));
-  uart__init(gps_uart, clock__get_peripheral_clock_hz(), 38400);
+  uart__init(gps_uart, clock__get_peripheral_clock_hz(), 9600);
 
   QueueHandle_t rxq_handle = xQueueCreate(200, sizeof(char));
   QueueHandle_t txq_handle = xQueueCreate(8, sizeof(char)); // We don't send anything to the GPS

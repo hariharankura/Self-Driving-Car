@@ -123,7 +123,7 @@ void __gps_init(void) {
   gpio__construct_with_function_ExpectAndReturn(GPIO__PORT_4, 28, GPIO__FUNCTION_2, rx);
   gpio__construct_with_function_ExpectAndReturn(GPIO__PORT_4, 29, GPIO__FUNCTION_2, tx);
   clock__get_peripheral_clock_hz_ExpectAndReturn(96 * 1000 * 1000);
-  uart__init_Expect(gps_uart, 96 * 1000 * 1000, 38400);
+  uart__init_Expect(gps_uart, 96 * 1000 * 1000, 9600);
   QueueHandle_t rxq_handle;
   QueueHandle_t txq_handle;
   xQueueCreate_ExpectAndReturn(200, sizeof(char), rxq_handle);
