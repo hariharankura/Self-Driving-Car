@@ -20,13 +20,13 @@ void tearDown(void) {}
 
 void test__periodic_callbacks__initialize(void) {
   gps__init_Expect();
+  can_bus_handler__init_Expect();
   periodic_callbacks__initialize();
 }
 
 void test__periodic_callbacks__1Hz(void) {
-  gpio_s gpio = {};
-  board_io__get_led0_ExpectAndReturn(gpio);
-  gpio__toggle_Expect(gpio);
+  can_bus_handler__process_all_received_messages_in_1hz_Expect();
+  can_bus_handler__reset_if_bus_off_Expect();
   periodic_callbacks__1Hz(0);
 }
 
@@ -36,6 +36,5 @@ void test__periodic_callbacks__10Hz(void) {
   // gps__get_coordinates_ExpectAndReturn(temp_coordinates);
   compass__read_current_gps_coordinate_Expect();
   can_bus_handler__transmit_message_in_10hz_Expect();
-  can_bus_handler__process_all_received_messages_in_10hz_Expect();
   periodic_callbacks__10Hz(0);
 }

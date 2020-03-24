@@ -20,7 +20,7 @@ void periodic_callbacks__1Hz(uint32_t callback_count) {
   // gpio__toggle(board_io__get_led0());
   can_bus_handler__reset_if_bus_off();
 
-  can_bus_handler__process_all_received_messages_in_10hz();
+  can_bus_handler__process_all_received_messages_in_1hz();
   // Add your code here
 }
 

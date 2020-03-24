@@ -69,7 +69,7 @@ void test_can_bus_handler__process_all_received_messages(void) {
   gpio__set_Expect(board_led_0);
   compass__set_destination_gps_Expect(&detination_gps);
   compass__set_destination_gps_IgnoreArg_copy_dest_data();
-  can_bus_handler__process_all_received_messages_in_10hz();
+  can_bus_handler__process_all_received_messages_in_1hz();
 }
 
 void test_can_bus_handler__transmit_message(void) {

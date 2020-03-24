@@ -37,7 +37,7 @@ void can_bus_handler__reset_if_bus_off(void) {
   }
 }
 
-void can_bus_handler__process_all_received_messages_in_10hz(void) {
+void can_bus_handler__process_all_received_messages_in_1hz(void) {
   can__msg_t can_receive_msg = {};
   while (can__rx(CAN_BUS, &can_receive_msg, 0)) {
     const dbc_message_header_t header = {.message_id = can_receive_msg.msg_id,
