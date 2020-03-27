@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "can_bus_initializer.h": "c",
+        "mocksensor_can_handler.h": "c",
+        "ultrasonic_sensor_handler.h": "c",
+        "gpio.h": "c",
+        "compass.h": "c",
+        "mocki2c.h": "c",
+        "math.h": "c",
+        "unity.h": "c",
+        "line_buffer.h": "c",
+        "mockgps.h": "c",
+        "periodic_callbacks.h": "c"
+    }
+}
