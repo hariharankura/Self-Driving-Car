@@ -1,8 +1,5 @@
 #include "compass.h"
-<<<<<<< HEAD
 #include "gps.h"
-=======
->>>>>>> GEO BOARD: COMPASS ANGLE LOGIC
 #include "i2c.h"
 #include "math.h"
 
@@ -13,7 +10,6 @@ static uint8_t READ_ANGLE_DATA[2];
 static dbc_BRIDGE_GPS_s destination_gps_coordinates;
 static dbc_BRIDGE_GPS_s current_gps_coordinates;
 
-<<<<<<< HEAD
 void compass__read_current_gps_coordinate() {
   gps__run_once();
   gps_coordinates_t current = gps__get_coordinates();
@@ -21,8 +17,6 @@ void compass__read_current_gps_coordinate() {
   current_gps_coordinates.BRIDGE_GPS_longitude = current.longitude;
 }
 
-=======
->>>>>>> GEO BOARD: COMPASS ANGLE LOGIC
 static float compass__read_angle_from_i2c_cmps12(void) {
   uint16_t value;
   i2c__read_slave_data(I2C__2, COMPASS_ADDRESS, SLAVE_READ_ANGLE, READ_ANGLE_DATA, 2);

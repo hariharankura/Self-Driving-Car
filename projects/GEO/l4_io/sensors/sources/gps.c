@@ -74,11 +74,7 @@ void gps__uart_pin_function_set() {
 void gps__init(void) {
   gps__uart_pin_function_set();
   line_buffer__init(&line, line_buffer, sizeof(line_buffer));
-<<<<<<< HEAD
   uart__init(gps_uart, clock__get_peripheral_clock_hz(), 9600);
-=======
-  uart__init(gps_uart, clock__get_peripheral_clock_hz(), 38400);
->>>>>>> GEO BOARD: COMPASS ANGLE LOGIC
 
   QueueHandle_t rxq_handle = xQueueCreate(200, sizeof(char));
   QueueHandle_t txq_handle = xQueueCreate(8, sizeof(char)); // We don't send anything to the GPS

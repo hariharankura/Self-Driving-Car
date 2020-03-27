@@ -2,10 +2,7 @@
 
 #include "Mocki2c.h"
 
-<<<<<<< HEAD
 #include "Mockgps.h"
-=======
->>>>>>> GEO BOARD: COMPASS ANGLE LOGIC
 #include "project.h"
 
 #include "compass.c"
@@ -32,7 +29,7 @@ void test_compass_calculate_destination_angle_1(void) {
   test_destination.BRIDGE_GPS_longitude = 37.678367;
 
   float test_destination_angle = (compass__calculate_destination_angle(test_source, test_destination));
-  TEST_ASSERT_EQUAL_FLOAT(94.42, test_destination_angle);
+  TEST_ASSERT_EQUAL_FLOAT(94.43, test_destination_angle);
 }
 
 void test_compass_calculate_destination_angle_2(void) {

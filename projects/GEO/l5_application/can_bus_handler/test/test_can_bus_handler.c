@@ -7,10 +7,7 @@
 #include "Mockcan_bus.h"
 #include "Mockcompass.h"
 #include "Mockgpio.h"
-<<<<<<< HEAD
 #include "Mockgps.h"
-=======
->>>>>>> GEO BOARD: COMPASS ANGLE LOGIC
 #include "Mocki2c.h"
 
 #include "can_bus_handler.c"
@@ -72,11 +69,7 @@ void test_can_bus_handler__process_all_received_messages(void) {
   gpio__set_Expect(board_led_0);
   compass__set_destination_gps_Expect(&detination_gps);
   compass__set_destination_gps_IgnoreArg_copy_dest_data();
-<<<<<<< HEAD
   can_bus_handler__process_all_received_messages_in_1hz();
-=======
-  can_bus_handler__process_all_received_messages_in_10hz();
->>>>>>> GEO BOARD: COMPASS ANGLE LOGIC
 }
 
 void test_can_bus_handler__transmit_message(void) {
