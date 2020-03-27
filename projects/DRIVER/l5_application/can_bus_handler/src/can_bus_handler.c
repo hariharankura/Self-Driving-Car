@@ -5,8 +5,10 @@
 #include <string.h>
 
 // User-Defined Header Files
+#include "board_io.h"
 #include "can_bus.h"
 #include "driver_logic.h"
+#include "gpio.h"
 
 // Constants for CAN BUS
 static const uint16_t CAN_BAUD_RATE = 100;
@@ -14,7 +16,8 @@ static const uint16_t CAN_TRANSMIT_QUEUE_SIZE = 100;
 static const uint16_t CAN_RECEIVE_QUEUE_SIZE = 100;
 static const can__num_e CAN_BUS = can1;
 
-static dbc_SENSOR_USONARS_s sensor_data = {};
+static dbc_SENSOR_USONARS_s can_sensor_data = {};
+static dbc_GEO_COMPASS_s can_current_and_destination_heading_angle = {};
 
 static void can_bus_handler__board_led_reset(void) {
   gpio__set(board_io__get_led0());
@@ -41,9 +44,11 @@ void can_bus_handler__process_all_received_messages_in_10hz(void) {
   while (can__rx(CAN_BUS, &can_receive_msg, 0)) {
     const dbc_message_header_t header = {.message_id = can_receive_msg.msg_id,
                                          .message_dlc = can_receive_msg.frame_fields.data_len};
-    if (dbc_decode_SENSOR_USONARS(&sensor_data, header, can_receive_msg.data.bytes)) {
-      driver_logic__process_ultrasonic_sensors_data(sensor_data);
+    if (dbc_decode_SENSOR_USONARS(&can_sensor_data, header, can_receive_msg.data.bytes)) {
+      driver_logic__process_ultrasonic_sensors_data(can_sensor_data);
       gpio__set(board_io__get_led0());
+    } else if (dbc_decode_GEO_COMPASS(&can_current_and_destination_heading_angle, header, can_receive_msg.data.bytes)) {
+      driver_logic__process_geo_compass_data(can_current_and_destination_heading_angle);
     }
   }
 }
@@ -58,8 +63,8 @@ void can_bus_handler__transmit_message_in_10hz(void) {
 
 void can_bus_handler__manage_mia_10hz(void) {
   const uint32_t mia_increment_value = 100;
-  if (dbc_service_mia_SENSOR_USONARS(&sensor_data, mia_increment_value)) {
-    driver_logic__process_ultrasonic_sensors_data(sensor_data);
+  if (dbc_service_mia_SENSOR_USONARS(&can_sensor_data, mia_increment_value)) {
+    driver_logic__process_ultrasonic_sensors_data(can_sensor_data);
     gpio__reset(board_io__get_led0());
   }
 }

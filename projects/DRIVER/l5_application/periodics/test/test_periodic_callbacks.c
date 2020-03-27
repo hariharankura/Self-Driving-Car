@@ -8,8 +8,8 @@
 // - This will auto-generate "Mock" versions based on the header file
 #include "Mockboard_io.h"
 #include "Mockcan_bus_handler.h"
+#include "Mockdriver_diagnostics.h"
 #include "Mockgpio.h"
-
 // Include the source we wish to test
 #include "periodic_callbacks.h"
 
@@ -19,6 +19,7 @@ void tearDown(void) {}
 
 void test__periodic_callbacks__initialize(void) {
   can_bus_handler__init_Expect();
+  diagnostics_led_init_Expect();
   periodic_callbacks__initialize();
 }
 
