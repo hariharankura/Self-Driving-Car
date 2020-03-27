@@ -8,7 +8,9 @@ from nxpprog import NXPPROG_PY
 
 SELF_DIRPATH = os.path.dirname(__file__)
 REPO_ROOT_DIRPATH = os.path.join(SELF_DIRPATH, "..")
-DEFAULT_BIN_FILEPATH = os.path.join(REPO_ROOT_DIRPATH, "_build_lpc40xx_freertos", "lpc40xx_freertos.bin")
+#original
+#DEFAULT_BIN_FILEPATH = os.path.join(REPO_ROOT_DIRPATH, "_build_lpc40xx_freertos", "lpc40xx_freertos.bin")
+DEFAULT_BIN_FILEPATH = os.path.join(REPO_ROOT_DIRPATH, "_build_lpc40xx_freertos_bridge_sensor", "lpc40xx_freertos_bridge_sensor.bin")
 
 FAILURE = r"""
 _____ _    ___ _    _   _ ____  _____
