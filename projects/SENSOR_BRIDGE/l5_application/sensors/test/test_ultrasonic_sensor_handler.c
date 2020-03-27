@@ -17,7 +17,7 @@ void test_ultrasonic_sensor_handler__initialize_sensors(void) {
   ultrasonic_sensor_handler__initialize_sensors();
 }
 
-uint16_t test_ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(uint16_t adc_value) {
+void test_ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(void) {
   TEST_ASSERT_EQUAL_UINT16(0, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(0));
   TEST_ASSERT_EQUAL_UINT16(512, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(4096));
   TEST_ASSERT_EQUAL_UINT16(37, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(300));

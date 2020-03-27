@@ -40,41 +40,43 @@ static float compass__read_current_angle(void) {
   return avg_value;
 }
 
-static bool check_valid_source_destination_coordinates(dbc_BRIDGE_GPS_s *current_gps_coordinates,
-                                                       dbc_BRIDGE_GPS_s *destination_gps_coordinates) {
+static bool check_valid_source_destination_coordinates(dbc_BRIDGE_GPS_s *l_current_gps_coordinates,
+                                                       dbc_BRIDGE_GPS_s *l_destination_gps_coordinates) {
   bool flag = true;
-  if (current_gps_coordinates->BRIDGE_GPS_latitude > 90.0f || current_gps_coordinates->BRIDGE_GPS_longitude > 180.0f ||
-      destination_gps_coordinates->BRIDGE_GPS_latitude > 90.0f ||
-      destination_gps_coordinates->BRIDGE_GPS_longitude > 180.0f) {
+  if (l_current_gps_coordinates->BRIDGE_GPS_latitude > 90.0f ||
+      l_current_gps_coordinates->BRIDGE_GPS_longitude > 180.0f ||
+      l_destination_gps_coordinates->BRIDGE_GPS_latitude > 90.0f ||
+      l_destination_gps_coordinates->BRIDGE_GPS_longitude > 180.0f) {
     flag = false;
   }
   return flag;
 }
 
-static void convert_source_destination_to_radian(dbc_BRIDGE_GPS_s *current_gps_coordinates,
-                                                 dbc_BRIDGE_GPS_s *destination_gps_coordinates) {
-  current_gps_coordinates->BRIDGE_GPS_latitude = (current_gps_coordinates->BRIDGE_GPS_latitude * PI) / 180;
-  current_gps_coordinates->BRIDGE_GPS_longitude = (-current_gps_coordinates->BRIDGE_GPS_longitude * PI) / 180;
-  destination_gps_coordinates->BRIDGE_GPS_latitude = (destination_gps_coordinates->BRIDGE_GPS_latitude * PI) / 180;
-  destination_gps_coordinates->BRIDGE_GPS_longitude = (-destination_gps_coordinates->BRIDGE_GPS_longitude * PI) / 180;
+static void convert_source_destination_to_radian(dbc_BRIDGE_GPS_s *l_current_gps_coordinates,
+                                                 dbc_BRIDGE_GPS_s *l_destination_gps_coordinates) {
+  l_current_gps_coordinates->BRIDGE_GPS_latitude = (l_current_gps_coordinates->BRIDGE_GPS_latitude * PI) / 180;
+  l_current_gps_coordinates->BRIDGE_GPS_longitude = (-l_current_gps_coordinates->BRIDGE_GPS_longitude * PI) / 180;
+  l_destination_gps_coordinates->BRIDGE_GPS_latitude = (l_destination_gps_coordinates->BRIDGE_GPS_latitude * PI) / 180;
+  l_destination_gps_coordinates->BRIDGE_GPS_longitude =
+      (-l_destination_gps_coordinates->BRIDGE_GPS_longitude * PI) / 180;
 }
 
 float round_upto_2_decimal(float bearing) {
-  float value = (int)(bearing * 100 + 0.5);
+  float value = (int)(bearing * 100 + 0.5f);
   return (float)value / 100;
 }
 
-static float compass__calculate_destination_angle(dbc_BRIDGE_GPS_s current_gps_coordinates,
-                                                  dbc_BRIDGE_GPS_s destination_gps_coordinates) {
-  double bearing = 0, lon_difference = 0;
-  if (check_valid_source_destination_coordinates(&current_gps_coordinates, &destination_gps_coordinates)) {
-    convert_source_destination_to_radian(&current_gps_coordinates, &destination_gps_coordinates);
+static float compass__calculate_destination_angle(dbc_BRIDGE_GPS_s l_current_gps_coordinates,
+                                                  dbc_BRIDGE_GPS_s l_destination_gps_coordinates) {
+  float bearing = 0, lon_difference = 0;
+  if (check_valid_source_destination_coordinates(&l_current_gps_coordinates, &l_destination_gps_coordinates)) {
+    convert_source_destination_to_radian(&l_current_gps_coordinates, &l_destination_gps_coordinates);
     lon_difference =
-        (current_gps_coordinates.BRIDGE_GPS_longitude - (destination_gps_coordinates.BRIDGE_GPS_longitude));
+        (l_current_gps_coordinates.BRIDGE_GPS_longitude - (l_destination_gps_coordinates.BRIDGE_GPS_longitude));
     bearing = atan2(
-        (sin(lon_difference) * cos(destination_gps_coordinates.BRIDGE_GPS_latitude)),
-        ((cos(current_gps_coordinates.BRIDGE_GPS_latitude) * sin(destination_gps_coordinates.BRIDGE_GPS_latitude)) -
-         (sin(current_gps_coordinates.BRIDGE_GPS_latitude) * cos(destination_gps_coordinates.BRIDGE_GPS_latitude) *
+        (sin(lon_difference) * cos(l_destination_gps_coordinates.BRIDGE_GPS_latitude)),
+        ((cos(l_current_gps_coordinates.BRIDGE_GPS_latitude) * sin(l_destination_gps_coordinates.BRIDGE_GPS_latitude)) -
+         (sin(l_current_gps_coordinates.BRIDGE_GPS_latitude) * cos(l_destination_gps_coordinates.BRIDGE_GPS_latitude) *
           cos(lon_difference))));
     bearing = fmodf(((bearing * 180) / PI) + 360, 360);
   }

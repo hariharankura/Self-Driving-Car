@@ -41,61 +41,53 @@ void diagnostics_led_init(void) {
 void light_up_direction_led(dbc_DRIVER_STEER_SPEED_s motor_command_struct) {
   if (motor_command_struct.DRIVER_STEER_direction == DRIVER_STEER_direction_STRAIGHT &&
       motor_command_struct.DRIVER_STEER_move_speed == DRIVER_STEER_move_FORWARD_at_SPEED) {
-    reset_all_diagnostics_led();
-    printf("LED 0 On\n");
+    clear_all_diagnostics_led();
     gpio__reset(diag_LED0);
   }
 
   else if (motor_command_struct.DRIVER_STEER_direction == DRIVER_STEER_direction_STRAIGHT &&
            motor_command_struct.DRIVER_STEER_move_speed == DRIVER_STEER_move_REVERSE_at_SPEED) {
-    reset_all_diagnostics_led();
-    printf("LED 4 On\n");
+    clear_all_diagnostics_led();
     gpio__reset(diag_LED4);
   }
 
   else if (motor_command_struct.DRIVER_STEER_direction == DRIVER_STEER_direction_HARD_LEFT) {
-    reset_all_diagnostics_led();
-    printf("LED 6 On\n");
+    clear_all_diagnostics_led();
     gpio__reset(diag_LED6);
 
   }
 
   else if (motor_command_struct.DRIVER_STEER_direction == DRIVER_STEER_direction_SOFT_LEFT &&
            motor_command_struct.DRIVER_STEER_move_speed == DRIVER_STEER_move_FORWARD_at_SPEED) {
-    reset_all_diagnostics_led();
-    printf("LED 7 On\n");
+    clear_all_diagnostics_led();
     gpio__reset(diag_LED7);
   }
 
   else if (motor_command_struct.DRIVER_STEER_direction == DRIVER_STEER_direction_SOFT_LEFT &&
            motor_command_struct.DRIVER_STEER_move_speed == DRIVER_STEER_move_REVERSE_at_SPEED) {
-    reset_all_diagnostics_led();
-    printf("LED 5 On\n");
+    clear_all_diagnostics_led();
     gpio__reset(diag_LED5);
   }
 
   else if (motor_command_struct.DRIVER_STEER_direction == DRIVER_STEER_direction_HARD_RIGHT) {
-    reset_all_diagnostics_led();
-    printf("LED 2 On\n");
+    clear_all_diagnostics_led();
     gpio__reset(diag_LED2);
   }
 
   else if (motor_command_struct.DRIVER_STEER_direction == DRIVER_STEER_direction_SOFT_RIGHT &&
            motor_command_struct.DRIVER_STEER_move_speed == DRIVER_STEER_move_FORWARD_at_SPEED) {
-    reset_all_diagnostics_led();
-    printf("LED 1 On\n");
+    clear_all_diagnostics_led();
     gpio__reset(diag_LED1);
   }
 
   else if (motor_command_struct.DRIVER_STEER_direction == DRIVER_STEER_direction_SOFT_RIGHT &&
            motor_command_struct.DRIVER_STEER_move_speed == DRIVER_STEER_move_REVERSE_at_SPEED) {
-    reset_all_diagnostics_led();
-    printf("LED 3 On\n");
+    clear_all_diagnostics_led();
     gpio__reset(diag_LED3);
   }
 }
 
-void reset_all_diagnostics_led(void) {
+void clear_all_diagnostics_led(void) {
   gpio__set(diag_LED0);
   gpio__set(diag_LED1);
   gpio__set(diag_LED2);

@@ -5,6 +5,7 @@
 #include <string.h>
 
 // User-Defined Header Files
+#include "board_io.h"
 #include "can_bus.h"
 #include "compass.h"
 
