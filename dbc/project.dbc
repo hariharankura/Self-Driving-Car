@@ -48,8 +48,8 @@ BO_ 300 DRIVER_STEER_SPEED: 2 DRIVER
  SG_ DRIVER_STEER_move_speed: 8|8@1- (1,0) [-10|10] "" MOTOR
 
 BO_ 401 GEO_COMPASS: 4 GEO
- SG_ GEO_COMPASS_current_heading : 0|16@1+ (1E-002,0) [0|360] "degree" DRIVER
- SG_ GEO_COMPASS_desitination_heading : 16|16@1+ (1E-002,0) [0|360] "degree" DRIVER
+ SG_ GEO_COMPASS_current_heading : 0|16@1+ (1E-002,0) [0|360.01] "degree" DRIVER
+ SG_ GEO_COMPASS_desitination_heading : 16|16@1+ (1E-002,0) [0|360.01] "degree" DRIVER
 
 BO_ 500 BRIDGE_GPS: 8 SENSOR_BRIDGE
  SG_ BRIDGE_GPS_latitude : 0|32@1- (1E-007,-91.1111111) [-91.1111111|91.1111111] "" GEO
