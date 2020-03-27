@@ -1,9 +1,9 @@
 #include "periodic_callbacks.h"
 
 #include "board_io.h"
-#include "gpio.h"
-
 #include "can_bus_handler.h"
+#include "driver_diagnostics.h"
+#include "gpio.h"
 
 /******************************************************************************
  * Your board will reset if the periodic function does not return within its deadline
@@ -12,6 +12,7 @@
  */
 void periodic_callbacks__initialize(void) {
   // This method is invoked once when the periodic tasks are created
+  diagnostics_led_init();
   can_bus_handler__init();
 }
 
