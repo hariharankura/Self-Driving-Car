@@ -1,8 +1,9 @@
 #include "unity.h"
 
-#include "Mockboard_io.h"
+#include "Mockbridge_can_handler.h"
+#include "Mockbridge_controller_handler.h"
 #include "Mockcan_bus_initializer.h"
-#include "Mockgpio.h"
+#include "Mockled_handler.h"
 #include "Mocksensor_can_handler.h"
 #include "Mockultrasonic_sensor_handler.h"
 
@@ -13,18 +14,10 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test__periodic_callbacks__initialize(void) {
-  gpio_s led0, led1, led2, led3;
-  board_io__get_led0_ExpectAndReturn(led0);
-  gpio__set_Expect(led0);
-  board_io__get_led1_ExpectAndReturn(led1);
-  gpio__set_Expect(led1);
-  board_io__get_led2_ExpectAndReturn(led2);
-  gpio__set_Expect(led2);
-  board_io__get_led3_ExpectAndReturn(led3);
-  gpio__set_Expect(led3);
-
+  led_handler__turn_off_all_sjtwo_leds_Expect();
   can_bus_initializer__initialize_can1_Expect();
   ultrasonic_sensor_handler__initialize_sensors_Expect();
+  bridge_controller_handler__initialize_bluetooth_module_Expect();
   periodic_callbacks__initialize();
 }
 
@@ -35,7 +28,7 @@ void test__periodic_callbacks__1Hz(void) {
 
 void test__periodic_callbacks__10Hz(void) {
   sensor_can_handler__transmit_messages_10hz_Expect();
-  // sensor_can_handler__handle_all_incoming_messages_Expect(); //for testing
+  bridge_can_handler__transmit_messages_10hz_Expect();
   periodic_callbacks__10Hz(0);
 }
 

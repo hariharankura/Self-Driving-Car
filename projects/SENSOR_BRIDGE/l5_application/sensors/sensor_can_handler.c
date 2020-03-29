@@ -11,9 +11,9 @@ void sensor_can_handler__transmit_messages_10hz(void) {
   ultrasonic_sensors_struct.SENSOR_USONARS_right = ultrasonic_sensor_handler__get_sensor_value_right();
   ultrasonic_sensors_struct.SENSOR_USONARS_front = ultrasonic_sensor_handler__get_sensor_value_front();
   ultrasonic_sensors_struct.SENSOR_USONARS_back = ultrasonic_sensor_handler__get_sensor_value_back();
-  printf("sensor values: left: %i, right: %i, front: %i, back: %i\n", ultrasonic_sensors_struct.SENSOR_USONARS_left,
-         ultrasonic_sensors_struct.SENSOR_USONARS_right, ultrasonic_sensors_struct.SENSOR_USONARS_front,
-         ultrasonic_sensors_struct.SENSOR_USONARS_back);
+  printf("sensor values: left = %icm, right = %icm, front = %icm, back = %icm\n",
+         ultrasonic_sensors_struct.SENSOR_USONARS_left, ultrasonic_sensors_struct.SENSOR_USONARS_right,
+         ultrasonic_sensors_struct.SENSOR_USONARS_front, ultrasonic_sensors_struct.SENSOR_USONARS_back);
 
   can__msg_t sensor_can_msg = {};
   const dbc_message_header_t sensor_header =
@@ -39,9 +39,9 @@ void sensor_can_handler__handle_all_incoming_messages(void) {
     };
 
     if (dbc_decode_SENSOR_USONARS(&decoded_sensor_cmd, header, sensor_can_msg.data.bytes)) {
-      printf("received sensor data: left: %i, right: %i, front: %i, back: %i\n", decoded_sensor_cmd.SENSOR_USONARS_left,
-             decoded_sensor_cmd.SENSOR_USONARS_right, decoded_sensor_cmd.SENSOR_USONARS_front,
-             decoded_sensor_cmd.SENSOR_USONARS_back);
+      printf("received sensor data: left = %i, right = %i, front = %i, back = %i\n",
+             decoded_sensor_cmd.SENSOR_USONARS_left, decoded_sensor_cmd.SENSOR_USONARS_right,
+             decoded_sensor_cmd.SENSOR_USONARS_front, decoded_sensor_cmd.SENSOR_USONARS_back);
     }
   }
 }
