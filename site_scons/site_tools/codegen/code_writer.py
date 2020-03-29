@@ -259,9 +259,16 @@ class CodeWriter(object):
         if self._is_signal_an_enum(signal):
             enum_cast = '({0})'.format(self._get_signal_type(signal))
 
+        # if signal offset is floating point append f to make the constant float
+        signal_offset = str(signal.offset)
+        signal_is_float = self._get_signal_type(signal) == "float"
+        if signal_is_float:
+            if '0' == signal_offset:
+                signal_offset = "0.0"
+            signal_offset += "f"
         # If the signal is not defined as a signed, then we will use this code
         unsigned_code = "message->{0} = {1}(({2} * {3}f) + ({4}));\n".format(signal.name, enum_cast, raw_sig_name,
-                                                                             signal.scale, signal.offset)
+                                                                             signal.scale, signal_offset)
 
         if signal.is_signed:
             mask = "(1 << {0})".format((signal.length - 1))
@@ -274,7 +281,7 @@ class CodeWriter(object):
             # be listed as a signed number
             signed_max = "UINT32_MAX"
             s += "(((({0} << {1}) | {2}) * {3}f) + ({4}));\n".format(
-                signed_max, str(signal.length - 1), raw_sig_name, str(signal.scale), signal.offset
+                signed_max, str(signal.length - 1), raw_sig_name, str(signal.scale), signal_offset
             )
 
             s += ("  }} else {{\n"
@@ -373,11 +380,17 @@ class CodeWriter(object):
             # When using MIN_OF/MAX_OF macros, we need to use 'f' notation to explicitly use float rather than double
             minimum = str(signal.minimum) + 'f' if signal_is_float else str(signal.minimum)
             maximum = str(signal.maximum) + 'f' if signal_is_float else str(signal.maximum)
-            minimum = minimum.replace("0f", "0.0f")
-            maximum = maximum.replace("0f", "0.0f")
-
+            if minimum == "0f":
+                minimum = "0.0f"
+            if maximum == "0f":
+                maximum = "0.0f"
+            signal_offset = str(signal.offset)
+            if signal_is_float:
+                if '0' == signal_offset:
+                    signal_offset = "0.0"
+                signal_offset += "f"
             raw_sig_code = "  {0} = ((uint64_t)(((MAX_OF(MIN_OF({1}message->{2},{3}),{4}) - ({5})) / {6}f) + 0.5f))".format(
-                raw_sig_name, cast, signal.name, maximum, minimum, signal.offset, signal.scale
+                raw_sig_name, cast, signal.name, maximum, minimum, signal_offset, signal.scale
             )
 
         offset_string = ""

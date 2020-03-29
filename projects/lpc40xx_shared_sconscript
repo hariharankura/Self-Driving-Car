@@ -25,6 +25,7 @@ Import("project_dirnode")
 Define file nodes and directory nodes
 """
 PROJECT_DIR = project_dirnode
+print(PROJECT_DIR)
 
 """ Build artifact nodes """
 VARIANT_DIR = Dir("#/_build_{}".format(PROJECT_DIR.name))
