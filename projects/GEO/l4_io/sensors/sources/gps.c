@@ -30,29 +30,39 @@ static void gps__absorb_data(void) {
   }
 }
 
+static float gps__convert_to_degree(double value) {
+  float value_in_degree = (float)((int)(value / 100));
+  float value_decimal = (value - (double)value_in_degree * 100) / 60;
+  return value_in_degree + value_decimal;
+}
+
+static void gps__process_and_save_latitude_longitude(gps_coordinates_t *temp_coordinates, double latitude,
+                                                     char lat_direction, double longitude, char long_direction) {
+  temp_coordinates->longitude = gps__convert_to_degree(longitude);
+  temp_coordinates->latitude = gps__convert_to_degree(latitude);
+  if (long_direction == 'W' || long_direction == 'w') {
+    temp_coordinates->longitude *= -1;
+  }
+  if (lat_direction == 'S' || lat_direction == 's') {
+    temp_coordinates->latitude *= -1;
+  }
+}
+
 static bool gps__parse_nema_string(char *gps_nema_string, gps_coordinates_t *temp_coordinates) {
   bool return_value = false;
-  float latitude;
-  float longitude;
+  double latitude;
+  double longitude;
   uint8_t gps_valid;
   char lat_direction = 'N';
   char long_direction = 'E';
   if (*gps_nema_string == '$') {
     if (NULL != strstr(gps_nema_string, "$GPGGA")) {
 
-      sl_string__scanf(gps_nema_string, "$GPGGA, %*f, %f, %c, %f, %c, %hhd, %*s", &latitude, &lat_direction, &longitude,
-                       &long_direction, &gps_valid);
-      if (long_direction == 'W' || long_direction == 'w') {
-        temp_coordinates->longitude = longitude * -1;
-      } else {
-        temp_coordinates->longitude = longitude;
-      }
-      printf("Latitude is %c\n", lat_direction);
-      if (lat_direction == 'S' || lat_direction == 's') {
-        temp_coordinates->latitude = latitude * -1;
-      } else {
-        temp_coordinates->latitude = latitude;
-      }
+      sscanf(gps_nema_string, "$GPGGA, %*f, %lf, %c, %lf, %c, %hhd, %*s", &latitude, &lat_direction, &longitude,
+             &long_direction, &gps_valid);
+
+      printf("%f\n", longitude);
+      gps__process_and_save_latitude_longitude(temp_coordinates, latitude, lat_direction, longitude, long_direction);
       return_value = (gps_valid > 0);
     }
   }
