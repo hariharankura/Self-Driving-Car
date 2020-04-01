@@ -3,6 +3,9 @@
         "can_bus_initializer.h": "c",
         "mocksensor_can_handler.h": "c",
         "ultrasonic_sensor_handler.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "delay.h": "c",
+        "mockultrasonic_sensor_handler.h": "c",
+        "mockled_handler.h": "c"
     }
 }

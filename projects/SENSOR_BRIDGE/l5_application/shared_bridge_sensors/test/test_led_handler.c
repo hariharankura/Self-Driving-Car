@@ -18,3 +18,27 @@ void test_led_handler__turn_off_all_sjtwo_leds(void) {
 
   led_handler__turn_off_all_sjtwo_leds();
 }
+
+void test_led_handler__diagnostic_test_object_detection_led3(void) {
+  gpio_s led3;
+
+  board_io__get_led3_ExpectAndReturn(led3);
+  gpio__set_Expect(led3);
+  led_handler__diagnostic_test_object_detection_led3(300, 300, 300, 300);
+
+  board_io__get_led3_ExpectAndReturn(led3);
+  gpio__reset_Expect(led3);
+  led_handler__diagnostic_test_object_detection_led3(30, 30, 30, 30);
+
+  board_io__get_led3_ExpectAndReturn(led3);
+  gpio__reset_Expect(led3);
+  led_handler__diagnostic_test_object_detection_led3(49, 300, 300, 300);
+
+  board_io__get_led3_ExpectAndReturn(led3);
+  gpio__reset_Expect(led3);
+  led_handler__diagnostic_test_object_detection_led3(300, 300, 50, 300);
+
+  board_io__get_led3_ExpectAndReturn(led3);
+  gpio__set_Expect(led3);
+  led_handler__diagnostic_test_object_detection_led3(300, 51, 300, 300);
+}

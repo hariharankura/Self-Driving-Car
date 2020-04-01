@@ -14,7 +14,10 @@ void periodic_callbacks__initialize(void) {
   bridge_controller_handler__initialize_bluetooth_module();
 }
 
-void periodic_callbacks__1Hz(uint32_t callback_count) { can_bus_initializer__reset_if_bus_off_can1(); }
+void periodic_callbacks__1Hz(uint32_t callback_count) {
+  can_bus_initializer__reset_if_bus_off_can1();
+  // sensor_can_handler__transmit_messages_1hz(); // for testing only
+}
 
 void periodic_callbacks__10Hz(uint32_t callback_count) {
   sensor_can_handler__transmit_messages_10hz();
