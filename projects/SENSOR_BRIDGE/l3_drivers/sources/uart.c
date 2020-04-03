@@ -172,12 +172,12 @@ void uart__init(uart_e uart, uint32_t peripheral_clock, uint32_t baud_rate) {
   lpc_peripheral__turn_on_power_to(uart_peripheral_ids[uart]);
 
   const float roundup_offset = 0.5;
-  const uint16_t divider = (uint16_t)((peripheral_clock / (16 * baud_rate)) + roundup_offset);
+  const uint16_t divider = (uint16_t)((peripheral_clock / (16 * baud_rate))); // + roundup_offset);
   const uint8_t dlab_bit = (1 << 7);
   const uint8_t eight_bit_datalen = 3;
 
   // 2-stop bits helps improve baud rate error; you can remove this if bandwidth is critical to you
-  const uint8_t stop_bits_is_2 = (1 << 2);
+  // const uint8_t stop_bits_is_2 = (1 << 2);
 
   lpc_uart *uart_regs = uarts[uart].registers;
 
@@ -190,7 +190,7 @@ void uart__init(uart_e uart, uint32_t peripheral_clock, uint32_t baud_rate) {
    */
   const uint32_t default_reset_fdr_value = (1 << 4);
   uart_regs->FDR = default_reset_fdr_value;
-  uart_regs->LCR = eight_bit_datalen | stop_bits_is_2; // DLAB is reset back to zero also
+  uart_regs->LCR = eight_bit_datalen; // | stop_bits_is_2; // DLAB is reset back to zero also
 }
 
 bool uart__is_initialized(uart_e uart) {
