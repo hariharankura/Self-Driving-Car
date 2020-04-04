@@ -3,28 +3,11 @@
 #include "delay.h"
 #include "gpio.h"
 
-static gpio_s left_rx, right_rx, front_rx, back_rx;
-
 void ultrasonic_sensor_handler__initialize_sensors(void) {
   gpio__construct_with_function(GPIO__PORT_0, 25, GPIO__FUNCTION_1); // left: channel 2
   gpio__construct_with_function(GPIO__PORT_1, 30, GPIO__FUNCTION_1); // right: channel 4
   gpio__construct_with_function(GPIO__PORT_1, 31, GPIO__FUNCTION_1); // front: channel 5
   gpio__construct_with_function(GPIO__PORT_0, 26, GPIO__FUNCTION_1); // back: channel 3
-
-  // may need for resolving sensor interferance issues
-  /*left_rx = gpio__construct_with_function(GPIO__PORT_2, 1, GPIO__FUNCITON_0_IO_PIN);
-  gpio__construct_as_output(GPIO__PORT_2, 1);
-  right_rx = gpio__construct_with_function(GPIO__PORT_2, 4, GPIO__FUNCITON_0_IO_PIN);
-  gpio__construct_as_output(GPIO__PORT_2, 4);
-  front_rx = gpio__construct_with_function(GPIO__PORT_2, 2, GPIO__FUNCITON_0_IO_PIN);
-  gpio__construct_as_output(GPIO__PORT_2, 2);
-  back_rx = gpio__construct_with_function(GPIO__PORT_2, 0, GPIO__FUNCITON_0_IO_PIN);
-  gpio__construct_as_output(GPIO__PORT_2, 0);
-
-  gpio__reset(left_rx);
-  gpio__reset(right_rx);
-  gpio__reset(front_rx);
-  gpio__reset(back_rx);*/
 
   adc__initialize();
 }
