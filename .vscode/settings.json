@@ -6,6 +6,9 @@
         "gpio.h": "c",
         "delay.h": "c",
         "mockultrasonic_sensor_handler.h": "c",
-        "mockled_handler.h": "c"
+        "mockled_handler.h": "c",
+        "mockmode_filter.h": "c",
+        "stdint.h": "c",
+        "adc.h": "c"
     }
 }

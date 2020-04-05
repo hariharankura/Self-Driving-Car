@@ -3,9 +3,10 @@
 #include "Mockadc.h"
 #include "Mockdelay.h"
 #include "Mockgpio.h"
+#include "Mockmode_filter.h"
 #include <stdint.h>
 
-#include "ultrasonic_sensor_handler.h"
+#include "ultrasonic_sensor_handler.c"
 
 void test_ultrasonic_sensor_handler__initialize_sensors(void) {
   gpio_s gpio;
