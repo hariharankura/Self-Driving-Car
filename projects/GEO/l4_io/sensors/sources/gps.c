@@ -9,14 +9,13 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
-#include "clock.h" // needed for UART initialization
+#include "clock.h"
 #include <gpio.h>
 #include <stdio.h>
 #include <string.h>
 
 static uart_e gps_uart = UART__3;
 
-// Space for the line buffer, and the line buffer data structure instance
 static char line_buffer[256];
 static line_buffer_s line;
 
@@ -25,19 +24,18 @@ static gps_coordinates_t parsed_coordinates;
 static void gps__absorb_data(void) {
   char byte;
   while (uart__get(gps_uart, &byte, 0)) {
-    printf("%c", byte);
     line_buffer__add_byte(&line, byte);
   }
 }
 
-static float gps__convert_to_degree(double value) {
+static float gps__convert_to_degree(float value) {
   float value_in_degree = (float)((int)(value / 100));
-  float value_decimal = (value - (double)value_in_degree * 100) / 60;
+  float value_decimal = (value - value_in_degree * 100) / 60;
   return value_in_degree + value_decimal;
 }
 
-static void gps__process_and_save_latitude_longitude(gps_coordinates_t *temp_coordinates, double latitude,
-                                                     char lat_direction, double longitude, char long_direction) {
+static void gps__process_and_save_latitude_longitude(gps_coordinates_t *temp_coordinates, float latitude,
+                                                     char lat_direction, float longitude, char long_direction) {
   temp_coordinates->longitude = gps__convert_to_degree(longitude);
   temp_coordinates->latitude = gps__convert_to_degree(latitude);
   if (long_direction == 'W' || long_direction == 'w') {
@@ -50,22 +48,20 @@ static void gps__process_and_save_latitude_longitude(gps_coordinates_t *temp_coo
 
 static bool gps__parse_nema_string(char *gps_nema_string, gps_coordinates_t *temp_coordinates) {
   bool return_value = false;
-  double latitude;
-  double longitude;
+  double latitude = 0;
+  double longitude = 0;
   uint8_t gps_valid;
   char lat_direction = 'N';
   char long_direction = 'E';
   if (*gps_nema_string == '$') {
     if (NULL != strstr(gps_nema_string, "$GPGGA")) {
-
-      sscanf(gps_nema_string, "$GPGGA, %*f, %lf, %c, %lf, %c, %hhd, %*s", &latitude, &lat_direction, &longitude,
-             &long_direction, &gps_valid);
-
-      printf("%f\n", longitude);
+      sl_string__scanf(gps_nema_string, "$GPGGA, %*f, %lf, %c, %lf, %c, %hhd, %*s", &latitude, &lat_direction,
+                       &longitude, &long_direction, &gps_valid);
       gps__process_and_save_latitude_longitude(temp_coordinates, latitude, lat_direction, longitude, long_direction);
       return_value = (gps_valid > 0);
     }
   }
+  // printf("%f:%f\n%f:%f\n", latitude, temp_coordinates->latitude, longitude, temp_coordinates->longitude);
   return return_value;
 }
 
@@ -87,7 +83,7 @@ void gps__init(void) {
   uart__init(gps_uart, clock__get_peripheral_clock_hz(), 9600);
 
   QueueHandle_t rxq_handle = xQueueCreate(200, sizeof(char));
-  QueueHandle_t txq_handle = xQueueCreate(8, sizeof(char)); // We don't send anything to the GPS
+  QueueHandle_t txq_handle = xQueueCreate(8, sizeof(char));
   uart__enable_queues(gps_uart, rxq_handle, txq_handle);
 }
 

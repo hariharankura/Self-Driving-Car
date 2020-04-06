@@ -63,7 +63,6 @@ static void convert_source_destination_to_radian(dbc_BRIDGE_GPS_s *l_current_gps
 }
 
 float round_upto_2_decimal(float bearing) {
-  printf("Data = %f\n", bearing);
   uint64_t value = (uint64_t)(bearing * 100 + 0.5f);
   return (float)value / 100;
 }
