@@ -7,7 +7,7 @@
 
 #include "sensor_can_handler.h"
 
-void test_sensor_can_handler__transmit_messages_1hz(void) {
+/*void test_sensor_can_handler__transmit_messages_1hz(void) {
   dbc_SENSOR_USONARS_s ultrasonic_sensors_struct = {};
 
   uint16_t sensor1, sensor2, sensor3, sensor4;
@@ -28,9 +28,9 @@ void test_sensor_can_handler__transmit_messages_1hz(void) {
   can__tx_ExpectAnyArgsAndReturn(true);
 
   sensor_can_handler__transmit_messages_1hz();
-}
+}*/
 
-void test_sensor_can_handler__transmit_messages_10hz(void) {
+/*void test_sensor_can_handler__transmit_messages_10hz(void) {
   dbc_SENSOR_USONARS_s ultrasonic_sensors_struct = {};
 
   uint16_t sensor1, sensor2, sensor3, sensor4;
@@ -50,7 +50,7 @@ void test_sensor_can_handler__transmit_messages_10hz(void) {
   can__tx_ExpectAnyArgsAndReturn(true);
 
   sensor_can_handler__transmit_messages_10hz();
-}
+}*/
 
 void test_sensor_can_handler__handle_all_incoming_messages(void) {
   can__msg_t sensor_can_msg = {};

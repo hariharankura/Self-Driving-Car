@@ -47,12 +47,15 @@ static uint16_t ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_senso
 
   memset(sensor_values_in_cm, 0, sizeof(sensor_values_in_cm));
 
+  // printf("Raw (in cm): ");
   for (int i = 0; i < n; i++) {
     raw_sensor_value = adc__get_adc_value(ADC_channel);
     sensor_values_in_cm[i] = ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(raw_sensor_value);
+    // printf("%i ", sensor_values_in_cm[i]);
   }
 
   filtered_sensor_value = mode_filter__find_mode_of_sensor_values_converted_to_cm(sensor_values_in_cm, n);
+  // printf("Filtered = %i ", filtered_sensor_value);
 
   return filtered_sensor_value;
 }
@@ -120,7 +123,11 @@ uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_left(void) {
 uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_right(void) {
   uint16_t filtered_sensor_value = 0;
 
-  filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(20, 4);
+  filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(10, 4);
+  // printf("Returned = %i\n", filtered_sensor_value);
+  if ((filtered_sensor_value <= 82) || (filtered_sensor_value >= 89)) {
+    printf("%i\n", filtered_sensor_value);
+  }
 
   return filtered_sensor_value;
 }

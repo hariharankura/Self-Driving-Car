@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-uint16_t mode_filter__find_mode_of_sensor_values_converted_to_cm(uint16_t sensor_values[], int numb_of_sensor_values) {
+uint16_t mode_filter__find_mode_of_sensor_values_converted_to_cm(uint16_t *sensor_values, int numb_of_sensor_values) {
   int range_of_sensor_values = 600; // max value is 500cm. +100cm extra to be safe
   int highest_frequency = 0;
   uint16_t most_frequent_sensor_value = 0;
@@ -12,12 +12,14 @@ uint16_t mode_filter__find_mode_of_sensor_values_converted_to_cm(uint16_t sensor
   memset(sensor_value_frequencies, 0, sizeof(sensor_value_frequencies));
 
   for (int i = 0; i < numb_of_sensor_values; i++) {
-    sensor_value_frequencies[sensor_values[i]]++;
+    sensor_value_frequencies[*sensor_values]++;
 
-    if (sensor_value_frequencies[sensor_values[i]] >= highest_frequency) {
-      highest_frequency = sensor_value_frequencies[sensor_values[i]];
-      most_frequent_sensor_value = sensor_values[i];
+    if (sensor_value_frequencies[*sensor_values] >= highest_frequency) {
+      highest_frequency = sensor_value_frequencies[*sensor_values];
+      most_frequent_sensor_value = *sensor_values;
     }
+
+    sensor_values++;
   }
 
   // TODO: handle condition if all sensor values occur only once differently? right now, the most recent value is
