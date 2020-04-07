@@ -7,15 +7,15 @@
 
 #include "sensor_can_handler.h"
 
-/*void test_sensor_can_handler__transmit_messages_1hz(void) {
+void test_sensor_can_handler__transmit_messages_1hz(void) {
   dbc_SENSOR_USONARS_s ultrasonic_sensors_struct = {};
 
   uint16_t sensor1, sensor2, sensor3, sensor4;
 
-  ultrasonic_sensor_handler__get_sensor_value_left_ExpectAndReturn(sensor1);
-  ultrasonic_sensor_handler__get_sensor_value_right_ExpectAndReturn(sensor2);
-  ultrasonic_sensor_handler__get_sensor_value_front_ExpectAndReturn(sensor3);
-  ultrasonic_sensor_handler__get_sensor_value_back_ExpectAndReturn(sensor4);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_left_ExpectAndReturn(sensor1);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_right_ExpectAndReturn(sensor2);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_front_ExpectAndReturn(sensor3);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_back_ExpectAndReturn(sensor4);
   led_handler__diagnostic_test_object_detection_led3_Expect(sensor1, sensor2, sensor3, sensor4);
 
   can__msg_t sensor_can_msg = {};
@@ -28,17 +28,18 @@
   can__tx_ExpectAnyArgsAndReturn(true);
 
   sensor_can_handler__transmit_messages_1hz();
-}*/
+}
 
-/*void test_sensor_can_handler__transmit_messages_10hz(void) {
+void test_sensor_can_handler__transmit_messages_10hz(void) {
   dbc_SENSOR_USONARS_s ultrasonic_sensors_struct = {};
 
   uint16_t sensor1, sensor2, sensor3, sensor4;
 
-  ultrasonic_sensor_handler__get_sensor_value_left_ExpectAndReturn(sensor1);
-  ultrasonic_sensor_handler__get_sensor_value_right_ExpectAndReturn(sensor2);
-  ultrasonic_sensor_handler__get_sensor_value_front_ExpectAndReturn(sensor3);
-  ultrasonic_sensor_handler__get_sensor_value_back_ExpectAndReturn(sensor4);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_left_ExpectAndReturn(sensor1);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_right_ExpectAndReturn(sensor2);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_front_ExpectAndReturn(sensor3);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_back_ExpectAndReturn(sensor4);
+  led_handler__diagnostic_test_object_detection_led3_Expect(sensor1, sensor2, sensor3, sensor4);
 
   can__msg_t sensor_can_msg = {};
   const dbc_message_header_t sensor_header =
@@ -50,7 +51,7 @@
   can__tx_ExpectAnyArgsAndReturn(true);
 
   sensor_can_handler__transmit_messages_10hz();
-}*/
+}
 
 void test_sensor_can_handler__handle_all_incoming_messages(void) {
   can__msg_t sensor_can_msg = {};

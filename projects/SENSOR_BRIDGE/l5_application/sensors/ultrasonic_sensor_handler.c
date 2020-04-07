@@ -115,7 +115,7 @@ uint16_t ultrasonic_sensor_handler__get_sensor_value_back(void) {
 uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_left(void) {
   uint16_t filtered_sensor_value = 0;
 
-  filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(20, 2);
+  filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(10, 2);
 
   return filtered_sensor_value;
 }
@@ -124,10 +124,6 @@ uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_right(void) {
   uint16_t filtered_sensor_value = 0;
 
   filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(10, 4);
-  // printf("Returned = %i\n", filtered_sensor_value);
-  if ((filtered_sensor_value <= 82) || (filtered_sensor_value >= 89)) {
-    printf("%i\n", filtered_sensor_value);
-  }
 
   return filtered_sensor_value;
 }
@@ -135,7 +131,7 @@ uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_right(void) {
 uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_front(void) {
   uint16_t filtered_sensor_value = 0;
 
-  filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(20, 5);
+  filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(10, 5);
 
   return filtered_sensor_value;
 }
@@ -143,7 +139,7 @@ uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_front(void) {
 uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_back(void) {
   uint16_t filtered_sensor_value = 0;
 
-  filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(20, 3);
+  filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(10, 3);
 
   return filtered_sensor_value;
 }
