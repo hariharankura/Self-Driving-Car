@@ -19,10 +19,10 @@ void test_ultrasonic_sensor_handler__initialize_sensors(void) {
 }
 
 void test_ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(void) {
-  TEST_ASSERT_EQUAL_UINT16(-9, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(0));
-  TEST_ASSERT_EQUAL_UINT16(308, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(4095));
-  TEST_ASSERT_EQUAL_UINT16(13, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(300));
-  TEST_ASSERT_EQUAL_UINT16(190, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(2574));
+  TEST_ASSERT_EQUAL_UINT16(-21, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(0));
+  TEST_ASSERT_EQUAL_UINT16(495, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(4095));
+  TEST_ASSERT_EQUAL_UINT16(16, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(300));
+  TEST_ASSERT_EQUAL_UINT16(303, ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(2574));
 }
 
 void test_ultrasonic_sensor_handler__get_sensor_value_left(void) {
@@ -56,3 +56,5 @@ void test_ultrasonic_sensor_handler__get_sensor_value_back(void) {
 
   ultrasonic_sensor_handler__get_sensor_value_back();
 }
+
+// write UT's for filtered versions

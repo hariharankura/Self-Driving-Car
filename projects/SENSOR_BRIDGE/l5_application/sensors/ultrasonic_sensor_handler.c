@@ -9,8 +9,8 @@
 // Private Functions
 static uint16_t ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(uint16_t adc_value) {
   float distance_in_cm = 0;
-  float slope = 0.077656;
-  float y_intercept = -9.706729;
+  float slope = 0.1264;
+  float y_intercept = -21.86;
 
   distance_in_cm = (slope * adc_value) + y_intercept;
 
@@ -47,15 +47,12 @@ static uint16_t ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_senso
 
   memset(sensor_values_in_cm, 0, sizeof(sensor_values_in_cm));
 
-  // printf("Raw (in cm): ");
   for (int i = 0; i < n; i++) {
     raw_sensor_value = adc__get_adc_value(ADC_channel);
     sensor_values_in_cm[i] = ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(raw_sensor_value);
-    // printf("%i ", sensor_values_in_cm[i]);
   }
 
   filtered_sensor_value = mode_filter__find_mode_of_sensor_values_converted_to_cm(sensor_values_in_cm, n);
-  // printf("Filtered = %i ", filtered_sensor_value);
 
   return filtered_sensor_value;
 }
