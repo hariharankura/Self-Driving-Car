@@ -7,10 +7,20 @@
 #include <string.h>
 
 // Private Functions
-static uint16_t ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(uint16_t adc_value) {
+static uint16_t ultrasonic_sensor_handler__3_3V_convert_12_bit_adc_value_to_cm(uint16_t adc_value) {
   float distance_in_cm = 0;
   float slope = 0.1264;
   float y_intercept = -21.86;
+
+  distance_in_cm = (slope * adc_value) + y_intercept;
+
+  return distance_in_cm;
+}
+
+static uint16_t ultrasonic_sensor_handler__5V_convert_12_bit_adc_value_to_cm(uint16_t adc_value) {
+  float distance_in_cm = 0;
+  float slope = 0.077656;
+  float y_intercept = -9.706729;
 
   distance_in_cm = (slope * adc_value) + y_intercept;
 
@@ -49,7 +59,7 @@ static uint16_t ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_senso
 
   for (int i = 0; i < n; i++) {
     raw_sensor_value = adc__get_adc_value(ADC_channel);
-    sensor_values_in_cm[i] = ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(raw_sensor_value);
+    sensor_values_in_cm[i] = ultrasonic_sensor_handler__3_3V_convert_12_bit_adc_value_to_cm(raw_sensor_value);
   }
 
   filtered_sensor_value = mode_filter__find_mode_of_sensor_values_converted_to_cm(sensor_values_in_cm, n);
@@ -73,7 +83,7 @@ uint16_t ultrasonic_sensor_handler__get_sensor_value_left(void) {
   uint16_t converted_sensor_value = 0;
 
   sensor_value = adc__get_adc_value(ADC__CHANNEL_2);
-  converted_sensor_value = ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(sensor_value);
+  converted_sensor_value = ultrasonic_sensor_handler__5V_convert_12_bit_adc_value_to_cm(sensor_value);
 
   return converted_sensor_value;
 }
@@ -83,7 +93,7 @@ uint16_t ultrasonic_sensor_handler__get_sensor_value_right(void) {
   uint16_t converted_sensor_value = 0;
 
   sensor_value = adc__get_adc_value(ADC__CHANNEL_4);
-  converted_sensor_value = ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(sensor_value);
+  converted_sensor_value = ultrasonic_sensor_handler__5V_convert_12_bit_adc_value_to_cm(sensor_value);
 
   return converted_sensor_value;
 }
@@ -93,7 +103,7 @@ uint16_t ultrasonic_sensor_handler__get_sensor_value_front(void) {
   uint16_t converted_sensor_value = 0;
 
   sensor_value = adc__get_adc_value(ADC__CHANNEL_5);
-  converted_sensor_value = ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(sensor_value);
+  converted_sensor_value = ultrasonic_sensor_handler__5V_convert_12_bit_adc_value_to_cm(sensor_value);
 
   return converted_sensor_value;
 }
@@ -103,7 +113,7 @@ uint16_t ultrasonic_sensor_handler__get_sensor_value_back(void) {
   uint16_t converted_sensor_value = 0;
 
   sensor_value = adc__get_adc_value(ADC__CHANNEL_3);
-  converted_sensor_value = ultrasonic_sensor_handler__convert_12_bit_adc_value_to_cm(sensor_value);
+  converted_sensor_value = ultrasonic_sensor_handler__5V_convert_12_bit_adc_value_to_cm(sensor_value);
 
   return converted_sensor_value;
 }
