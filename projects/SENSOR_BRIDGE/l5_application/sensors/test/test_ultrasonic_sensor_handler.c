@@ -32,6 +32,36 @@ void test_ultrasonic_sensor_handler__5V_convert_12_bit_adc_value_to_cm(void) {
   TEST_ASSERT_EQUAL_UINT16(190, ultrasonic_sensor_handler__5V_convert_12_bit_adc_value_to_cm(2574));
 }
 
+void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(void) {
+  int threshold = 50;
+  int numb_of_consec_values = 3;
+
+  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
+                                    100, threshold, numb_of_consec_values));
+  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
+                                    100, threshold, numb_of_consec_values));
+  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
+                                    100, threshold, numb_of_consec_values));
+
+  TEST_ASSERT_EQUAL_UINT16(
+      51, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
+  TEST_ASSERT_EQUAL_UINT16(
+      51, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
+  TEST_ASSERT_EQUAL_UINT16(
+      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
+  TEST_ASSERT_EQUAL_UINT16(
+      51, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
+  TEST_ASSERT_EQUAL_UINT16(
+      51, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
+  TEST_ASSERT_EQUAL_UINT16(
+      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+}
+
 void test_ultrasonic_sensor_handler__get_sensor_value_left(void) {
   uint16_t sensor_value = 0;
 
