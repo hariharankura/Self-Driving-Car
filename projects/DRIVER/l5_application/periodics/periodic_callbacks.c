@@ -4,6 +4,8 @@
 #include "can_bus_handler.h"
 #include "driver_diagnostics.h"
 #include "gpio.h"
+#include "sjvalley_lcd.h"
+#include <stdio.h>
 
 /******************************************************************************
  * Your board will reset if the periodic function does not return within its deadline
@@ -14,19 +16,26 @@ void periodic_callbacks__initialize(void) {
   // This method is invoked once when the periodic tasks are created
   diagnostics_led_init();
   can_bus_handler__init();
+  sjvalley_lcd__init();
 }
 
-void periodic_callbacks__1Hz(uint32_t callback_count) { can_bus_handler__reset_if_bus_off(); }
-
-void periodic_callbacks__10Hz(uint32_t callback_count) {
-  can_bus_handler__process_all_received_messages_in_10hz();
-  can_bus_handler__manage_mia_10hz();
-  can_bus_handler__transmit_message_in_10hz();
+void periodic_callbacks__1Hz(uint32_t callback_count) {
+  if (callback_count == 0) {
+    sjvalley_lcd__communication_init();
+  }
+  sjvalley_lcd__send_line(0, "Hello!");
+  sjvalley_lcd__send_line(1, "World");
+  sjvalley_lcd__send_line(2, "From");
+  sjvalley_lcd__send_line(3, "Mohit");
+  can_bus_handler__reset_if_bus_off();
 }
+
+void periodic_callbacks__10Hz(uint32_t callback_count) {}
 
 void periodic_callbacks__100Hz(uint32_t callback_count) {
-  // gpio__toggle(board_io__get_led2());
-  // Add your code here
+  can_bus_handler__process_all_received_messages_in_100hz();
+  can_bus_handler__manage_mia_100hz();
+  can_bus_handler__transmit_message_in_100hz();
 }
 
 /**
