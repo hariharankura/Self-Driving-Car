@@ -4,6 +4,7 @@
 
 #include "Mockcan_bus.h"
 #include "Mockmotor_logic.h"
+#include "Mockspeed_sensor.h"
 
 #include "can_handler.h"
 #include "project.h"
@@ -36,7 +37,15 @@ void test_can_bus_handler__process_all_received_messages(void) {
   can__msg_t can_receive_msg = {};
   dbc_DRIVER_STEER_SPEED_s steer_data = {};
   can__rx_StubWithCallback(can__rx_hijacked_mock);
-  motor_steer_logic_Expect(&steer_data);
-  motor_steer_logic_IgnoreArg_steer_data();
-  can_bus_handler__process_all_received_messages();
+  motor_logic_Expect(&steer_data);
+  motor_logic_IgnoreArg_steer_data();
+  can_bus_handler__process_all_received_messages_in_10hz();
+}
+
+void test_can_bus_handler__transmit_message(void) {
+  can__msg_t send_msg = {};
+  get_mph_ExpectAndReturn(0);
+  can__tx_ExpectAndReturn(can1, &send_msg, 0, true);
+  can__tx_IgnoreArg_can_message_ptr();
+  can_bus_handler__transmit_message_in_10hz();
 }

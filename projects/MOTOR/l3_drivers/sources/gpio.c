@@ -93,3 +93,10 @@ void gpio__toggle(gpio_s gpio) {
     gpio__set(gpio);
   }
 }
+
+void gpio_enable_interrupt(uint32_t pin_number) {
+
+  uint32_t mask = 1 << pin_number;
+
+  LPC_GPIOINT->IO0IntEnR = mask;
+}
