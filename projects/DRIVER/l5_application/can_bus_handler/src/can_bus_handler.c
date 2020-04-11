@@ -6,9 +6,12 @@
 
 // User-Defined Header Files
 #include "board_io.h"
+#include "gpio.h"
+
 #include "can_bus.h"
 #include "driver_logic.h"
-#include "gpio.h"
+#include "driving_algo.h"
+#include "obstacle_avoidance.h"
 
 // Constants for CAN BUS
 static const uint16_t CAN_BAUD_RATE = 100;
@@ -39,32 +42,32 @@ void can_bus_handler__reset_if_bus_off(void) {
   }
 }
 
-void can_bus_handler__process_all_received_messages_in_10hz(void) {
+void can_bus_handler__process_all_received_messages_in_100hz(void) {
   can__msg_t can_receive_msg = {};
   while (can__rx(CAN_BUS, &can_receive_msg, 0)) {
     const dbc_message_header_t header = {.message_id = can_receive_msg.msg_id,
                                          .message_dlc = can_receive_msg.frame_fields.data_len};
     if (dbc_decode_SENSOR_USONARS(&can_sensor_data, header, can_receive_msg.data.bytes)) {
-      driver_logic__process_ultrasonic_sensors_data(can_sensor_data);
+      obstacle_avoidance__process_ultrasonic_sensors_data(can_sensor_data);
       gpio__set(board_io__get_led0());
     } else if (dbc_decode_GEO_COMPASS(&can_current_and_destination_heading_angle, header, can_receive_msg.data.bytes)) {
-      driver_logic__process_geo_compass_data(can_current_and_destination_heading_angle);
+      driving_algo__process_geo_compass_data(can_current_and_destination_heading_angle);
     }
   }
 }
 
-void can_bus_handler__transmit_message_in_10hz(void) {
-  // receive data from queue and then encode and transmit
+void can_bus_handler__transmit_message_in_100hz(void) {
   dbc_DRIVER_STEER_SPEED_s steer_info = {};
   can__msg_t can_transmit_msg = {};
   steer_info = driver_logic__get_motor_command();
+
   dbc_encode_and_send_DRIVER_STEER_SPEED(&can_transmit_msg, &steer_info);
 }
 
-void can_bus_handler__manage_mia_10hz(void) {
+void can_bus_handler__manage_mia_100hz(void) {
   const uint32_t mia_increment_value = 100;
   if (dbc_service_mia_SENSOR_USONARS(&can_sensor_data, mia_increment_value)) {
-    driver_logic__process_ultrasonic_sensors_data(can_sensor_data);
+    obstacle_avoidance__process_ultrasonic_sensors_data(can_sensor_data);
     gpio__reset(board_io__get_led0());
   }
 }
