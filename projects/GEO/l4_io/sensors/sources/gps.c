@@ -24,6 +24,7 @@ static gps_coordinates_t parsed_coordinates;
 static void gps__absorb_data(void) {
   char byte;
   while (uart__get(gps_uart, &byte, 0)) {
+    // printf("%c", byte);
     line_buffer__add_byte(&line, byte);
   }
 }
@@ -53,8 +54,10 @@ static bool gps__parse_nema_string(char *gps_nema_string, gps_coordinates_t *tem
   uint8_t gps_valid;
   char lat_direction = 'N';
   char long_direction = 'E';
+  printf("line = %s\n", gps_nema_string);
   if (*gps_nema_string == '$') {
     if (NULL != strstr(gps_nema_string, "$GPGGA")) {
+      printf("%s\n", gps_nema_string);
       sl_string__scanf(gps_nema_string, "$GPGGA, %*f, %lf, %c, %lf, %c, %hhd, %*s", &latitude, &lat_direction,
                        &longitude, &long_direction, &gps_valid);
       gps__process_and_save_latitude_longitude(temp_coordinates, latitude, lat_direction, longitude, long_direction);

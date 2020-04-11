@@ -12,8 +12,7 @@ void bridge_can_handler__transmit_messages_10hz(void) {
   bridge_controller_handler__get_destination_coordinates(&latitude, &longitude);
   bridge_struct.BRIDGE_GPS_latitude = latitude;
   bridge_struct.BRIDGE_GPS_longitude = longitude;
-  printf("bridge data: latitude = %f, longitude = %f\n", bridge_struct.BRIDGE_GPS_latitude,
-         bridge_struct.BRIDGE_GPS_longitude);
+  printf("bridge data: lat = %f, long = %f\n", bridge_struct.BRIDGE_GPS_latitude, bridge_struct.BRIDGE_GPS_longitude);
 
   can__msg_t bridge_can_msg = {};
   const dbc_message_header_t bridge_header = dbc_encode_BRIDGE_GPS(bridge_can_msg.data.bytes, &bridge_struct);
