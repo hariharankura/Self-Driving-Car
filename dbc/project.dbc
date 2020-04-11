@@ -52,8 +52,8 @@ BO_ 401 GEO_COMPASS: 4 GEO
  SG_ GEO_COMPASS_desitination_heading : 16|16@1+ (1E-002,0) [0|360.01] "degree" DRIVER
 
 BO_ 500 BRIDGE_GPS: 8 SENSOR_BRIDGE
- SG_ BRIDGE_GPS_latitude : 0|32@1- (1E-007,-90.0) [-90.0|90.0] "" GEO
- SG_ BRIDGE_GPS_longitude : 32|32@1- (1E-007,-180.0) [-180.0|180.0] "" GEO
+ SG_ BRIDGE_GPS_latitude : 0|32@1- (1E-006,-90.0) [-90.0|90.0] "" GEO
+ SG_ BRIDGE_GPS_longitude : 32|32@1- (1E-006,-180.0) [-180.0|180.0] "" GEO
 
 BO_ 600 MOTOR_SPEED: 1 MOTOR
  SG_ MOTOR_SPEED_info : 0|8@1- (0.01,-30.01) [-30.0|30.0] "mph" DRIVER

@@ -9,14 +9,13 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
-#include "clock.h" // needed for UART initialization
+#include "clock.h"
 #include <gpio.h>
 #include <stdio.h>
 #include <string.h>
 
 static uart_e gps_uart = UART__3;
 
-// Space for the line buffer, and the line buffer data structure instance
 static char line_buffer[256];
 static line_buffer_s line;
 
@@ -65,7 +64,7 @@ static bool gps__parse_nema_string(char *gps_nema_string, gps_coordinates_t *tem
       return_value = (gps_valid > 0);
     }
   }
-  printf("%f:%f\n%f:%f\n", latitude, temp_coordinates->latitude, longitude, temp_coordinates->longitude);
+  // printf("%f:%f\n%f:%f\n", latitude, temp_coordinates->latitude, longitude, temp_coordinates->longitude);
   return return_value;
 }
 
@@ -87,7 +86,7 @@ void gps__init(void) {
   uart__init(gps_uart, clock__get_peripheral_clock_hz(), 9600);
 
   QueueHandle_t rxq_handle = xQueueCreate(200, sizeof(char));
-  QueueHandle_t txq_handle = xQueueCreate(8, sizeof(char)); // We don't send anything to the GPS
+  QueueHandle_t txq_handle = xQueueCreate(8, sizeof(char));
   uart__enable_queues(gps_uart, rxq_handle, txq_handle);
 }
 

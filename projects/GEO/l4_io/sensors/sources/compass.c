@@ -2,6 +2,7 @@
 #include "gps.h"
 #include "i2c.h"
 #include "math.h"
+#include "project.h"
 
 static const uint8_t COMPASS_ADDRESS = 0xC0;
 static const uint8_t SLAVE_READ_ANGLE = 0x02;
@@ -62,7 +63,7 @@ static void convert_source_destination_to_radian(dbc_BRIDGE_GPS_s *l_current_gps
 }
 
 float round_upto_2_decimal(float bearing) {
-  float value = (int)(bearing * 100 + 0.5f);
+  uint64_t value = (uint64_t)(bearing * 100 + 0.5f);
   return (float)value / 100;
 }
 
@@ -84,6 +85,22 @@ static float compass__calculate_destination_angle(dbc_BRIDGE_GPS_s l_current_gps
   return bearing;
 }
 
+static float compass__calculate_destination_distance(dbc_BRIDGE_GPS_s current_gps_coordinates,
+                                                     dbc_BRIDGE_GPS_s destination_gps_coordinates) {
+  float distance = 0.0f;
+  if (check_valid_source_destination_coordinates(&current_gps_coordinates, &destination_gps_coordinates)) {
+    convert_source_destination_to_radian(&current_gps_coordinates, &destination_gps_coordinates);
+    float lat_diff = destination_gps_coordinates.BRIDGE_GPS_latitude - current_gps_coordinates.BRIDGE_GPS_latitude;
+    float lon_diff = destination_gps_coordinates.BRIDGE_GPS_longitude - current_gps_coordinates.BRIDGE_GPS_longitude;
+    float a = pow(sin(lat_diff / 2), 2) + cos(current_gps_coordinates.BRIDGE_GPS_latitude) *
+                                              cos(destination_gps_coordinates.BRIDGE_GPS_latitude) *
+                                              pow(sin(lon_diff / 2), 2);
+    float c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    distance = 6371 * 1000 * c;
+  }
+  distance = round_upto_2_decimal(distance);
+  return distance;
+}
 void compass__set_destination_gps(dbc_BRIDGE_GPS_s *copy_dest_data) { destination_gps_coordinates = *copy_dest_data; }
 
 dbc_GEO_COMPASS_s compass__get_current_and_destination_heading(void) {
