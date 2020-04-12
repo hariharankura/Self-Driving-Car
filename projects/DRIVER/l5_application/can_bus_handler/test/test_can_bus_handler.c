@@ -92,8 +92,7 @@ bool can__rx_compass_data_hijacked_mock(can__num_e can, can__msg_t *msg_ptr, uin
 
 void test_can_bus_handler__process_all_received_messages_ultrasonic_sensor(void) {
   can__rx_StubWithCallback(can__rx_ultrasonic_hijacked_mock);
-  board_io__get_led0_ExpectAndReturn(board_led_0);
-  gpio__set_Expect(board_led_0);
+  gpio__set_Expect(board_led_1);
   sjvalley_lcd__send_line_StubWithCallback(sjvalley_lcd__send_line_hijacked_stub);
   can_bus_handler__process_all_received_messages_in_100hz();
   TEST_ASSERT_EQUAL_UINT16(4, sensor_data.SENSOR_USONARS_left);

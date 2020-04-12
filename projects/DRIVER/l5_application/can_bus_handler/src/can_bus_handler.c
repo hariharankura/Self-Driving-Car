@@ -61,7 +61,7 @@ void can_bus_handler__process_all_received_messages_in_100hz(void) {
     if (dbc_decode_SENSOR_USONARS(&can_sensor_data, header, can_receive_msg.data.bytes)) {
       obstacle_avoidance__process_ultrasonic_sensors_data(can_sensor_data);
       obstacle_avoidance__print_debug_data();
-      gpio__set(board_io__get_led0());
+      gpio__set(MIA_OBSTACLE_STATUS_LED);
     } else if (dbc_decode_GEO_COMPASS(&can_current_and_destination_heading_angle, header, can_receive_msg.data.bytes)) {
       driving_algo__process_geo_compass_data(can_current_and_destination_heading_angle);
     }
@@ -77,11 +77,12 @@ void can_bus_handler__transmit_message_in_100hz(void) {
 }
 
 void can_bus_handler__manage_mia_100hz(void) {
-  const uint32_t mia_increment_value = 100;
+  const uint32_t mia_increment_value = 1000;
   if (dbc_service_mia_SENSOR_USONARS(&can_sensor_data, mia_increment_value)) {
     obstacle_avoidance__process_ultrasonic_sensors_data(can_sensor_data);
     gpio__reset(MIA_OBSTACLE_STATUS_LED);
     PROJECT_DEBUG__LCD_PRINTF(1, "Obs MIA");
+    PROJECT_DEBUG__PRINTF("Obstacle MIA\n");
   }
 }
 
