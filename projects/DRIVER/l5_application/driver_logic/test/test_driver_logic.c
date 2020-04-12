@@ -1,6 +1,7 @@
 #include "unity.h"
 
 #include "Mockgpio.h"
+#include "Mocksjvalley_lcd.h"
 #include "driver_diagnostics.h"
 #include "driver_logic.c"
 #include "driving_algo.h"

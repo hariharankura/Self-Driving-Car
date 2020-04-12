@@ -1,5 +1,6 @@
 #include "unity.h"
 
+#include "Mocksjvalley_lcd.h"
 #include "obstacle_avoidance.c"
 
 dbc_SENSOR_USONARS_s test_sensor_data;

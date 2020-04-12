@@ -1,4 +1,5 @@
 #include "obstacle_avoidance.h"
+#include "project_debug.h"
 
 typedef union {
   struct obs {
@@ -111,6 +112,12 @@ static void obstacle_avoidance__get_steer_direction(dbc_DRIVER_STEER_SPEED_s *mo
 void obstacle_avoidance__process_ultrasonic_sensors_data(const dbc_SENSOR_USONARS_s l_sensor_data) {
   sensor_data = l_sensor_data;
   obstacle_avoidance__is_fill_sensor_data();
+}
+
+void obstacle_avoidance__print_debug_data(void) {
+  // debug data
+  PROJECT_DEBUG__LCD_PRINTF(1, "Obs=%x", ultrasonic_data.obstacle_var);
+  PROJECT_DEBUG__PRINTF("Obstacle_Data = %x", ultrasonic_data.obstacle_var);
 }
 
 bool obstacle_avoidance__is_required() { return is_obstacle; }

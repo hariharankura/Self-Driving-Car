@@ -7,6 +7,8 @@
 #include "sjvalley_lcd.h"
 #include <stdio.h>
 
+#include "project_debug.h"
+
 /******************************************************************************
  * Your board will reset if the periodic function does not return within its deadline
  * For 1Hz, the function must return within 1000ms
@@ -23,10 +25,6 @@ void periodic_callbacks__1Hz(uint32_t callback_count) {
   if (callback_count == 0) {
     sjvalley_lcd__communication_init();
   }
-  sjvalley_lcd__send_line(0, "Hello!");
-  sjvalley_lcd__send_line(1, "World");
-  sjvalley_lcd__send_line(2, "From");
-  sjvalley_lcd__send_line(3, "Mohit");
   can_bus_handler__reset_if_bus_off();
 }
 
