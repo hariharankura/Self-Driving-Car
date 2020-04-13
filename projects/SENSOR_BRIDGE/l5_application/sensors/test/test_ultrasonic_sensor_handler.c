@@ -62,6 +62,14 @@ void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
       50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
 }
 
+void test_ultrasonic_sensor_handler__new_get_sensor_value_when_below_threshold_left() {
+  int threshold = 50;
+  int numb_of_consec_values = 3;
+
+  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__new_get_sensor_value_when_below_threshold_left(
+                                    100, threshold, numb_of_consec_values));
+}
+
 void test_ultrasonic_sensor_handler__get_sensor_value_left(void) {
   uint16_t sensor_value = 0;
 

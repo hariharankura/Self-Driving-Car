@@ -36,11 +36,11 @@ void test_led_handler__diagnostic_test_object_detection_led3(void) {
 
   board_io__get_led3_ExpectAndReturn(led3);
   gpio__reset_Expect(led3);
-  led_handler__diagnostic_test_object_detection_led3(300, 300, 50, 300);
+  led_handler__diagnostic_test_object_detection_led3(300, 300, 60, 300);
 
   board_io__get_led3_ExpectAndReturn(led3);
   gpio__set_Expect(led3);
-  led_handler__diagnostic_test_object_detection_led3(300, 51, 300, 300);
+  led_handler__diagnostic_test_object_detection_led3(300, 61, 300, 300);
 }
 
 void test_led_handler__diagnostic_test_object_detection_leds_for_each_sensor(void) {
@@ -70,7 +70,7 @@ void test_led_handler__diagnostic_test_object_detection_leds_for_each_sensor(voi
 
   board_io__get_led0_ExpectAndReturn(led0);
   gpio__reset_Expect(led0);
-  led_handler__diagnostic_test_object_detection_leds_for_each_sensor(50, 50, 50, 50);
+  led_handler__diagnostic_test_object_detection_leds_for_each_sensor(60, 60, 60, 60);
 
   board_io__get_led3_ExpectAndReturn(led3);
   gpio__set_Expect(led3);
@@ -83,5 +83,5 @@ void test_led_handler__diagnostic_test_object_detection_leds_for_each_sensor(voi
 
   board_io__get_led0_ExpectAndReturn(led0);
   gpio__set_Expect(led0);
-  led_handler__diagnostic_test_object_detection_leds_for_each_sensor(100, 57, 50, 70);
+  led_handler__diagnostic_test_object_detection_leds_for_each_sensor(100, 67, 60, 70);
 }

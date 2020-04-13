@@ -11,7 +11,7 @@ void led_handler__turn_off_all_sjtwo_leds(void) {
 
 void led_handler__diagnostic_test_object_detection_led3(uint16_t left_sensor, uint16_t right_sensor,
                                                         uint16_t front_sensor, uint16_t back_sensor) {
-  uint16_t threshold_in_cm = 50;
+  uint16_t threshold_in_cm = 60;
 
   if ((left_sensor <= threshold_in_cm) || (right_sensor <= threshold_in_cm) || (front_sensor <= threshold_in_cm) ||
       (back_sensor <= threshold_in_cm)) {
@@ -23,7 +23,7 @@ void led_handler__diagnostic_test_object_detection_led3(uint16_t left_sensor, ui
 
 void led_handler__diagnostic_test_object_detection_leds_for_each_sensor(uint16_t left_sensor, uint16_t right_sensor,
                                                                         uint16_t front_sensor, uint16_t back_sensor) {
-  uint16_t threshold_in_cm = 50;
+  uint16_t threshold_in_cm = 60;
 
   if (left_sensor <= threshold_in_cm) {
     gpio__reset(board_io__get_led3());
