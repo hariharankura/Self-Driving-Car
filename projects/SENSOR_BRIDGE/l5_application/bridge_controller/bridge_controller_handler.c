@@ -1,6 +1,7 @@
 #include "bridge_controller_handler.h"
 
 static int address_count = 0;
+static bool previous_line_data_flag;
 
 void bridge_controller_handler__initialize_bluetooth_module(void) {
 
@@ -130,5 +131,19 @@ void bridge_controller_handler__get_gps_coordinates(float *latitude, float *long
 void bridge_controller_handler__get_destination_coordinates(float *latitude, float *longitude) {
 
   bridge_controller_handler__get_data_from_uart();
+  bridge_controller_handler__get_start_stop_condition();
   bridge_controller_handler__get_gps_coordinates(latitude, longitude);
+}
+
+bool bridge_controller_handler__get_start_stop_condition() {
+  char *line;
+  bridge_controller_handler__get_single_gps_message(line);
+  if (line == 'START') {
+    previous_line_data_flag = true;
+    return true;
+  } else if (line == 'STOP') {
+    previous_line_data_flag = false;
+    return false;
+  } else
+    return previous_line_data_flag;
 }

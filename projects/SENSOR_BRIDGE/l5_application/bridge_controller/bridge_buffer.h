@@ -14,3 +14,4 @@ void print_buffer(void);
 extern int front;
 extern int rear;
 extern unsigned char gps_buffer[SIZE];
+extern bool start_stop_flag;

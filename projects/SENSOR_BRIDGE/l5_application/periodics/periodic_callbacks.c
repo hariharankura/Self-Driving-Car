@@ -19,6 +19,7 @@ void periodic_callbacks__1Hz(uint32_t callback_count) { can_bus_initializer__res
 void periodic_callbacks__10Hz(uint32_t callback_count) {
   sensor_can_handler__transmit_messages_10hz();
   bridge_can_handler__transmit_messages_10hz();
+  bridge_can_handler__transmit_start_stop_condition();
 }
 void periodic_callbacks__100Hz(uint32_t callback_count) {}
 

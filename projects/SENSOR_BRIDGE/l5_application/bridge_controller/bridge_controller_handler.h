@@ -26,3 +26,5 @@ bool bridge_controller_handler__get_gps_message_from_buffer(char *temp_buffer);
 void bridge_controller_handler__get_gps_coordinates(float *latitude, float *longitude);
 
 void bridge_controller_handler__get_destination_coordinates(float *latitude, float *longitude);
+
+bool bridge_controller_handler__get_start_stop_condition();
