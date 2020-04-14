@@ -1,10 +1,10 @@
 #pragma once
 #include "project.h"
 
-static const uint16_t THRESHOLD_VERY_NEAR = 20;
-static const uint16_t THRESHOLD_NEAR = 40;
-static const int8_t DRIVER_STEER_move_FORWARD_at_SPEED = 3;
-static const int8_t DRIVER_STEER_move_REVERSE_at_SPEED = -3;
+static const uint16_t THRESHOLD_VERY_NEAR = 40;
+static const uint16_t THRESHOLD_NEAR = 60;
+static const int8_t DRIVER_STEER_move_FORWARD_at_SPEED = 2;
+static const int8_t DRIVER_STEER_move_REVERSE_at_SPEED = -2;
 static const int8_t DRIVER_STEER_move_STOP = 0;
 
 bool obstacle_avoidance__is_required();

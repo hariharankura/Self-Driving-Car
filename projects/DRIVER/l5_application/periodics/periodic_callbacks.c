@@ -28,9 +28,9 @@ void periodic_callbacks__1Hz(uint32_t callback_count) {
   can_bus_handler__reset_if_bus_off();
 }
 
-void periodic_callbacks__10Hz(uint32_t callback_count) {}
+void periodic_callbacks__100Hz(uint32_t callback_count) {}
 
-void periodic_callbacks__100Hz(uint32_t callback_count) {
+void periodic_callbacks__10Hz(uint32_t callback_count) {
   can_bus_handler__process_all_received_messages_in_100hz();
   can_bus_handler__manage_mia_100hz();
   can_bus_handler__transmit_message_in_100hz();
