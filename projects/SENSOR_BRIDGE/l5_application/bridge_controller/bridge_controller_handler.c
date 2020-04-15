@@ -76,7 +76,7 @@ void bridge_controller_handler__get_data_from_uart(void) {
   unsigned char byte;
   while (uart__get(UART__3, &byte, 0)) {
     push_buffer(byte);
-    // printf("%c", byte);
+    printf("%c", byte);
   }
 }
 

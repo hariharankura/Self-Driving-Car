@@ -13,9 +13,9 @@ bool is_buffer_empty() {
 void push_buffer(char value) {
 
   if (isalnum(value) || isspace(value) || ispunct(value)) {
-    if ((rear + 1) % SIZE == front) {
+    if ((rear + 1) % SIZE == front)
       return;
-    } else if (front == -1 && rear == -1) {
+    else if (front == -1 && rear == -1) {
       front = 0;
       rear = 0;
     } else {
