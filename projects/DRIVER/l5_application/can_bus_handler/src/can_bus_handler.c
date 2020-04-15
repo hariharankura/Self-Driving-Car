@@ -69,9 +69,8 @@ void can_bus_handler__process_all_received_messages_in_100hz(void) {
       gpio__set(MIA_OBSTACLE_STATUS_LED);
     } else if (dbc_decode_GEO_COMPASS(&can_current_and_destination_heading_angle, header, can_receive_msg.data.bytes)) {
       driving_algo__process_geo_compass_data(can_current_and_destination_heading_angle);
-    }
-    else if(dbc_decode_CAR_ACTION(&can_car_action, header, can_receive_msg.data.bytes)){
-      driver_logic__set_car_mode();
+    } else if (dbc_decode_CAR_ACTION(&can_car_action, header, can_receive_msg.data.bytes)) {
+      driver_logic__set_car_mode(can_car_action);
     }
   }
 }

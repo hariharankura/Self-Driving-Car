@@ -43,6 +43,8 @@ bool pop_buffer(char *value) {
   }
 }
 
+void set__front_back() { front = rear = -1; }
+
 int get_count(void) {
   int count = (rear + SIZE - front) % SIZE + 1;
   return count;

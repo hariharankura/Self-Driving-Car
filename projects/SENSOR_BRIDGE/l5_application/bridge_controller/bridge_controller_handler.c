@@ -1,7 +1,10 @@
 #include "bridge_controller_handler.h"
+#include <string.h>
 
 static int address_count = 0;
 static bool previous_line_data_flag;
+
+static bool status = false;
 
 void bridge_controller_handler__initialize_bluetooth_module(void) {
 
@@ -77,28 +80,30 @@ void bridge_controller_handler__get_data_from_uart(void) {
   unsigned char byte;
   while (uart__get(UART__3, &byte, 0)) {
     push_buffer(byte);
-    // printf("%c", byte);
+    printf("%c\n", byte);
   }
+  push_buffer('\0');
 }
 
 bool bridge_controller_handler__buffer_has_gps_message(const char *array, int *message_count) {
   bool has_line = false;
   int read_index = front;
   int count_max = get_count();
-  for (int i = 0; (i < count_max && array[read_index] != '\0'); i++) {
-    if (array[read_index] == '\n') {
-      has_line = true;
-      (*message_count)++;
-      break;
-    }
-    read_index = (1 + read_index) % SIZE;
-  }
-  return has_line;
+  return (!is_buffer_empty());
+  // for (int i = 0; (i < count_max && array[read_index] != '\0'); i++) {
+  //   if (array[read_index] == '\n') {
+  //     has_line = true;
+  //     (*message_count)++;
+  //     break;
+  //   }
+  //   read_index = (1 + read_index) % SIZE;
+  // }
+  // return has_line;
 }
 
 void bridge_controller_handler__get_single_gps_message(char *line) {
   int i = 0;
-  while (gps_buffer[front] != '\n') {
+  while (gps_buffer[front] != 'c') {
     char value;
     if (pop_buffer(&value)) {
       line[i] = value;
@@ -107,6 +112,8 @@ void bridge_controller_handler__get_single_gps_message(char *line) {
   }
   front = (front + 1) % SIZE;
   line[i] = '\0';
+  memset(gps_buffer, 0, sizeof(gps_buffer));
+  set__front_back();
 }
 
 bool bridge_controller_handler__get_gps_message_from_buffer(char *temp_buffer) {
@@ -131,19 +138,37 @@ void bridge_controller_handler__get_gps_coordinates(float *latitude, float *long
 void bridge_controller_handler__get_destination_coordinates(float *latitude, float *longitude) {
 
   bridge_controller_handler__get_data_from_uart();
-  bridge_controller_handler__get_start_stop_condition();
+  // bridge_controller_handler__get_start_stop_condition();
   bridge_controller_handler__get_gps_coordinates(latitude, longitude);
 }
 
 bool bridge_controller_handler__get_start_stop_condition() {
-  char *line;
-  bridge_controller_handler__get_single_gps_message(line);
-  if (line == 'START') {
+  char line[100];
+  int message_count = 0;
+  bridge_controller_handler__get_data_from_uart();
+  if (bridge_controller_handler__buffer_has_gps_message(gps_buffer, &message_count)) {
+    printf("Has line = %s\n", gps_buffer);
+
+    if (sl_string__contains(gps_buffer, "START")) {
+      status = true;
+    } else if (sl_string__contains(gps_buffer, "STOP")) {
+      status = false;
+    }
+    memset(gps_buffer, 0, sizeof(gps_buffer));
+    set__front_back();
+    // if (message_count > 0) {
+    // bridge_controller_handler__get_single_gps_message(line);
+    // printf("\nLine rx:%s", line);
+    // }
+  }
+
+  if (status) {
     previous_line_data_flag = true;
+    printf("True\n");
     return true;
-  } else if (line == 'STOP') {
+  } else {
     previous_line_data_flag = false;
+    printf("false\n");
     return false;
-  } else
-    return previous_line_data_flag;
+  }
 }

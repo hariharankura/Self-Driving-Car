@@ -16,10 +16,9 @@ dbc_DRIVER_STEER_SPEED_s driver_logic__get_motor_command(void) {
 }
 
 void driver_logic__set_car_mode(dbc_CAR_ACTION_s car_action) {
-    if(car_action.CAR_ACTION_cmd > 0){
-        CAR_IN_START_MODE = true;
-    }
-    else{
-        CAR_IN_START_MODE = false;
-    }
+  if (car_action.CAR_ACTION_cmd > 0) {
+    CAR_IN_START_MODE = true;
+  } else {
+    CAR_IN_START_MODE = false;
+  }
 }
