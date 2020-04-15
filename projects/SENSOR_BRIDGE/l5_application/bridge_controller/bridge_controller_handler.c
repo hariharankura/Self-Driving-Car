@@ -171,4 +171,6 @@ bool bridge_controller_handler__get_start_stop_condition() {
     printf("false\n");
     return false;
   }
+
+  return status;
 }
