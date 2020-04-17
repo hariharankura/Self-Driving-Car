@@ -161,16 +161,16 @@ bool bridge_controller_handler__get_start_stop_condition() {
     // printf("\nLine rx:%s", line);
     // }
   }
-
-  if (status) {
-    previous_line_data_flag = true;
-    printf("True\n");
-    return true;
-  } else {
-    previous_line_data_flag = false;
-    printf("false\n");
-    return false;
-  }
-
   return status;
+  // if (status) {
+  //   previous_line_data_flag = true;
+  //   printf("True\n");
+  //   return true;
+  // } else {
+  //   previous_line_data_flag = false;
+  //   printf("false\n");
+  //   return false;
+  // }
+
+  // return status;
 }
