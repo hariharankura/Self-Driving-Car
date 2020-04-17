@@ -172,7 +172,7 @@ void uart__init(uart_e uart, uint32_t peripheral_clock, uint32_t baud_rate) {
   lpc_peripheral__turn_on_power_to(uart_peripheral_ids[uart]);
 
   const float roundup_offset = 0.5;
-  const uint16_t divider = (uint16_t)((peripheral_clock / (16 * baud_rate))); //+ roundup_offset);
+  const uint16_t divider = (uint16_t)((peripheral_clock / (16 * baud_rate))); // + roundup_offset);
   const uint8_t dlab_bit = (1 << 7);
   const uint8_t eight_bit_datalen = 3;
 

@@ -12,6 +12,7 @@ void can_bus_initializer__initialize_can1(void) {
 void can_bus_initializer__reset_if_bus_off_can1(void) {
   if (can__is_bus_off(can1)) {
     can__reset_bus(can1);
+    printf("CAN1: BUS OFF\n");
   }
 }
 
@@ -24,5 +25,6 @@ void can_bus_initializer__initialize_can2(void) {
 void can_bus_initializer__reset_if_bus_off_can2(void) {
   if (can__is_bus_off(can2)) {
     can__reset_bus(can2);
+    printf("CAN2: BUS OFF\n");
   }
 }
