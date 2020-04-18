@@ -25,6 +25,8 @@ void push_buffer(char value) {
   }
 }
 
+void clear_buffer(void) { front = rear = -1; }
+
 bool pop_buffer(char *value) {
 
   if (is_buffer_empty()) {
