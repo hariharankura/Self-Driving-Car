@@ -28,9 +28,14 @@ void test__periodic_callbacks__1Hz(void) {
 }
 
 void test__periodic_callbacks__10Hz(void) {
-  sensor_can_handler__transmit_messages_10hz_Expect();
+  // sensor_can_handler__transmit_messages_10hz_Expect(); // for testing only
   bridge_can_handler__transmit_messages_10hz_Expect();
   periodic_callbacks__10Hz(0);
+}
+
+void test__periodic_callbacks__50Hz(void) {
+  sensor_can_handler__transmit_messages_50hz_Expect();
+  periodic_callbacks__50Hz(0);
 }
 
 void test__periodic_callbacks__100Hz(void) { periodic_callbacks__100Hz(0); }

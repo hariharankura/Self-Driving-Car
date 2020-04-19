@@ -9,6 +9,7 @@
         "mockled_handler.h": "c",
         "mockmode_filter.h": "c",
         "stdint.h": "c",
-        "adc.h": "c"
+        "adc.h": "c",
+        "task.h": "c"
     }
 }
