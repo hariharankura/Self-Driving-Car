@@ -144,20 +144,24 @@ bool bridge_controller_handler__get_start_stop_condition() {
 
   if (bridge_controller_handler__buffer_has_start_stop_message()) {
 
+    char message[30];
+    int i = 0;
     if (sl_string__contains(gps_buffer, "START")) {
       status = true;
       printf("True\n");
-      char byte[30] = "START Received";
-      if (uart__put(UART__3, byte, 0)) { // Send data to app
-        // printf("Data Sent: Start\n");
+      strcpy(message, "Start Received");
+      while (message[i] != '\0') {
+        uart__put(UART__3, message[i], 0);
+        ++i;
       }
 
     } else if (sl_string__contains(gps_buffer, "STOP")) {
       status = false;
-      char byte[30] = "STOP Received";
       printf("False\n");
-      if (uart__put(UART__3, byte, 0)) { // Send data to app
-        // printf("Data Sent: Stop\n");
+      strcpy(message, "Stop Received");
+      while (message[i] != '\0') {
+        uart__put(UART__3, message[i], 0);
+        ++i;
       }
     }
     clear_buffer();
