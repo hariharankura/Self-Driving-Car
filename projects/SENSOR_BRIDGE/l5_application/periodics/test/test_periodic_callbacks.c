@@ -23,12 +23,10 @@ void test__periodic_callbacks__initialize(void) {
 
 void test__periodic_callbacks__1Hz(void) {
   can_bus_initializer__reset_if_bus_off_can1_Expect();
-  // sensor_can_handler__transmit_messages_1hz_Expect(); // for testing only
   periodic_callbacks__1Hz(0);
 }
 
 void test__periodic_callbacks__10Hz(void) {
-  // sensor_can_handler__transmit_messages_10hz_Expect(); // for testing only
   bridge_can_handler__transmit_messages_10hz_Expect();
   periodic_callbacks__10Hz(0);
 }

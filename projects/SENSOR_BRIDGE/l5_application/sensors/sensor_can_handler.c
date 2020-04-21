@@ -90,9 +90,6 @@ void sensor_can_handler__transmit_messages_50hz(void) {
   ultrasonic_sensors_struct.SENSOR_USONARS_right = right_sensor;
   ultrasonic_sensors_struct.SENSOR_USONARS_front = front_sensor;
   ultrasonic_sensors_struct.SENSOR_USONARS_back = back_sensor;
-  printf("sensor values: left = %icm, front = %icm, right = %icm, back = %icm\n",
-         ultrasonic_sensors_struct.SENSOR_USONARS_left, ultrasonic_sensors_struct.SENSOR_USONARS_front,
-         ultrasonic_sensors_struct.SENSOR_USONARS_right, ultrasonic_sensors_struct.SENSOR_USONARS_back);
 
   can__msg_t sensor_can_msg = {};
   const dbc_message_header_t sensor_header =
