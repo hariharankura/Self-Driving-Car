@@ -61,7 +61,6 @@ void can_bus_handler__process_all_received_messages_in_50hz(void) {
   while (can__rx(CAN_BUS, &can_receive_msg, 0)) {
     const dbc_message_header_t header = {.message_id = can_receive_msg.msg_id,
                                          .message_dlc = can_receive_msg.frame_fields.data_len};
-    // printf("Received Data\n");
     if (dbc_decode_SENSOR_USONARS(&can_sensor_data, header, can_receive_msg.data.bytes)) {
       obstacle_avoidance__process_ultrasonic_sensors_data(can_sensor_data);
       PROJECT_DEBUG__PRINTF("Recieved OBS\n");
@@ -70,13 +69,12 @@ void can_bus_handler__process_all_received_messages_in_50hz(void) {
     } else if (dbc_decode_GEO_COMPASS(&can_current_and_destination_heading_angle, header, can_receive_msg.data.bytes)) {
       driving_algo__process_geo_compass_data(can_current_and_destination_heading_angle);
     } else if (dbc_decode_CAR_ACTION(&can_car_action, header, can_receive_msg.data.bytes)) {
-      // printf("Received car\n");
       driver_logic__set_car_mode(can_car_action);
     }
   }
 }
 
-void can_bus_handler__transmit_message_in_50hz(void) {
+void can_bus_handler__transmit_message_in_20hz(void) {
   dbc_DRIVER_STEER_SPEED_s steer_info = {};
   can__msg_t can_transmit_msg = {};
   steer_info = driver_logic__get_motor_command();

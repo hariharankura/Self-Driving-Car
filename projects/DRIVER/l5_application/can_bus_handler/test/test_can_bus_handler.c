@@ -167,7 +167,7 @@ void test_can_bus_handler__transmit_message(void) {
   gpio__set_Ignore();
   gpio__reset_Ignore();
   sjvalley_lcd__send_line_StubWithCallback(sjvalley_lcd__send_line_hijacked_stub);
-  can_bus_handler__transmit_message_in_50hz();
+  can_bus_handler__transmit_message_in_20hz();
 }
 
 void test_can_bus_handler__manage_mia_50hz(void) {
