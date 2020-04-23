@@ -16,6 +16,7 @@ void test_sensor_can_handler__transmit_messages_1hz(void) {
   ultrasonic_sensor_handler__get_filtered_sensor_value_right_ExpectAndReturn(sensor2);
   ultrasonic_sensor_handler__get_filtered_sensor_value_front_ExpectAndReturn(sensor3);
   ultrasonic_sensor_handler__get_filtered_sensor_value_back_ExpectAndReturn(sensor4);
+  ultrasonic_sensor_handler__set_all_sensor_values_Expect(sensor1, sensor2, sensor3, sensor4);
   led_handler__diagnostic_test_object_detection_leds_for_each_sensor_Expect(sensor1, sensor2, sensor3, sensor4);
 
   can__msg_t sensor_can_msg = {};
@@ -39,6 +40,7 @@ void test_sensor_can_handler__transmit_messages_10hz(void) {
   ultrasonic_sensor_handler__get_filtered_sensor_value_right_ExpectAndReturn(sensor2);
   ultrasonic_sensor_handler__get_filtered_sensor_value_front_ExpectAndReturn(sensor3);
   ultrasonic_sensor_handler__get_filtered_sensor_value_back_ExpectAndReturn(sensor4);
+  ultrasonic_sensor_handler__set_all_sensor_values_Expect(sensor1, sensor2, sensor3, sensor4);
   led_handler__diagnostic_test_object_detection_leds_for_each_sensor_Expect(sensor1, sensor2, sensor3, sensor4);
 
   can__msg_t sensor_can_msg = {};
@@ -51,6 +53,30 @@ void test_sensor_can_handler__transmit_messages_10hz(void) {
   can__tx_ExpectAnyArgsAndReturn(true);
 
   sensor_can_handler__transmit_messages_10hz();
+}
+
+void test_sensor_can_handler__transmit_messages_50hz(void) {
+  dbc_SENSOR_USONARS_s ultrasonic_sensors_struct = {};
+
+  uint16_t sensor1, sensor2, sensor3, sensor4;
+
+  ultrasonic_sensor_handler__get_filtered_sensor_value_left_ExpectAndReturn(sensor1);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_right_ExpectAndReturn(sensor2);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_front_ExpectAndReturn(sensor3);
+  ultrasonic_sensor_handler__get_filtered_sensor_value_back_ExpectAndReturn(sensor4);
+  ultrasonic_sensor_handler__set_all_sensor_values_Expect(sensor1, sensor2, sensor3, sensor4);
+  led_handler__diagnostic_test_object_detection_leds_for_each_sensor_Expect(sensor1, sensor2, sensor3, sensor4);
+
+  can__msg_t sensor_can_msg = {};
+  const dbc_message_header_t sensor_header =
+      dbc_encode_SENSOR_USONARS(sensor_can_msg.data.bytes, &ultrasonic_sensors_struct);
+
+  sensor_can_msg.msg_id = sensor_header.message_id;
+  sensor_can_msg.frame_fields.data_len = sensor_header.message_dlc;
+
+  can__tx_ExpectAnyArgsAndReturn(true);
+
+  sensor_can_handler__transmit_messages_50hz();
 }
 
 void test_sensor_can_handler__handle_all_incoming_messages(void) {
