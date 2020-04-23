@@ -34,23 +34,6 @@ void test_bridge_can_handler__transmit_messages_10hz(void) {
   bridge_can_handler__transmit_messages_10hz();
 }
 
-void test_bridge_can_handler__transmit_start_stop_condition(void) {
-
-  dbc_CAR_ACTION_s car_action_struct;
-  can__msg_t car_action_can_msg = {};
-
-  bridge_controller_handler__get_start_stop_condition_ExpectAndReturn(true);
-
-  const dbc_message_header_t car_action_header =
-      dbc_encode_CAR_ACTION(car_action_can_msg.data.bytes, &car_action_struct);
-
-  car_action_can_msg.msg_id = car_action_header.message_id;
-  car_action_can_msg.frame_fields.data_len = car_action_header.message_dlc;
-
-  can__tx_ExpectAnyArgsAndReturn(true);
-  bridge_can_handler__transmit_start_stop_condition();
-}
-
 void test_bridge_can_handler__handle_all_incoming_messages(void) {
   dbc_MOTOR_SPEED_s motor_speed_message = {};
   can__msg_t can_msg = {};
