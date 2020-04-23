@@ -6,7 +6,9 @@
 #include <stdio.h>
 #include <string.h>
 
-// Private Variable
+// Private Variables
+static sensor_t sensor;
+
 static int driver_threshold_in_cm = 60;
 static int consec_values_below_threshold_required = 2;
 
@@ -220,12 +222,29 @@ static uint16_t ultrasonic_sensor_handler__get_sensor_value_when_below_threshold
 
 // Public Functions
 void ultrasonic_sensor_handler__initialize_sensors(void) {
+  ultrasonic_sensor_handler__set_all_sensor_values(0, 0, 0, 0);
+
   gpio__construct_with_function(GPIO__PORT_0, 25, GPIO__FUNCTION_1); // left: channel 2
   gpio__construct_with_function(GPIO__PORT_1, 30, GPIO__FUNCTION_1); // right: channel 4
   gpio__construct_with_function(GPIO__PORT_1, 31, GPIO__FUNCTION_1); // front: channel 5
   gpio__construct_with_function(GPIO__PORT_0, 26, GPIO__FUNCTION_1); // back: channel 3
 
   adc__initialize();
+}
+
+void ultrasonic_sensor_handler__get_all_sensor_values(uint16_t *left, uint16_t *right, uint16_t *front,
+                                                      uint16_t *back) {
+  *left = sensor.left;
+  *right = sensor.right;
+  *front = sensor.front;
+  *back = sensor.back;
+}
+
+void ultrasonic_sensor_handler__set_all_sensor_values(uint16_t left, uint16_t right, uint16_t front, uint16_t back) {
+  sensor.left = left;
+  sensor.right = right;
+  sensor.front = front;
+  sensor.back = back;
 }
 
 // get unfiltered sensor values

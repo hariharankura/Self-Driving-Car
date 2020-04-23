@@ -9,13 +9,48 @@
 #include "ultrasonic_sensor_handler.c"
 
 void test_ultrasonic_sensor_handler__initialize_sensors(void) {
+  ultrasonic_sensor_handler__set_all_sensor_values(0, 0, 0, 0);
+
   gpio_s gpio;
   gpio__construct_with_function_ExpectAnyArgsAndReturn(gpio);
   gpio__construct_with_function_ExpectAnyArgsAndReturn(gpio);
   gpio__construct_with_function_ExpectAnyArgsAndReturn(gpio);
   gpio__construct_with_function_ExpectAnyArgsAndReturn(gpio);
   adc__initialize_Expect();
+
   ultrasonic_sensor_handler__initialize_sensors();
+}
+
+void test_ultrasonic_sensor_handler__get_all_sensor_values(void) {
+  uint16_t left, right, front, back;
+
+  ultrasonic_sensor_handler__set_all_sensor_values(0, 0, 0, 0);
+  ultrasonic_sensor_handler__get_all_sensor_values(&left, &right, &front, &back);
+  TEST_ASSERT_EQUAL_UINT16(0, left);
+  TEST_ASSERT_EQUAL_UINT16(0, right);
+  TEST_ASSERT_EQUAL_UINT16(0, front);
+  TEST_ASSERT_EQUAL_UINT16(0, back);
+
+  ultrasonic_sensor_handler__set_all_sensor_values(30, 54, 97, 110);
+  ultrasonic_sensor_handler__get_all_sensor_values(&left, &right, &front, &back);
+  TEST_ASSERT_EQUAL_UINT16(30, left);
+  TEST_ASSERT_EQUAL_UINT16(54, right);
+  TEST_ASSERT_EQUAL_UINT16(97, front);
+  TEST_ASSERT_EQUAL_UINT16(110, back);
+}
+
+void test_ultrasonic_sensor_handler__set_all_sensor_values(void) {
+  ultrasonic_sensor_handler__set_all_sensor_values(0, 0, 0, 0);
+  TEST_ASSERT_EQUAL_UINT16(0, sensor.left);
+  TEST_ASSERT_EQUAL_UINT16(0, sensor.right);
+  TEST_ASSERT_EQUAL_UINT16(0, sensor.front);
+  TEST_ASSERT_EQUAL_UINT16(0, sensor.back);
+
+  ultrasonic_sensor_handler__set_all_sensor_values(121, 78, 40, 53);
+  TEST_ASSERT_EQUAL_UINT16(121, sensor.left);
+  TEST_ASSERT_EQUAL_UINT16(78, sensor.right);
+  TEST_ASSERT_EQUAL_UINT16(40, sensor.front);
+  TEST_ASSERT_EQUAL_UINT16(53, sensor.back);
 }
 
 void test_ultrasonic_sensor_handler__3_3V_convert_12_bit_adc_value_to_cm(void) {
