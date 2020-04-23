@@ -1,4 +1,5 @@
 #include "obstacle_avoidance.h"
+#include "project_debug.h"
 
 typedef union {
   struct obs {
@@ -23,6 +24,9 @@ static const uint8_t RIGHT_VERY_NEAR_OBSTACLE = 0x30;
 static const uint8_t RIGHT_NEAR_OBSTACLE = 0x10;
 static const uint8_t LEFT_VERY_NEAR_OBSTACLE = 0xC0;
 static const uint8_t LEFT_NEAR_OBSTACLE = 0x40;
+
+static const uint8_t FRONT_NEAR_BACK_VERY_NEAR_OBSTACLE = 0b00001101;
+static const uint8_t FRONT_VERY_NEAR_BACK_NEAR_OBSTACLE = 0b00000111;
 
 static dbc_SENSOR_USONARS_s sensor_data;
 static obstacle_s ultrasonic_data;
@@ -69,6 +73,8 @@ static void obstacle_avoidance__get_motor_direction(dbc_DRIVER_STEER_SPEED_s *mo
     break;
   case FRONT_BACK_VERY_NEAR_OBSTACLE:
   case FRONT_BACK_NEAR_OBSTACLE:
+  case FRONT_NEAR_BACK_VERY_NEAR_OBSTACLE:
+  case FRONT_VERY_NEAR_BACK_NEAR_OBSTACLE:
     motor_info->DRIVER_STEER_move_speed = DRIVER_STEER_move_STOP;
     break;
   case BACK_VERY_NEAR_OBSTACLE:
@@ -111,6 +117,12 @@ static void obstacle_avoidance__get_steer_direction(dbc_DRIVER_STEER_SPEED_s *mo
 void obstacle_avoidance__process_ultrasonic_sensors_data(const dbc_SENSOR_USONARS_s l_sensor_data) {
   sensor_data = l_sensor_data;
   obstacle_avoidance__is_fill_sensor_data();
+}
+
+void obstacle_avoidance__print_debug_data(void) {
+  // debug data
+  PROJECT_DEBUG__LCD_PRINTF(1, "Obs=%x", ultrasonic_data.obstacle_var);
+  PROJECT_DEBUG__PRINTF("Obstacle_Data = %x", ultrasonic_data.obstacle_var);
 }
 
 bool obstacle_avoidance__is_required() { return is_obstacle; }

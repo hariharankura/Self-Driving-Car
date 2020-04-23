@@ -37,8 +37,14 @@ void test__periodic_callbacks__1Hz(void) {
 // }
 
 void test__periodic_callbacks__100Hz(void) {
-  can_bus_handler__process_all_received_messages_in_100hz_Expect();
-  can_bus_handler__transmit_message_in_100hz_Expect();
-  can_bus_handler__manage_mia_100hz_Expect();
-  periodic_callbacks__100Hz(0);
+  for (uint32_t test_callback_count = 0; test_callback_count < 10; test_callback_count++) {
+    if (!(test_callback_count % 2)) {
+      can_bus_handler__process_all_received_messages_in_50hz_Expect();
+      can_bus_handler__transmit_message_in_50hz_Expect();
+      can_bus_handler__manage_mia_50hz_Expect();
+      periodic_callbacks__100Hz(test_callback_count);
+    } else {
+      periodic_callbacks__100Hz(test_callback_count);
+    }
+  }
 }

@@ -4,6 +4,8 @@
 #include "can_bus_handler.h"
 #include "driver_diagnostics.h"
 #include "gpio.h"
+#include "oled.h"
+#include "project_debug.h"
 #include "sjvalley_lcd.h"
 #include <stdio.h>
 
@@ -23,19 +25,21 @@ void periodic_callbacks__1Hz(uint32_t callback_count) {
   if (callback_count == 0) {
     sjvalley_lcd__communication_init();
   }
-  sjvalley_lcd__send_line(0, "Hello!");
-  sjvalley_lcd__send_line(1, "World");
-  sjvalley_lcd__send_line(2, "From");
-  sjvalley_lcd__send_line(3, "Mohit");
   can_bus_handler__reset_if_bus_off();
 }
 
 void periodic_callbacks__10Hz(uint32_t callback_count) {}
 
+void periodic_callbacks__50hz(uint32_t callback_count) {
+  can_bus_handler__process_all_received_messages_in_50hz();
+  can_bus_handler__manage_mia_50hz();
+  can_bus_handler__transmit_message_in_50hz();
+}
+
 void periodic_callbacks__100Hz(uint32_t callback_count) {
-  can_bus_handler__process_all_received_messages_in_100hz();
-  can_bus_handler__manage_mia_100hz();
-  can_bus_handler__transmit_message_in_100hz();
+  if (callback_count % 2 == 0) {
+    periodic_callbacks__50hz(callback_count / 2);
+  }
 }
 
 /**
