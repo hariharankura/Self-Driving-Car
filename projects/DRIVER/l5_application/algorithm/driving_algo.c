@@ -1,6 +1,6 @@
 #include "driving_algo.h"
 #include "driver_diagnostics.h"
-#include "obstacle_avoidance.h"
+// #include "obstacle_avoidance.h"
 
 static int8_t TOLERANCE_DIRECTION_POSITIVE = 10;
 static int8_t TOLERANCE_DIRECTION_NEGATIVE = -10;
