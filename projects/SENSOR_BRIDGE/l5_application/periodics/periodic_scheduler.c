@@ -23,6 +23,7 @@ typedef struct {
 /// Instances of the 4 periodic tasks and their callback function pointer
 static periodic_scheduler_s periodic_scheduler__1Hz = {1000, periodic_callbacks__1Hz};
 static periodic_scheduler_s periodic_scheduler__10Hz = {100, periodic_callbacks__10Hz};
+static periodic_scheduler_s periodic_scheduler__50Hz = {20, periodic_callbacks__50Hz};
 static periodic_scheduler_s periodic_scheduler__100Hz = {10, periodic_callbacks__100Hz};
 static periodic_scheduler_s periodic_scheduler__1000Hz = {1, periodic_callbacks__1000Hz};
 
@@ -45,6 +46,7 @@ static void periodic_scheduler__run(periodic_scheduler_s *periodic) {
 
 static void periodic_scheduler__1Hz_task(void *param) { periodic_scheduler__run(&periodic_scheduler__1Hz); }
 static void periodic_scheduler__10Hz_task(void *param) { periodic_scheduler__run(&periodic_scheduler__10Hz); }
+static void periodic_scheduler__50Hz_task(void *param) { periodic_scheduler__run(&periodic_scheduler__50Hz); }
 static void periodic_scheduler__100Hz_task(void *param) { periodic_scheduler__run(&periodic_scheduler__100Hz); }
 static void periodic_scheduler__1000Hz_task(void *param) { periodic_scheduler__run(&periodic_scheduler__1000Hz); }
 
@@ -73,6 +75,7 @@ static void periodic_scheduler__task_monitor(void *param) {
     }
 
     periodic_scheduler__check_flag(&periodic_scheduler__100Hz, tick_delay);
+    periodic_scheduler__check_flag(&periodic_scheduler__50Hz, tick_delay);
     periodic_scheduler__check_flag(&periodic_scheduler__10Hz, tick_delay);
     periodic_scheduler__check_flag(&periodic_scheduler__1Hz, tick_delay);
   }
@@ -81,6 +84,7 @@ static void periodic_scheduler__task_monitor(void *param) {
 void periodic_scheduler__initialize(uint32_t task_stack_size, bool run_1000hz) {
   xTaskCreate(periodic_scheduler__1Hz_task, "1Hz", task_stack_size, NULL, PRIORITY_PERIODIC_1HZ, NULL);
   xTaskCreate(periodic_scheduler__10Hz_task, "10Hz", task_stack_size, NULL, PRIORITY_PERIODIC_10HZ, NULL);
+  xTaskCreate(periodic_scheduler__50Hz_task, "50Hz", task_stack_size, NULL, PRIORITY_PERIODIC_100HZ, NULL);
   xTaskCreate(periodic_scheduler__100Hz_task, "100Hz", task_stack_size, NULL, PRIORITY_PERIODIC_100HZ, NULL);
 
   // Only create the 1Khz task if enabled

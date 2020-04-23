@@ -6,19 +6,26 @@
 #include <stdio.h>
 #include <string.h>
 
-// Private Variable
+// Private Variables
+static sensor_t sensor;
+
 static int driver_threshold_in_cm = 60;
-static int consec_values_threshold = 2;
+static int consec_values_below_threshold_required = 2;
 
-static int consec_values_left = 0;
-static int consec_values_right = 0;
-static int consec_values_front = 0;
-static int consec_values_back = 0;
+static bool first_sensor_reading_left = true;
+static bool first_sensor_reading_right = true;
+static bool first_sensor_reading_front = true;
+static bool first_sensor_reading_back = true;
 
-static int prev_sensor_value_left = 0;
-static int prev_sensor_value_right = 0;
-static int prev_sensor_value_front = 0;
-static int prev_sensor_value_back = 0;
+static int consec_values_below_threshold_left = 0;
+static int consec_values_below_threshold_right = 0;
+static int consec_values_below_threshold_front = 0;
+static int consec_values_below_threshold_back = 0;
+
+static int most_recent_sensor_value_above_threshold_left = 0;
+static int most_recent_sensor_value_above_threshold_right = 0;
+static int most_recent_sensor_value_above_threshold_front = 0;
+static int most_recent_sensor_value_above_threshold_back = 0;
 
 // Private Functions
 static uint16_t ultrasonic_sensor_handler__3_3V_convert_12_bit_adc_value_to_cm(uint16_t adc_value) {
@@ -86,41 +93,30 @@ static uint16_t ultrasonic_sensor_handler__get_sensor_value_when_below_threshold
                                                                                       int numb_of_consec_values) {
   uint16_t corrected_sensor_value = 0;
 
-  if (sensor_value <= threshold) {
-    consec_values_left++;
-    if (consec_values_left >= numb_of_consec_values) {
-      consec_values_left = 0;
+  if (first_sensor_reading_left) {
+    if (sensor_value > threshold) {
+      most_recent_sensor_value_above_threshold_left = sensor_value;
       corrected_sensor_value = sensor_value;
     } else {
-      corrected_sensor_value = threshold + 1;
+      most_recent_sensor_value_above_threshold_left = threshold + 1;
+      corrected_sensor_value = most_recent_sensor_value_above_threshold_left;
+      consec_values_below_threshold_left++;
     }
+    first_sensor_reading_left = false;
   } else {
-    corrected_sensor_value = sensor_value;
-  }
-
-  return corrected_sensor_value;
-}
-
-static uint16_t ultrasonic_sensor_handler__new_get_sensor_value_when_below_threshold_left(uint16_t sensor_value,
-                                                                                          int threshold,
-                                                                                          int numb_of_consec_values) {
-  uint16_t corrected_sensor_value = 0;
-
-  if ((prev_sensor_value_left <= threshold) && (sensor_value <= threshold)) {
-
-  } else if (sensor_value <= threshold) {
-    consec_values_left++;
-    if (consec_values_left >= numb_of_consec_values) {
-      consec_values_left = 0;
-      corrected_sensor_value = sensor_value;
+    if (sensor_value <= threshold) {
+      consec_values_below_threshold_left++;
+      if (consec_values_below_threshold_left >= numb_of_consec_values) {
+        corrected_sensor_value = sensor_value;
+      } else {
+        corrected_sensor_value = most_recent_sensor_value_above_threshold_left;
+      }
     } else {
-      corrected_sensor_value = threshold + 1;
+      corrected_sensor_value = sensor_value;
+      most_recent_sensor_value_above_threshold_left = sensor_value;
+      consec_values_below_threshold_left = 0;
     }
-  } else {
-    corrected_sensor_value = sensor_value;
   }
-
-  prev_sensor_value_left = sensor_value;
 
   return corrected_sensor_value;
 }
@@ -130,16 +126,29 @@ static uint16_t ultrasonic_sensor_handler__get_sensor_value_when_below_threshold
                                                                                        int numb_of_consec_values) {
   uint16_t corrected_sensor_value = 0;
 
-  if (sensor_value <= threshold) {
-    consec_values_right++;
-    if (consec_values_right >= numb_of_consec_values) {
-      consec_values_right = 0;
+  if (first_sensor_reading_right) {
+    if (sensor_value > threshold) {
+      most_recent_sensor_value_above_threshold_right = sensor_value;
       corrected_sensor_value = sensor_value;
     } else {
-      corrected_sensor_value = threshold + 1;
+      most_recent_sensor_value_above_threshold_right = threshold + 1;
+      corrected_sensor_value = most_recent_sensor_value_above_threshold_right;
+      consec_values_below_threshold_right++;
     }
+    first_sensor_reading_right = false;
   } else {
-    corrected_sensor_value = sensor_value;
+    if (sensor_value <= threshold) {
+      consec_values_below_threshold_right++;
+      if (consec_values_below_threshold_right >= numb_of_consec_values) {
+        corrected_sensor_value = sensor_value;
+      } else {
+        corrected_sensor_value = most_recent_sensor_value_above_threshold_right;
+      }
+    } else {
+      corrected_sensor_value = sensor_value;
+      most_recent_sensor_value_above_threshold_right = sensor_value;
+      consec_values_below_threshold_right = 0;
+    }
   }
 
   return corrected_sensor_value;
@@ -150,16 +159,29 @@ static uint16_t ultrasonic_sensor_handler__get_sensor_value_when_below_threshold
                                                                                        int numb_of_consec_values) {
   uint16_t corrected_sensor_value = 0;
 
-  if (sensor_value <= threshold) {
-    consec_values_front++;
-    if (consec_values_front >= numb_of_consec_values) {
-      consec_values_front = 0;
+  if (first_sensor_reading_front) {
+    if (sensor_value > threshold) {
+      most_recent_sensor_value_above_threshold_front = sensor_value;
       corrected_sensor_value = sensor_value;
     } else {
-      corrected_sensor_value = threshold + 1;
+      most_recent_sensor_value_above_threshold_front = threshold + 1;
+      corrected_sensor_value = most_recent_sensor_value_above_threshold_front;
+      consec_values_below_threshold_front++;
     }
+    first_sensor_reading_front = false;
   } else {
-    corrected_sensor_value = sensor_value;
+    if (sensor_value <= threshold) {
+      consec_values_below_threshold_front++;
+      if (consec_values_below_threshold_front >= numb_of_consec_values) {
+        corrected_sensor_value = sensor_value;
+      } else {
+        corrected_sensor_value = most_recent_sensor_value_above_threshold_front;
+      }
+    } else {
+      corrected_sensor_value = sensor_value;
+      most_recent_sensor_value_above_threshold_front = sensor_value;
+      consec_values_below_threshold_front = 0;
+    }
   }
 
   return corrected_sensor_value;
@@ -170,16 +192,29 @@ static uint16_t ultrasonic_sensor_handler__get_sensor_value_when_below_threshold
                                                                                       int numb_of_consec_values) {
   uint16_t corrected_sensor_value = 0;
 
-  if (sensor_value <= threshold) {
-    consec_values_back++;
-    if (consec_values_back >= numb_of_consec_values) {
-      consec_values_back = 0;
+  if (first_sensor_reading_back) {
+    if (sensor_value > threshold) {
+      most_recent_sensor_value_above_threshold_back = sensor_value;
       corrected_sensor_value = sensor_value;
     } else {
-      corrected_sensor_value = threshold + 1;
+      most_recent_sensor_value_above_threshold_back = threshold + 1;
+      corrected_sensor_value = most_recent_sensor_value_above_threshold_back;
+      consec_values_below_threshold_back++;
     }
+    first_sensor_reading_back = false;
   } else {
-    corrected_sensor_value = sensor_value;
+    if (sensor_value <= threshold) {
+      consec_values_below_threshold_back++;
+      if (consec_values_below_threshold_back >= numb_of_consec_values) {
+        corrected_sensor_value = sensor_value;
+      } else {
+        corrected_sensor_value = most_recent_sensor_value_above_threshold_back;
+      }
+    } else {
+      corrected_sensor_value = sensor_value;
+      most_recent_sensor_value_above_threshold_back = sensor_value;
+      consec_values_below_threshold_back = 0;
+    }
   }
 
   return corrected_sensor_value;
@@ -187,12 +222,29 @@ static uint16_t ultrasonic_sensor_handler__get_sensor_value_when_below_threshold
 
 // Public Functions
 void ultrasonic_sensor_handler__initialize_sensors(void) {
+  ultrasonic_sensor_handler__set_all_sensor_values(0, 0, 0, 0);
+
   gpio__construct_with_function(GPIO__PORT_0, 25, GPIO__FUNCTION_1); // left: channel 2
   gpio__construct_with_function(GPIO__PORT_1, 30, GPIO__FUNCTION_1); // right: channel 4
   gpio__construct_with_function(GPIO__PORT_1, 31, GPIO__FUNCTION_1); // front: channel 5
   gpio__construct_with_function(GPIO__PORT_0, 26, GPIO__FUNCTION_1); // back: channel 3
 
   adc__initialize();
+}
+
+void ultrasonic_sensor_handler__get_all_sensor_values(uint16_t *left, uint16_t *right, uint16_t *front,
+                                                      uint16_t *back) {
+  *left = sensor.left;
+  *right = sensor.right;
+  *front = sensor.front;
+  *back = sensor.back;
+}
+
+void ultrasonic_sensor_handler__set_all_sensor_values(uint16_t left, uint16_t right, uint16_t front, uint16_t back) {
+  sensor.left = left;
+  sensor.right = right;
+  sensor.front = front;
+  sensor.back = back;
 }
 
 // get unfiltered sensor values
@@ -242,7 +294,7 @@ uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_left(void) {
 
   filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(10, 2);
   /*filtered_sensor_value = ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
-      filtered_sensor_value, driver_threshold_in_cm, consec_values_threshold);*/
+      filtered_sensor_value, driver_threshold_in_cm, consec_values_below_threshold_required);*/
 
   return filtered_sensor_value;
 }
@@ -252,7 +304,7 @@ uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_right(void) {
 
   filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(10, 4);
   /*filtered_sensor_value = ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(
-      filtered_sensor_value, driver_threshold_in_cm, consec_values_threshold);*/
+      filtered_sensor_value, driver_threshold_in_cm, consec_values_below_threshold_required);*/
 
   return filtered_sensor_value;
 }
@@ -262,7 +314,7 @@ uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_front(void) {
 
   filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(10, 5);
   /*filtered_sensor_value = ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(
-      filtered_sensor_value, driver_threshold_in_cm, consec_values_threshold);*/
+      filtered_sensor_value, driver_threshold_in_cm, consec_values_below_threshold_required);*/
 
   return filtered_sensor_value;
 }
@@ -272,7 +324,7 @@ uint16_t ultrasonic_sensor_handler__get_filtered_sensor_value_back(void) {
 
   filtered_sensor_value = ultrasonic_sensor_handler__get_filtered_value_in_cm_from_n_sensor_values(10, 3);
   /*filtered_sensor_value = ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(
-      filtered_sensor_value, driver_threshold_in_cm, consec_values_threshold);*/
+      filtered_sensor_value, driver_threshold_in_cm, consec_values_below_threshold_required);*/
 
   return filtered_sensor_value;
 }
