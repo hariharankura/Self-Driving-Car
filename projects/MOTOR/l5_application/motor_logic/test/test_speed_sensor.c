@@ -13,42 +13,27 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
-void test_init_speed_sensor(void) {
+void test_initialize_test_button_and_speed_sensor_interrupts(void) {
   gpio_s gpio_1;
-
   gpio__construct_as_input_ExpectAndReturn(0, 29, gpio_1);
+  gpio__construct_as_input_ExpectAndReturn(0, 6, gpio_1);
   gpio_enable_interrupt_Expect(29);
-  lpc_peripheral__enable_interrupt_Expect(LPC_PERIPHERAL__GPIO, button_interrupt, NULL);
-  board_io__get_led0_ExpectAndReturn(gpio_1);
-  gpio__set_Expect(gpio_1);
-  board_io__get_led1_ExpectAndReturn(gpio_1);
-  gpio__set_Expect(gpio_1);
-  board_io__get_led2_ExpectAndReturn(gpio_1);
-  gpio__set_Expect(gpio_1);
-  board_io__get_led3_ExpectAndReturn(gpio_1);
-  gpio__set_Expect(gpio_1);
-  init_speed_sensor();
+  gpio_enable_interrupt_Expect(6);
+  lpc_peripheral__enable_interrupt_Expect(LPC_PERIPHERAL__GPIO, handle_interrupts, NULL);
+  initialize_test_button_and_speed_sensor_interrupts();
 }
 
-void test_get_rpm(void) { TEST_ASSERT_EQUAL(get_rpm(), 0); }
+void test_motor_test_button_status(void) {
+  motor_test_button_status = 1;
+  TEST_ASSERT_EQUAL_UINT8(1, get_motor_test_button_status());
 
-void test_get_mph(void) { TEST_ASSERT_EQUAL(get_rpm(), 0); }
+  reset_motor_test_button_status();
+  TEST_ASSERT_EQUAL_UINT8(0, get_motor_test_button_status());
+}
 
 void test_clear_rotations_in_windowtime(void) {
-
-  rpm = 1;
-  recorded_rpm = 2;
-
-  mph = 1;
-  recorded_mph = 2;
-
-  rotations_in_windowtime = 5;
-
   clear_rotations_in_windowtime();
-
-  TEST_ASSERT_EQUAL(recorded_mph, mph);
-  TEST_ASSERT_EQUAL(recorded_rpm, rpm);
   TEST_ASSERT_EQUAL(rotations_in_windowtime, 0);
 }
 
-void test_get_windowtime(void) { TEST_ASSERT_EQUAL(get_windowtime(), 5); }
+void test_get_windowtime(void) { TEST_ASSERT_EQUAL(get_windowtime(), 1); }
