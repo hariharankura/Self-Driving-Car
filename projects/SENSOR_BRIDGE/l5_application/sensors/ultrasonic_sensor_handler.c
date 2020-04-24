@@ -232,12 +232,11 @@ void ultrasonic_sensor_handler__initialize_sensors(void) {
   adc__initialize();
 }
 
-void ultrasonic_sensor_handler__get_all_sensor_values(uint16_t *left, uint16_t *right, uint16_t *front,
-                                                      uint16_t *back) {
-  *left = sensor.left;
-  *right = sensor.right;
-  *front = sensor.front;
-  *back = sensor.back;
+void ultrasonic_sensor_handler__get_all_sensor_values(sensor_t *sensor_values) {
+  sensor_values->left = sensor.left;
+  sensor_values->right = sensor.right;
+  sensor_values->front = sensor.front;
+  sensor_values->back = sensor.back;
 }
 
 void ultrasonic_sensor_handler__set_all_sensor_values(uint16_t left, uint16_t right, uint16_t front, uint16_t back) {
