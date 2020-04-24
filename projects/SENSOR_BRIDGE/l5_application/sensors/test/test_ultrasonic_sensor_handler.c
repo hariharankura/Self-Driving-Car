@@ -22,21 +22,21 @@ void test_ultrasonic_sensor_handler__initialize_sensors(void) {
 }
 
 void test_ultrasonic_sensor_handler__get_all_sensor_values(void) {
-  uint16_t left, right, front, back;
+  sensor_t sensor_values;
 
   ultrasonic_sensor_handler__set_all_sensor_values(0, 0, 0, 0);
-  ultrasonic_sensor_handler__get_all_sensor_values(&left, &right, &front, &back);
-  TEST_ASSERT_EQUAL_UINT16(0, left);
-  TEST_ASSERT_EQUAL_UINT16(0, right);
-  TEST_ASSERT_EQUAL_UINT16(0, front);
-  TEST_ASSERT_EQUAL_UINT16(0, back);
+  ultrasonic_sensor_handler__get_all_sensor_values(&sensor_values);
+  TEST_ASSERT_EQUAL_UINT16(0, sensor_values.left);
+  TEST_ASSERT_EQUAL_UINT16(0, sensor_values.right);
+  TEST_ASSERT_EQUAL_UINT16(0, sensor_values.front);
+  TEST_ASSERT_EQUAL_UINT16(0, sensor_values.back);
 
   ultrasonic_sensor_handler__set_all_sensor_values(30, 54, 97, 110);
-  ultrasonic_sensor_handler__get_all_sensor_values(&left, &right, &front, &back);
-  TEST_ASSERT_EQUAL_UINT16(30, left);
-  TEST_ASSERT_EQUAL_UINT16(54, right);
-  TEST_ASSERT_EQUAL_UINT16(97, front);
-  TEST_ASSERT_EQUAL_UINT16(110, back);
+  ultrasonic_sensor_handler__get_all_sensor_values(&sensor_values);
+  TEST_ASSERT_EQUAL_UINT16(30, sensor_values.left);
+  TEST_ASSERT_EQUAL_UINT16(54, sensor_values.right);
+  TEST_ASSERT_EQUAL_UINT16(97, sensor_values.front);
+  TEST_ASSERT_EQUAL_UINT16(110, sensor_values.back);
 }
 
 void test_ultrasonic_sensor_handler__set_all_sensor_values(void) {
