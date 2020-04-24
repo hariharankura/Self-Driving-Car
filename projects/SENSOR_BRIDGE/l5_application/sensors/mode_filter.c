@@ -25,7 +25,7 @@ uint16_t mode_filter__find_mode_of_sensor_values_converted_to_cm(uint16_t *senso
   // TODO: handle condition if all sensor values occur only once differently? right now, the most recent value is
   // returned (value with highest sensor_value array index)
   if (highest_frequency == 1) {
-    printf("Unreliable filtered value: No repeat sensor values!\n");
+    // printf("Unreliable filtered value: No repeat sensor values!\n");
     // light up an LED? return 1000?
   }
 

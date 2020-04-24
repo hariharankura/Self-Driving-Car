@@ -2,7 +2,6 @@
 
 #include "bridge_buffer.h"
 #include "gpio.h"
-#include "sl_string.h"
 #include "uart.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -25,6 +24,5 @@ bool bridge_controller_handler__buffer_has_gps_message(const char *array, int *m
 void bridge_controller_handler__get_single_gps_message(char *line);
 bool bridge_controller_handler__get_gps_message_from_buffer(char *temp_buffer);
 void bridge_controller_handler__get_gps_coordinates(float *latitude, float *longitude);
+
 void bridge_controller_handler__get_destination_coordinates(float *latitude, float *longitude);
-bool bridge_controller_handler__buffer_has_start_stop_message();
-bool bridge_controller_handler__get_start_stop_condition();
