@@ -22,7 +22,11 @@ void periodic_callbacks__10Hz(uint32_t callback_count) {
   diagnostic_tests__light_1_led_per_sensor_when_obstacle_detected_10hz();
 }
 
-void periodic_callbacks__50Hz(uint32_t callback_count) { sensor_can_handler__transmit_messages_50hz(); }
+void periodic_callbacks__10Hz(uint32_t callback_count) {
+  sensor_can_handler__transmit_messages_10hz();
+  bridge_can_handler__transmit_start_stop_condition();
+  // bridge_can_handler__transmit_messages_10hz();
+}
 
 void periodic_callbacks__100Hz(uint32_t callback_count) {}
 
