@@ -9,48 +9,13 @@
 #include "ultrasonic_sensor_handler.c"
 
 void test_ultrasonic_sensor_handler__initialize_sensors(void) {
-  ultrasonic_sensor_handler__set_all_sensor_values(0, 0, 0, 0);
-
   gpio_s gpio;
   gpio__construct_with_function_ExpectAnyArgsAndReturn(gpio);
   gpio__construct_with_function_ExpectAnyArgsAndReturn(gpio);
   gpio__construct_with_function_ExpectAnyArgsAndReturn(gpio);
   gpio__construct_with_function_ExpectAnyArgsAndReturn(gpio);
   adc__initialize_Expect();
-
   ultrasonic_sensor_handler__initialize_sensors();
-}
-
-void test_ultrasonic_sensor_handler__get_all_sensor_values(void) {
-  sensor_t sensor_values;
-
-  ultrasonic_sensor_handler__set_all_sensor_values(0, 0, 0, 0);
-  ultrasonic_sensor_handler__get_all_sensor_values(&sensor_values);
-  TEST_ASSERT_EQUAL_UINT16(0, sensor_values.left);
-  TEST_ASSERT_EQUAL_UINT16(0, sensor_values.right);
-  TEST_ASSERT_EQUAL_UINT16(0, sensor_values.front);
-  TEST_ASSERT_EQUAL_UINT16(0, sensor_values.back);
-
-  ultrasonic_sensor_handler__set_all_sensor_values(30, 54, 97, 110);
-  ultrasonic_sensor_handler__get_all_sensor_values(&sensor_values);
-  TEST_ASSERT_EQUAL_UINT16(30, sensor_values.left);
-  TEST_ASSERT_EQUAL_UINT16(54, sensor_values.right);
-  TEST_ASSERT_EQUAL_UINT16(97, sensor_values.front);
-  TEST_ASSERT_EQUAL_UINT16(110, sensor_values.back);
-}
-
-void test_ultrasonic_sensor_handler__set_all_sensor_values(void) {
-  ultrasonic_sensor_handler__set_all_sensor_values(0, 0, 0, 0);
-  TEST_ASSERT_EQUAL_UINT16(0, sensor.left);
-  TEST_ASSERT_EQUAL_UINT16(0, sensor.right);
-  TEST_ASSERT_EQUAL_UINT16(0, sensor.front);
-  TEST_ASSERT_EQUAL_UINT16(0, sensor.back);
-
-  ultrasonic_sensor_handler__set_all_sensor_values(121, 78, 40, 53);
-  TEST_ASSERT_EQUAL_UINT16(121, sensor.left);
-  TEST_ASSERT_EQUAL_UINT16(78, sensor.right);
-  TEST_ASSERT_EQUAL_UINT16(40, sensor.front);
-  TEST_ASSERT_EQUAL_UINT16(53, sensor.back);
 }
 
 void test_ultrasonic_sensor_handler__3_3V_convert_12_bit_adc_value_to_cm(void) {
@@ -67,348 +32,42 @@ void test_ultrasonic_sensor_handler__5V_convert_12_bit_adc_value_to_cm(void) {
   TEST_ASSERT_EQUAL_UINT16(190, ultrasonic_sensor_handler__5V_convert_12_bit_adc_value_to_cm(2574));
 }
 
-void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left_first_value_above_threshold() {
+void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(void) {
   int threshold = 50;
   int numb_of_consec_values = 3;
 
-  // set global variables back to initialized values when car is powered on
-  first_sensor_reading_left = true;
-  consec_values_below_threshold_left = 0;
-  most_recent_sensor_value_above_threshold_left = 0;
-
-  TEST_ASSERT_EQUAL_UINT16(
-      70, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(70, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      80, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(80, threshold, numb_of_consec_values));
   TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
                                     100, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      30, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      47, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(47, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(90, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      37, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(37, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
-}
-
-void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left_first_value_below_threshold() {
-  int threshold = 50;
-  int numb_of_consec_values = 3;
-
-  // set global variables back to initialized values when car is powered on
-  first_sensor_reading_left = true;
-  consec_values_below_threshold_left = 0;
-  most_recent_sensor_value_above_threshold_left = 0;
-
-  TEST_ASSERT_EQUAL_UINT16(threshold + 1, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
-                                              40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(threshold + 1, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
-                                              30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      40, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      80, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(80, threshold, numb_of_consec_values));
   TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
                                     100, threshold, numb_of_consec_values));
+  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(
+                                    100, threshold, numb_of_consec_values));
+
   TEST_ASSERT_EQUAL_UINT16(
-      100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+      51, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
   TEST_ASSERT_EQUAL_UINT16(
-      100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+      51, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
   TEST_ASSERT_EQUAL_UINT16(
       50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
+  TEST_ASSERT_EQUAL_UINT16(
+      51, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
+  TEST_ASSERT_EQUAL_UINT16(
+      51, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
+
   TEST_ASSERT_EQUAL_UINT16(
       50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      30, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      47, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(47, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(90, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      37, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(37, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_left(90, threshold, numb_of_consec_values));
 }
 
-void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right_first_value_above_threshold() {
+void test_ultrasonic_sensor_handler__new_get_sensor_value_when_below_threshold_left() {
   int threshold = 50;
   int numb_of_consec_values = 3;
 
-  // set global variables back to initialized values when car is powered on
-  first_sensor_reading_right = true;
-  consec_values_below_threshold_right = 0;
-  most_recent_sensor_value_above_threshold_right = 0;
-
-  TEST_ASSERT_EQUAL_UINT16(
-      70, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(70, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      80, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(80, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(
+  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__new_get_sensor_value_when_below_threshold_left(
                                     100, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(
-                                    50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(
-                                    50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      30, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      47, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(47, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(90, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      37, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(37, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(50, threshold, numb_of_consec_values));
-}
-
-void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right_first_value_below_threshold() {
-  int threshold = 50;
-  int numb_of_consec_values = 3;
-
-  // set global variables back to initialized values when car is powered on
-  first_sensor_reading_right = true;
-  consec_values_below_threshold_right = 0;
-  most_recent_sensor_value_above_threshold_right = 0;
-
-  TEST_ASSERT_EQUAL_UINT16(threshold + 1, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(
-                                              40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(threshold + 1, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(
-                                              30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      40, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      80, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(80, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(
-                                    100, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(
-                                    50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(
-                                    50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      30, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      47, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(47, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(90, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      37, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(37, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_right(90, threshold, numb_of_consec_values));
-}
-
-void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front_first_value_above_threshold() {
-  int threshold = 50;
-  int numb_of_consec_values = 3;
-
-  // set global variables back to initialized values when car is powered on
-  first_sensor_reading_front = true;
-  consec_values_below_threshold_front = 0;
-  most_recent_sensor_value_above_threshold_front = 0;
-
-  TEST_ASSERT_EQUAL_UINT16(
-      70, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(70, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      80, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(80, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(
-                                    100, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(
-                                    50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(
-                                    50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      30, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      47, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(47, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(90, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      37, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(37, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(50, threshold, numb_of_consec_values));
-}
-
-void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front_first_value_below_threshold() {
-  int threshold = 50;
-  int numb_of_consec_values = 3;
-
-  // set global variables back to initialized values when car is powered on
-  first_sensor_reading_front = true;
-  consec_values_below_threshold_front = 0;
-  most_recent_sensor_value_above_threshold_front = 0;
-
-  TEST_ASSERT_EQUAL_UINT16(threshold + 1, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(
-                                              40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(threshold + 1, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(
-                                              30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      40, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      80, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(80, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(
-                                    100, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(
-                                    50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(
-                                    50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      30, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      47, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(47, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(90, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      37, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(37, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_front(90, threshold, numb_of_consec_values));
-}
-
-void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back_first_value_above_threshold() {
-  int threshold = 50;
-  int numb_of_consec_values = 3;
-
-  // set global variables back to initialized values when car is powered on
-  first_sensor_reading_back = true;
-  consec_values_below_threshold_back = 0;
-  most_recent_sensor_value_above_threshold_back = 0;
-
-  TEST_ASSERT_EQUAL_UINT16(
-      70, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(70, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      80, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(80, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(
-                                    100, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      30, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      47, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(47, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(90, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      37, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(37, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-}
-
-void test_ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back_first_value_below_threshold() {
-  int threshold = 50;
-  int numb_of_consec_values = 3;
-
-  // set global variables back to initialized values when car is powered on
-  first_sensor_reading_back = true;
-  consec_values_below_threshold_back = 0;
-  most_recent_sensor_value_above_threshold_back = 0;
-
-  TEST_ASSERT_EQUAL_UINT16(threshold + 1, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(
-                                              40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(threshold + 1, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(
-                                              30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      40, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      80, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(80, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(
-                                    100, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      100, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      30, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      47, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(47, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(90, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(40, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(30, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      37, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(37, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      50, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(50, threshold, numb_of_consec_values));
-  TEST_ASSERT_EQUAL_UINT16(
-      90, ultrasonic_sensor_handler__get_sensor_value_when_below_threshold_back(90, threshold, numb_of_consec_values));
 }
 
 void test_ultrasonic_sensor_handler__get_sensor_value_left(void) {
@@ -442,3 +101,5 @@ void test_ultrasonic_sensor_handler__get_sensor_value_back(void) {
 
   ultrasonic_sensor_handler__get_sensor_value_back();
 }
+
+// write UT's for filtered versions
