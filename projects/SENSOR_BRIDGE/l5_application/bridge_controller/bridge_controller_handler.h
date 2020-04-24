@@ -2,8 +2,11 @@
 
 #include "bridge_buffer.h"
 #include "gpio.h"
+<<<<<<< HEAD
 #include "project.h"
 #include "sl_string.h"
+=======
+>>>>>>> sensor module changes
 #include "uart.h"
 #include "ultrasonic_sensor_handler.h"
 #include <stdbool.h>
@@ -62,7 +65,12 @@ bool bridge_controller_handler__buffer_has_gps_message(const char *array, int *m
 void bridge_controller_handler__get_single_gps_message(char *line);
 bool bridge_controller_handler__get_gps_message_from_buffer(char *temp_buffer);
 void bridge_controller_handler__get_gps_coordinates(float *latitude, float *longitude);
+<<<<<<< HEAD
 void bridge_controller_handler__get_destination_coordinates(float *latitude, float *longitude);
 bool bridge_controller_handler__buffer_has_start_stop_message();
 bool bridge_controller_handler__get_start_stop_condition();
 void bridge_controller_handler__send_debug_info(void);
+=======
+
+void bridge_controller_handler__get_destination_coordinates(float *latitude, float *longitude);
+>>>>>>> sensor module changes

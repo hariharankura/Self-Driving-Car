@@ -16,6 +16,7 @@ void periodic_callbacks__initialize(void); ///< Invoked once by periodic_schedul
 
 void periodic_callbacks__1Hz(uint32_t callback_count);
 void periodic_callbacks__10Hz(uint32_t callback_count);
+void periodic_callbacks__50Hz(uint32_t callback_count);
 void periodic_callbacks__100Hz(uint32_t callback_count);
 void periodic_callbacks__1000Hz(uint32_t callback_count);
 /** @} */

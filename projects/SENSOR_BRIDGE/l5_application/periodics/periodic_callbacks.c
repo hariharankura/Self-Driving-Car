@@ -16,17 +16,18 @@ void periodic_callbacks__initialize(void) {
 }
 
 void periodic_callbacks__1Hz(uint32_t callback_count) { can_bus_initializer__reset_if_bus_off_can1(); }
+<<<<<<< HEAD
 
 void periodic_callbacks__10Hz(uint32_t callback_count) {
   bridge_can_handler__transmit_messages_10hz();
   diagnostic_tests__light_1_led_per_sensor_when_obstacle_detected_10hz();
 }
+=======
+>>>>>>> sensor module changes
 
-void periodic_callbacks__10Hz(uint32_t callback_count) {
-  sensor_can_handler__transmit_messages_10hz();
-  bridge_can_handler__transmit_start_stop_condition();
-  // bridge_can_handler__transmit_messages_10hz();
-}
+void periodic_callbacks__10Hz(uint32_t callback_count) { bridge_can_handler__transmit_messages_10hz(); }
+
+void periodic_callbacks__50Hz(uint32_t callback_count) { sensor_can_handler__transmit_messages_50hz(); }
 
 void periodic_callbacks__100Hz(uint32_t callback_count) {}
 
