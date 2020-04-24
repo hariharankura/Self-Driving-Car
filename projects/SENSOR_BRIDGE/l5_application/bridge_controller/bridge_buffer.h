@@ -10,7 +10,9 @@ void push_buffer(char value);
 bool pop_buffer(char *value);
 int get_count(void);
 void print_buffer(void);
+void clear_buffer(void);
 
 extern int front;
 extern int rear;
 extern unsigned char gps_buffer[SIZE];
+extern bool start_stop_flag;
