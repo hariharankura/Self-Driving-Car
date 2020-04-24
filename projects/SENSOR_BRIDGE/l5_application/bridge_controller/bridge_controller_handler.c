@@ -1,14 +1,18 @@
 #include "bridge_controller_handler.h"
+#include "lpc40xx.h"
+#include "lpc_peripherals.h"
+#include <string.h>
 
 static int address_count = 0;
+static bool status = false;
 
 void bridge_controller_handler__initialize_bluetooth_module(void) {
 
-  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2); // Tx
-  gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2); // Rx
+  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2); // Board_Tx
+  gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2); // Board_Rx
 
-  QueueHandle_t rxq_handle = xQueueCreate(300, sizeof(unsigned char));
-  QueueHandle_t txq_handle = xQueueCreate(300, sizeof(unsigned char));
+  QueueHandle_t rxq_handle = xQueueCreate(200, sizeof(unsigned char));
+  QueueHandle_t txq_handle = xQueueCreate(200, sizeof(unsigned char));
 
   // UART  Initialize
   uart__init(UART__3, clock__get_peripheral_clock_hz(), 38400U);
@@ -131,4 +135,36 @@ void bridge_controller_handler__get_destination_coordinates(float *latitude, flo
 
   bridge_controller_handler__get_data_from_uart();
   bridge_controller_handler__get_gps_coordinates(latitude, longitude);
+}
+
+bool bridge_controller_handler__buffer_has_start_stop_message() { return (!is_buffer_empty()); }
+
+bool bridge_controller_handler__get_start_stop_condition() {
+  bridge_controller_handler__get_data_from_uart();
+
+  if (bridge_controller_handler__buffer_has_start_stop_message()) {
+
+    char message[30];
+    int i = 0;
+    if (sl_string__contains(gps_buffer, "START")) {
+      status = true;
+      printf("True\n");
+      strcpy(message, "Start Received");
+      while (message[i] != '\0') {
+        uart__put(UART__3, message[i], 0);
+        ++i;
+      }
+
+    } else if (sl_string__contains(gps_buffer, "STOP")) {
+      status = false;
+      printf("False\n");
+      strcpy(message, "Stop Received");
+      while (message[i] != '\0') {
+        uart__put(UART__3, message[i], 0);
+        ++i;
+      }
+    }
+    clear_buffer();
+  }
+  return status;
 }
