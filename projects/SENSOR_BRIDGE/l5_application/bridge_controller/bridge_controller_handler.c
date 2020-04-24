@@ -1,7 +1,4 @@
 #include "bridge_controller_handler.h"
-#include "lpc40xx.h"
-#include "lpc_peripherals.h"
-#include <string.h>
 
 static int address_count = 0;
 static bool car_action_status = false;
@@ -17,11 +14,11 @@ DRIVER_STEER_direction_e debug_steer_direction;
 
 void bridge_controller_handler__initialize_bluetooth_module(void) {
 
-  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2); // Board_Tx
-  gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2); // Board_Rx
+  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2); // Tx
+  gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2); // Rx
 
-  QueueHandle_t rxq_handle = xQueueCreate(200, sizeof(unsigned char));
-  QueueHandle_t txq_handle = xQueueCreate(200, sizeof(unsigned char));
+  QueueHandle_t rxq_handle = xQueueCreate(300, sizeof(unsigned char));
+  QueueHandle_t txq_handle = xQueueCreate(300, sizeof(unsigned char));
 
   // UART  Initialize
   uart__init(UART__3, clock__get_peripheral_clock_hz(), 9600U);

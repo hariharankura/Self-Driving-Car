@@ -24,14 +24,21 @@ void test__periodic_callbacks__initialize(void) {
 
 void test__periodic_callbacks__1Hz(void) {
   can_bus_initializer__reset_if_bus_off_can1_Expect();
-  // sensor_can_handler__transmit_messages_1hz_Expect(); // for testing only
   periodic_callbacks__1Hz(0);
 }
 
 void test__periodic_callbacks__10Hz(void) {
   bridge_can_handler__transmit_messages_10hz_Expect();
+<<<<<<< HEAD
   diagnostic_tests__light_1_led_per_sensor_when_obstacle_detected_10hz_Expect();
+=======
+>>>>>>> sensor module changes
   periodic_callbacks__10Hz(0);
+}
+
+void test__periodic_callbacks__50Hz(void) {
+  sensor_can_handler__transmit_messages_50hz_Expect();
+  periodic_callbacks__50Hz(0);
 }
 
 void test__periodic_callbacks__100Hz(void) { periodic_callbacks__100Hz(0); }

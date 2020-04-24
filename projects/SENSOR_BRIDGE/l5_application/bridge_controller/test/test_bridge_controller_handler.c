@@ -1,7 +1,6 @@
 #include "unity.h"
 
 #include "Mockgpio.h"
-#include "sl_string.h"
 
 #include "Mockclock.h"
 #include "Mockuart.h"
@@ -19,8 +18,8 @@ void test_bridge_controller_handler__initialize_bluetooth_module() {
   uart__init_Expect(UART__3, 96 * 1000U * 1000, 9600);
   QueueHandle_t rxq_handle;
   QueueHandle_t txq_handle;
-  xQueueCreate_ExpectAndReturn(200, sizeof(unsigned char), rxq_handle);
-  xQueueCreate_ExpectAndReturn(200, sizeof(unsigned char), txq_handle);
+  xQueueCreate_ExpectAndReturn(300, sizeof(unsigned char), rxq_handle);
+  xQueueCreate_ExpectAndReturn(300, sizeof(unsigned char), txq_handle);
   uart__enable_queues_ExpectAndReturn(UART__3, rxq_handle, txq_handle, true);
 
   gpio__construct_with_function_ExpectAndReturn(GPIO__PORT_4, 28, GPIO__FUNCTION_2, gpio_data);
@@ -103,10 +102,4 @@ void test_bridge_controller_handler__parse_gps_data_negative() {
   bridge_controller_handler__parse_gps_data(test_array_two, &latitude, &longitude);
   TEST_ASSERT_EQUAL_FLOAT(0.0, latitude);
   TEST_ASSERT_EQUAL_FLOAT(0.0, longitude);
-}
-
-void test_bridge_controller_handler__buffer_has_start_stop_message() {
-  front = 2;
-  rear = 1;
-  TEST_ASSERT_TRUE(bridge_controller_handler__buffer_has_start_stop_message());
 }
