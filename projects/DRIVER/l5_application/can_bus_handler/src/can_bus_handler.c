@@ -26,6 +26,7 @@ static gpio_s MIA_OBSTACLE_STATUS_LED;
 static dbc_SENSOR_USONARS_s can_sensor_data = {};
 static dbc_GEO_COMPASS_s can_current_and_destination_heading_angle = {};
 static dbc_CAR_ACTION_s can_car_action = {};
+static dbc_MOTOR_SPEED_s can_motor_speed = {};
 
 static void can_bus_handler__board_led_reset(void) {
   CAN_BUS_OFF_STATUS_LED = board_io__get_led0();
@@ -71,6 +72,8 @@ void can_bus_handler__process_all_received_messages_in_50hz(void) {
       driving_algo__process_geo_compass_data(can_current_and_destination_heading_angle);
     } else if (dbc_decode_CAR_ACTION(&can_car_action, header, can_receive_msg.data.bytes)) {
       driver_logic__set_car_mode(can_car_action);
+    } else if (dbc_decode_MOTOR_SPEED(&can_motor_speed, header, can_receive_msg.data.bytes)) {
+      driver_logic__set_car_current_speed(can_motor_speed);
     }
   }
 }

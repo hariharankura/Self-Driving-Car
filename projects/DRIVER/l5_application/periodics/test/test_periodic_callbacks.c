@@ -9,6 +9,7 @@
 #include "Mockgpio.h"
 #include "Mocksjvalley_lcd.h"
 // Include the source we wish to test
+#include "Mockdriver_logic.h"
 #include "periodic_callbacks.h"
 
 void setUp(void) {}
