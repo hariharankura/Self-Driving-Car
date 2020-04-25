@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 extern float debug_motor_speed;
+extern float debug_motor_speed_pwm;
 extern uint16_t debug_geo_compass_current_heading;
 extern uint16_t debug_geo_compass_destination_heading;
 extern uint8_t debug_geo_compass_distance;

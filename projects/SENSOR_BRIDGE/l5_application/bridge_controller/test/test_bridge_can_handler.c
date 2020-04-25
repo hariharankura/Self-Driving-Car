@@ -7,6 +7,7 @@
 #include "bridge_can_handler.h"
 
 float debug_motor_speed = 0.0f;
+float debug_motor_speed_pwm = 0.0f;
 uint16_t debug_geo_compass_current_heading;
 uint16_t debug_geo_compass_destination_heading;
 uint8_t debug_geo_compass_distance;
