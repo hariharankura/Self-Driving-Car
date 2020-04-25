@@ -41,14 +41,18 @@ void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
 static void apply_brake(uint8_t brake_count) {
   switch (brake_count) {
   case 0:
+  case 1:
     pwm1__set_duty_cycle(PWM_MOTOR, 15);
     break;
-  case 1:
   case 2:
   case 3:
   case 4:
   case 5:
   case 6:
+  case 7:
+  case 8:
+  case 9:
+  case 10:
     pwm1__set_duty_cycle(PWM_MOTOR, 10);
     break;
   default:
@@ -58,13 +62,6 @@ static void apply_brake(uint8_t brake_count) {
 }
 
 static float maintain_speed(float actual_speed, float target_speed) {
-  float diff = target_speed - actual_speed;
-
-  // if (diff > 0) {
-  //   pwm_forward += 0.004 * diff;
-  // } else {
-  //   pwm_forward -= 0.008 * diff;
-  // }
 
   if (target_speed > actual_speed) {
     pwm_forward += 0.002;
@@ -73,25 +70,24 @@ static float maintain_speed(float actual_speed, float target_speed) {
   }
 
   if ((actual_speed - target_speed_mph) > 3) {
-
     pwm_forward = pwm_forward_default_low;
     static uint8_t count = 0;
-    if (count < 7) {
+    if (count < 5) {
       apply_brake(count++);
     } else {
       count = 0;
     }
   }
 
-  // if (diff < -3) {
-  //   pwm_forward = pwm_forward_default_low;
-  //   static uint8_t count = 0;
-  //   if (count < 5) {
-  //     apply_brake(count++);
-  //   } else {
-  //     count = 0;
-  //   }
-  // }
+  if ((actual_speed - target_speed_mph) > 7) {
+    pwm_forward = 15.5;
+    static uint8_t count = 0;
+    if (count < 10) {
+      apply_brake(count++);
+    } else {
+      count = 0;
+    }
+  }
 
   if (pwm_forward > pwm_forward_default_high) {
     pwm_forward = pwm_forward_default_high;
