@@ -1,6 +1,6 @@
 #include "driver_diagnostics.h"
-#include "driver_logic.h"
 #include "gpio.h"
+#include "obstacle_avoidance.h"
 
 static gpio_s diag_LED0, diag_LED1, diag_LED2, diag_LED3, diag_LED4, diag_LED5, diag_LED6, diag_LED7;
 
@@ -10,7 +10,7 @@ void diagnostics_led_init(void) {
   gpio__set_function(diag_LED0, GPIO__FUNCITON_0_IO_PIN);
 
   // LED1 : P4.28
-  diag_LED1 = gpio__construct_as_output(4, 28);
+  diag_LED1 = gpio__construct_as_output(2, 2);
   gpio__set_function(diag_LED1, GPIO__FUNCITON_0_IO_PIN);
 
   // LED2 : P0.6
@@ -22,7 +22,7 @@ void diagnostics_led_init(void) {
   gpio__set_function(diag_LED3, GPIO__FUNCITON_0_IO_PIN);
 
   // LED4 : P4.29
-  diag_LED4 = gpio__construct_as_output(4, 29);
+  diag_LED4 = gpio__construct_as_output(2, 4);
   gpio__set_function(diag_LED4, GPIO__FUNCITON_0_IO_PIN);
 
   // LED5 : P0.7

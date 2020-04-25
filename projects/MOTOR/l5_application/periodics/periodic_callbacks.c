@@ -1,10 +1,17 @@
 #include "periodic_callbacks.h"
 
+#include "stdbool.h"
+#include "stdint.h"
+#include "stdio.h"
+
 #include "board_io.h"
 #include "gpio.h"
 
 #include "can_handler.h"
 #include "motor_logic.h"
+#include "motor_self_test.h"
+#include "pwm1.h"
+#include "speed_sensor.h"
 
 /******************************************************************************
  * Your board will reset if the periodic function does not return within its deadline
@@ -13,15 +20,32 @@
  */
 void periodic_callbacks__initialize(void) {
   // This method is invoked once when the periodic tasks are created
+  init_pwm();
+  initialize_test_button_and_speed_sensor_interrupts();
   init_can_driver();
-  init_led();
+  rc_car_stop_state();
 }
 
 void periodic_callbacks__1Hz(uint32_t callback_count) {}
 
-void periodic_callbacks__10Hz(uint32_t callback_count) { can_bus_handler__process_all_received_messages(); }
+void periodic_callbacks__10Hz(uint32_t callback_count) {
+  if (0 == callback_count % 10) {
+    clear_rotations_in_windowtime();
+  }
+  can_bus_handler__transmit_message_in_10hz();
+}
 
-void periodic_callbacks__100Hz(uint32_t callback_count) {}
+void periodic_callbacks__100Hz(uint32_t callback_count) {
+  if (callback_count % 5 == 0) {
+    if (get_motor_test_button_status()) {
+      servo_and_dc_motor_tests(callback_count);
+    } else {
+      // printf("periodic callbacks and test button not pressed\n");
+      can_bus_handler__process_all_received_messages_in_20hz();
+      can_bus_handler__manage_mia_20hz();
+    }
+  }
+}
 
 /**
  * @warning

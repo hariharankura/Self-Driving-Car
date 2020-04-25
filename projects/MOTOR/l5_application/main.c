@@ -1,6 +1,8 @@
 #include <stdio.h>
 
 #include "FreeRTOS.h"
+#include "lpc40xx.h"
+#include "lpc_peripherals.h"
 #include "task.h"
 
 #include "board_io.h"
@@ -42,6 +44,7 @@ static void create_blinky_tasks(void) {
   const bool run_1000hz = true;
   const size_t stack_size_bytes = 2048 / sizeof(void *); // RTOS stack size is in terms of 32-bits for ARM M4 32-bit CPU
   periodic_scheduler__initialize(stack_size_bytes, !run_1000hz); // Assuming we do not need the high rate 1000Hz task
+  NVIC_EnableIRQ(GPIO_IRQn);
   UNUSED(blink_task);
 #endif
 }

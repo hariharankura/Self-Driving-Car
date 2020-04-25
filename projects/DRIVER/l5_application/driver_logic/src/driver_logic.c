@@ -1,21 +1,44 @@
 #include "driver_logic.h"
 #include "driving_algo.h"
+#include "sjvalley_lcd.h"
 #include <stdio.h>
-#include <string.h>
 
-static dbc_SENSOR_USONARS_s ultrasonic_sensor_data;
-static dbc_GEO_COMPASS_s current_and_destination_heading_angle;
+static bool CAR_IN_START_MODE = false;
+static dbc_MOTOR_SPEED_s car_speed = {};
 
-void driver_logic__process_ultrasonic_sensors_data(const dbc_SENSOR_USONARS_s sensor_data) {
-  ultrasonic_sensor_data = sensor_data;
+static const dbc_DRIVER_STEER_SPEED_s STOP_COMMAND = {{}, DRIVER_STEER_direction_STRAIGHT, 0};
+
+dbc_DRIVER_STEER_SPEED_s driver_logic__get_motor_command(void) {
+  dbc_DRIVER_STEER_SPEED_s current_state;
+  static dbc_DRIVER_STEER_SPEED_s last_state = {{0}, 0, 0};
+  if (CAR_IN_START_MODE == true) {
+    current_state = driving_algo__compute_heading();
+    if (current_state.DRIVER_STEER_move_speed == DRIVER_STEER_move_REVERSE_at_SPEED &&
+        last_state.DRIVER_STEER_move_speed == DRIVER_STEER_move_FORWARD_at_SPEED) {
+      current_state.DRIVER_STEER_move_speed = DRIVER_STEER_move_STOP;
+    }
+  } else {
+    current_state = STOP_COMMAND;
+  }
+  last_state = current_state;
+  return current_state;
 }
 
-dbc_SENSOR_USONARS_s driver_logic__get_ultrasonic_sensors_data(void) { return ultrasonic_sensor_data; }
-
-void driver_logic__process_geo_compass_data(const dbc_GEO_COMPASS_s compass_angle) {
-  current_and_destination_heading_angle = compass_angle;
+void driver_logic__set_car_mode(dbc_CAR_ACTION_s car_action) {
+  if (car_action.CAR_ACTION_cmd > 0) {
+    CAR_IN_START_MODE = true;
+  } else {
+    CAR_IN_START_MODE = false;
+  }
 }
 
-dbc_GEO_COMPASS_s driver_logic__get_geo_compass_data(void) { return current_and_destination_heading_angle; }
+void driver_logic__set_car_current_speed(dbc_MOTOR_SPEED_s l_car_speed) { car_speed = l_car_speed; }
 
-dbc_DRIVER_STEER_SPEED_s driver_logic__get_motor_command(void) { return driving_algo__compute_heading(); }
+void driver_logic__print_on_lcd_current_car_speed(void) {
+  char car_speed_info_string[20] = {};
+  char car_pwm_info_string[20] = {};
+  snprintf(car_speed_info_string, 20, "SPEED=%f", (double)car_speed.MOTOR_SPEED_info);
+  snprintf(car_pwm_info_string, 20, "PWM=%f", (double)car_speed.MOTOR_SPEED_pwm);
+  sjvalley_lcd__send_line(1, car_speed_info_string);
+  sjvalley_lcd__send_line(2, car_pwm_info_string);
+}

@@ -6,6 +6,7 @@
 #include "board_io.h"
 #include "common_macros.h"
 #include "gpio.h"
+#include "oled.h"
 #include "periodic_scheduler.h"
 #include "sj2_cli.h"
 
@@ -16,8 +17,9 @@ static void uart_task(void *params);
 
 int main(void) {
   create_blinky_tasks();
-  create_uart_task();
 
+  // oled__init();
+  create_uart_task();
   puts("Starting RTOS");
   vTaskStartScheduler(); // This function never returns unless RTOS scheduler runs out of memory and fails
 
@@ -49,6 +51,11 @@ static void create_blinky_tasks(void) {
 static void create_uart_task(void) {
   // It is advised to either run the uart_task, or the SJ2 command-line (CLI), but not both
   // Change '#if (0)' to '#if (1)' and vice versa to try it out
+  // DrawPixel(5, 5);
+  // DrawPixel(6, 5);
+  // DrawPixel(7, 5);
+  // DrawPixel(8, 5);
+  // oled__update();
 #if (0)
   // printf() takes more stack space, size this tasks' stack higher
   xTaskCreate(uart_task, "uart", (512U * 8) / sizeof(void *), NULL, PRIORITY_LOW, NULL);

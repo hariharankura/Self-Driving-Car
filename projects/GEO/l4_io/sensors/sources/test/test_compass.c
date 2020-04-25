@@ -21,7 +21,7 @@ void test_compass_read_current_angle(void) {
   TEST_ASSERT_EQUAL_FLOAT(250.9, test_angle);
 }
 
-void test_compass_calculate_destination_angle_1(void) {
+void test_compass_calculate_destination_angle_distance_1(void) {
   dbc_BRIDGE_GPS_s test_source, test_destination;
   test_source.BRIDGE_GPS_latitude = 55.739399;
   test_source.BRIDGE_GPS_longitude = 37.592572;
@@ -29,7 +29,9 @@ void test_compass_calculate_destination_angle_1(void) {
   test_destination.BRIDGE_GPS_longitude = 37.678367;
 
   float test_destination_angle = (compass__calculate_destination_angle(test_source, test_destination));
-  TEST_ASSERT_EQUAL_FLOAT(94.43, test_destination_angle);
+  float test_destination_distance = (compass__calculate_destination_distance(test_source, test_destination));
+  TEST_ASSERT_EQUAL_FLOAT(94.42, test_destination_angle);
+  TEST_ASSERT_EQUAL_FLOAT(5387.32, test_destination_distance);
 }
 
 void test_compass_calculate_destination_angle_2(void) {
@@ -41,7 +43,9 @@ void test_compass_calculate_destination_angle_2(void) {
   test_destination.BRIDGE_GPS_longitude = -90.200203;
 
   float test_destination_angle = (compass__calculate_destination_angle(test_source, test_destination));
+  float test_destination_distance = (compass__calculate_destination_distance(test_source, test_destination));
   TEST_ASSERT_EQUAL_FLOAT(96.51, test_destination_angle);
+  TEST_ASSERT_EQUAL_FLOAT(382900, test_destination_distance);
 }
 
 void test_compass_calculate_destination_angle_3(void) {
@@ -53,7 +57,9 @@ void test_compass_calculate_destination_angle_3(void) {
   test_destination.BRIDGE_GPS_longitude = -60.78956;
 
   float test_destination_angle = (compass__calculate_destination_angle(test_source, test_destination));
+  float test_destination_distance = (compass__calculate_destination_distance(test_source, test_destination));
   TEST_ASSERT_EQUAL_FLOAT(185.47, test_destination_angle);
+  TEST_ASSERT_EQUAL_FLOAT(3890600, test_destination_distance);
 }
 
 void test_compass_calculate_destination_angle_4(void) {
@@ -65,7 +71,9 @@ void test_compass_calculate_destination_angle_4(void) {
   test_destination.BRIDGE_GPS_longitude = 87.437343;
 
   float test_destination_angle = (compass__calculate_destination_angle(test_source, test_destination));
+  float test_destination_distance = (compass__calculate_destination_distance(test_source, test_destination));
   TEST_ASSERT_EQUAL_FLOAT(158.21, test_destination_angle);
+  TEST_ASSERT_EQUAL_FLOAT(6039510, test_destination_distance);
 }
 
 void test_compass_calculate_destination_angle_5(void) {
@@ -77,7 +85,9 @@ void test_compass_calculate_destination_angle_5(void) {
   test_destination.BRIDGE_GPS_longitude = 95.81973;
 
   float test_destination_angle = (compass__calculate_destination_angle(test_source, test_destination));
+  float test_destination_distance = (compass__calculate_destination_distance(test_source, test_destination));
   TEST_ASSERT_EQUAL_FLOAT(0, test_destination_angle);
+  TEST_ASSERT_EQUAL_FLOAT(000000, test_destination_distance);
 }
 
 void test_convert_source_destination_to_radian_negative_angle(void) {

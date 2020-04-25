@@ -70,3 +70,5 @@ bool gpio__get(gpio_s gpio);
 void gpio__set(gpio_s gpio);   ///< Sets the pin value as 'high' -> 3.3v
 void gpio__reset(gpio_s gpio); ///< Sets the pin value as 'low' -> ground
 void gpio__toggle(gpio_s gpio);
+
+void gpio_enable_interrupt(uint32_t pin_number);
