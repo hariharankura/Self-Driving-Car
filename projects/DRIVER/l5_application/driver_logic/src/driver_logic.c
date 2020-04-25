@@ -32,10 +32,7 @@ void driver_logic__set_car_mode(dbc_CAR_ACTION_s car_action) {
   }
 }
 
-void driver_logic__set_car_current_speed(dbc_MOTOR_SPEED_s l_car_speed) {
-  car_speed = l_car_speed;
-  printf("Speed = %f\n", l_car_speed.MOTOR_SPEED_info);
-}
+void driver_logic__set_car_current_speed(dbc_MOTOR_SPEED_s l_car_speed) { car_speed = l_car_speed; }
 
 void driver_logic__print_on_lcd_current_car_speed(void) {
   char car_speed_info_string[20] = {};
