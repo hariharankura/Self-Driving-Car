@@ -368,5 +368,5 @@ void test_obstacle_avoidance__in_no_obstacle_back_get_direction(void) {
   obstacle_avoidance__get_motor_direction(&test_motor_info);
   obstacle_avoidance__get_steer_direction(&test_motor_info);
   TEST_ASSERT_EQUAL_INT16(DRIVER_STEER_move_REVERSE_at_SPEED, test_motor_info.DRIVER_STEER_move_speed);
-  TEST_ASSERT_EQUAL(DRIVER_STEER_direction_SOFT_LEFT, test_motor_info.DRIVER_STEER_direction);
+  TEST_ASSERT_EQUAL(DRIVER_STEER_direction_HARD_LEFT, test_motor_info.DRIVER_STEER_direction);
 }

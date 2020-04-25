@@ -36,6 +36,9 @@ void driver_logic__set_car_current_speed(dbc_MOTOR_SPEED_s l_car_speed) { car_sp
 
 void driver_logic__print_on_lcd_current_car_speed(void) {
   char car_speed_info_string[20] = {};
-  snprintf(car_speed_info_string, 20, "SPEED=%f", car_speed.MOTOR_SPEED_info);
+  char car_pwm_info_string[20] = {};
+  snprintf(car_speed_info_string, 20, "SPEED=%f", (double)car_speed.MOTOR_SPEED_info);
+  snprintf(car_pwm_info_string, 20, "PWM=%f", (double)car_speed.MOTOR_SPEED_pwm);
   sjvalley_lcd__send_line(1, car_speed_info_string);
+  sjvalley_lcd__send_line(2, car_pwm_info_string);
 }
