@@ -25,6 +25,9 @@ void bridge_can_handler__transmit_messages_10hz(void) {
 
 void bridge_can_handler__handle_all_incoming_messages(void) {
   dbc_MOTOR_SPEED_s motor_speed_message = {};
+  dbc_GEO_COMPASS_s geo_compass_message = {};
+  dbc_DRIVER_STEER_SPEED_s driver_steer_message = {};
+
   can__msg_t can_msg = {};
 
   while (can__rx(can1, &can_msg, 0)) {
@@ -35,6 +38,17 @@ void bridge_can_handler__handle_all_incoming_messages(void) {
 
     if (dbc_decode_MOTOR_SPEED(&motor_speed_message, header, can_msg.data.bytes)) {
       debug_motor_speed = motor_speed_message.MOTOR_SPEED_info;
+    }
+
+    if (dbc_decode_GEO_COMPASS(&geo_compass_message, header, can_msg.data.bytes)) {
+      debug_geo_compass_current_heading = geo_compass_message.GEO_COMPASS_current_heading;
+      debug_geo_compass_destination_heading = geo_compass_message.GEO_COMPASS_desitination_heading;
+      debug_geo_compass_distance = geo_compass_message.GEO_COMPASS_distance;
+    }
+
+    if (dbc_decode_DRIVER_STEER_SPEED(&driver_steer_message, header, can_msg.data.bytes)) {
+      debug_steer_move_speed = driver_steer_message.DRIVER_STEER_move_speed;
+      debug_steer_direction = driver_steer_message.DRIVER_STEER_direction;
     }
   }
 }

@@ -11,6 +11,11 @@
 #include <stdio.h>
 
 extern float debug_motor_speed;
+extern uint16_t debug_geo_compass_current_heading;
+extern uint16_t debug_geo_compass_destination_heading;
+extern uint8_t debug_geo_compass_distance;
+extern int debug_steer_move_speed;
+extern DRIVER_STEER_direction_e debug_steer_direction;
 
 typedef struct {
   float latitude;
