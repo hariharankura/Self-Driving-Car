@@ -26,6 +26,8 @@ static const uint8_t RIGHT_NEAR_OBSTACLE = 0x10;
 static const uint8_t LEFT_VERY_NEAR_OBSTACLE = 0xC0;
 static const uint8_t LEFT_NEAR_OBSTACLE = 0x40;
 static const uint8_t RIGHT_LEFT_NO_OBSTACLE = 0x00;
+static const uint8_t RIGHT_VERY_NEAR_LEFT_NEAR_OBSTACLE = 0x70;
+static const uint8_t RIGHT_NEAR_LEFT_VERY_NEAR_OBSTACLE = 0xE0;
 
 static const uint8_t FRONT_NEAR_BACK_VERY_NEAR_OBSTACLE = 0b00001101;
 static const uint8_t FRONT_VERY_NEAR_BACK_NEAR_OBSTACLE = 0b00000111;
@@ -114,11 +116,21 @@ static void obstacle_avoidance__get_steer_direction(dbc_DRIVER_STEER_SPEED_s *mo
     break;
   case RIGHT_LEFT_NO_OBSTACLE:
     (motor_info->DRIVER_STEER_move_speed == DRIVER_STEER_move_REVERSE_at_SPEED)
+        ? (motor_info->DRIVER_STEER_direction = DRIVER_STEER_direction_HARD_LEFT)
+        : (motor_info->DRIVER_STEER_direction = DRIVER_STEER_direction_STRAIGHT);
+    break;
+  case RIGHT_VERY_NEAR_LEFT_NEAR_OBSTACLE:
+    (motor_info->DRIVER_STEER_move_speed == DRIVER_STEER_move_REVERSE_at_SPEED)
+        ? (motor_info->DRIVER_STEER_direction = DRIVER_STEER_direction_SOFT_RIGHT)
+        : (motor_info->DRIVER_STEER_direction = DRIVER_STEER_direction_STRAIGHT);
+    break;
+  case RIGHT_NEAR_LEFT_VERY_NEAR_OBSTACLE:
+  case RIGHT_LEFT_NEAR_OBSTACLE:
+    (motor_info->DRIVER_STEER_move_speed == DRIVER_STEER_move_REVERSE_at_SPEED)
         ? (motor_info->DRIVER_STEER_direction = DRIVER_STEER_direction_SOFT_LEFT)
         : (motor_info->DRIVER_STEER_direction = DRIVER_STEER_direction_STRAIGHT);
     break;
   case RIGHT_LEFT_VERY_NEAR_OBSTACLE:
-  case RIGHT_LEFT_NEAR_OBSTACLE:
   default:
     motor_info->DRIVER_STEER_direction = DRIVER_STEER_direction_STRAIGHT;
     break;
