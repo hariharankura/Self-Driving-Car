@@ -7,6 +7,7 @@
 #include "Mockuart.h"
 
 #include "Mockqueue.h"
+#include "Mockultrasonic_sensor_handler.h"
 
 #include "bridge_buffer.h"
 #include "bridge_controller_handler.h"

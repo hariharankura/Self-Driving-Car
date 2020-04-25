@@ -6,6 +6,8 @@
 
 #include "bridge_can_handler.h"
 
+float debug_motor_speed = 0.0f;
+
 void test_bridge_can_handler__transmit_messages_10hz(void) {
   dbc_BRIDGE_GPS_s bridge_struct = {};
   float latitude = 0;
@@ -44,18 +46,16 @@ void test_bridge_can_handler__transmit_start_stop_condition(void) {
 }
 
 void test_bridge_can_handler__handle_all_incoming_messages(void) {
-  dbc_BRIDGE_GPS_s decoded_bridge_cmd = {};
-  can__msg_t bridge_can_msg = {};
+  dbc_MOTOR_SPEED_s motor_speed_message = {};
+  can__msg_t can_msg = {};
 
   can__rx_ExpectAnyArgsAndReturn(true);
   const dbc_message_header_t header = {
-      .message_id = bridge_can_msg.msg_id,
-      .message_dlc = bridge_can_msg.frame_fields.data_len,
+      .message_id = can_msg.msg_id,
+      .message_dlc = can_msg.frame_fields.data_len,
   };
 
-  dbc_decode_BRIDGE_GPS(&decoded_bridge_cmd, header, bridge_can_msg.data.bytes);
-
+  dbc_decode_MOTOR_SPEED(&motor_speed_message, header, can_msg.data.bytes);
   can__rx_ExpectAnyArgsAndReturn(false);
-
   bridge_can_handler__handle_all_incoming_messages();
 }

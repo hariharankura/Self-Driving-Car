@@ -16,7 +16,11 @@ void periodic_callbacks__initialize(void) {
 
 void periodic_callbacks__1Hz(uint32_t callback_count) { can_bus_initializer__reset_if_bus_off_can1(); }
 
-void periodic_callbacks__10Hz(uint32_t callback_count) { bridge_can_handler__transmit_messages_10hz(); }
+void periodic_callbacks__10Hz(uint32_t callback_count) {
+  bridge_controller_handler__get_start_stop_condition();
+  bridge_can_handler__handle_all_incoming_messages();
+  bridge_controller_handler__send_debug_info();
+}
 
 void periodic_callbacks__50Hz(uint32_t callback_count) { sensor_can_handler__transmit_messages_50hz(); }
 
