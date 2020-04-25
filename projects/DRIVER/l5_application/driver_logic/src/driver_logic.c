@@ -1,10 +1,10 @@
 #include "driver_logic.h"
 #include "driving_algo.h"
-#include "project.h"
+#include "sjvalley_lcd.h"
 #include <stdio.h>
-#include <string.h>
 
 static bool CAR_IN_START_MODE = false;
+static dbc_MOTOR_SPEED_s car_speed = {};
 
 static const dbc_DRIVER_STEER_SPEED_s STOP_COMMAND = {{}, DRIVER_STEER_direction_STRAIGHT, 0};
 
@@ -30,4 +30,15 @@ void driver_logic__set_car_mode(dbc_CAR_ACTION_s car_action) {
   } else {
     CAR_IN_START_MODE = false;
   }
+}
+
+void driver_logic__set_car_current_speed(dbc_MOTOR_SPEED_s l_car_speed) {
+  car_speed = l_car_speed;
+  printf("Speed = %f\n", l_car_speed.MOTOR_SPEED_info);
+}
+
+void driver_logic__print_on_lcd_current_car_speed(void) {
+  char car_speed_info_string[20] = {};
+  snprintf(car_speed_info_string, 20, "SPEED=%f", car_speed.MOTOR_SPEED_info);
+  sjvalley_lcd__send_line(1, car_speed_info_string);
 }

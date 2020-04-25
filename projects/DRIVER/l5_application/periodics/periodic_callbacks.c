@@ -3,6 +3,7 @@
 #include "board_io.h"
 #include "can_bus_handler.h"
 #include "driver_diagnostics.h"
+#include "driver_logic.h"
 #include "gpio.h"
 #include "oled.h"
 #include "project_debug.h"
@@ -28,7 +29,7 @@ void periodic_callbacks__1Hz(uint32_t callback_count) {
   can_bus_handler__reset_if_bus_off();
 }
 
-void periodic_callbacks__10Hz(uint32_t callback_count) {}
+void periodic_callbacks__10Hz(uint32_t callback_count) { driver_logic__print_on_lcd_current_car_speed(); }
 
 void periodic_callbacks__20Hz(uint32_t callback_count) { can_bus_handler__transmit_message_in_20hz(); }
 
