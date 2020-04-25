@@ -23,6 +23,22 @@ void bridge_can_handler__transmit_messages_10hz(void) {
   can__tx(can1, &bridge_can_msg, 0);
 }
 
+void bridge_can_handler__handle_all_incoming_messages(void) {
+  dbc_MOTOR_SPEED_s motor_speed_message = {};
+  can__msg_t can_msg = {};
+
+  while (can__rx(can1, &can_msg, 0)) {
+    const dbc_message_header_t header = {
+        .message_id = can_msg.msg_id,
+        .message_dlc = can_msg.frame_fields.data_len,
+    };
+
+    if (dbc_decode_MOTOR_SPEED(&motor_speed_message, header, can_msg.data.bytes)) {
+      debug_motor_speed = motor_speed_message.MOTOR_SPEED_info;
+    }
+  }
+}
+
 void bridge_can_handler__transmit_start_stop_condition(void) {
   dbc_CAR_ACTION_s car_action_struct;
 
@@ -36,21 +52,4 @@ void bridge_can_handler__transmit_start_stop_condition(void) {
   car_action_can_msg.frame_fields.data_len = car_action_header.message_dlc;
 
   can__tx(can1, &car_action_can_msg, 0);
-}
-
-void bridge_can_handler__handle_all_incoming_messages(void) {
-  dbc_BRIDGE_GPS_s decoded_bridge_cmd = {};
-  can__msg_t bridge_can_msg = {};
-
-  while (can__rx(can1, &bridge_can_msg, 0)) {
-    const dbc_message_header_t header = {
-        .message_id = bridge_can_msg.msg_id,
-        .message_dlc = bridge_can_msg.frame_fields.data_len,
-    };
-
-    if (dbc_decode_BRIDGE_GPS(&decoded_bridge_cmd, header, bridge_can_msg.data.bytes)) {
-      printf("received bridge data: latitude = %f, longitude = %f\n", decoded_bridge_cmd.BRIDGE_GPS_latitude,
-             decoded_bridge_cmd.BRIDGE_GPS_longitude);
-    }
-  }
 }

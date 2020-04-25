@@ -27,7 +27,10 @@ void test__periodic_callbacks__1Hz(void) {
 }
 
 void test__periodic_callbacks__10Hz(void) {
-  bridge_can_handler__transmit_messages_10hz_Expect();
+  // bridge_can_handler__transmit_messages_10hz_Expect();
+  bridge_controller_handler__get_start_stop_condition_ExpectAndReturn(true);
+  bridge_controller_handler__send_debug_info_Expect();
+  bridge_can_handler__handle_all_incoming_messages_Expect();
   periodic_callbacks__10Hz(0);
 }
 
