@@ -7,6 +7,11 @@
 #include "bridge_can_handler.h"
 
 float debug_motor_speed = 0.0f;
+uint16_t debug_geo_compass_current_heading;
+uint16_t debug_geo_compass_destination_heading;
+uint8_t debug_geo_compass_distance;
+int debug_steer_move_speed;
+DRIVER_STEER_direction_e debug_steer_direction;
 
 void test_bridge_can_handler__transmit_messages_10hz(void) {
   dbc_BRIDGE_GPS_s bridge_struct = {};
