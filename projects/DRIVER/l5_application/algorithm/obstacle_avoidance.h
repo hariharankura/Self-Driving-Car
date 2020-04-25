@@ -3,7 +3,10 @@
 
 static const uint16_t THRESHOLD_VERY_NEAR = 60;
 static const uint16_t THRESHOLD_NEAR = 90;
+static const uint16_t FRONT_BACK_THRESHOLD_VERY_NEAR = 100;
+static const uint16_t FRONT_BACK_THRESHOLD_NEAR = 180;
 static const int8_t DRIVER_STEER_move_FORWARD_at_SPEED = 2;
+static const int8_t DRIVER_STEER_move_FORWARD_at_LOW_SPEED = 1;
 static const int8_t DRIVER_STEER_move_REVERSE_at_SPEED = -2;
 static const int8_t DRIVER_STEER_move_STOP = 0;
 

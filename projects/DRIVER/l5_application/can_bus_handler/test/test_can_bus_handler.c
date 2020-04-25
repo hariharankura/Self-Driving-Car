@@ -97,14 +97,17 @@ bool can__rx_car_start_stop_hijacked_stub(can__num_e can, can__msg_t *msg_ptr, u
 bool can__rx_compass_data_hijacked_mock(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms, int callback_count) {
   bool return_flag = false;
   if (callback_count == 0) {
-    msg_ptr->frame_fields.data_len = 4;
+    msg_ptr->frame_fields.data_len = 6;
     msg_ptr->msg_id = 401;
     uint16_t current_heading_angle = 25991;
     uint16_t dest_heading_angle = 12333;
+    uint16_t distance = 14567;
     msg_ptr->data.bytes[0] = (current_heading_angle & 0xff);
     msg_ptr->data.bytes[1] = (current_heading_angle & 0xff00) >> 8;
     msg_ptr->data.bytes[2] = (dest_heading_angle & 0xff);
     msg_ptr->data.bytes[3] = (dest_heading_angle & 0xff00) >> 8;
+    msg_ptr->data.bytes[4] = (distance & 0xff);
+    msg_ptr->data.bytes[5] = (distance & 0xff00) >> 8;
     return_flag = true;
   }
   return return_flag;
@@ -127,6 +130,7 @@ void test_can_bus_handler__process_all_received_messages_geo_compass_data(void) 
   can_bus_handler__process_all_received_messages_in_50hz();
   TEST_ASSERT_EQUAL_FLOAT(259.91, current_and_destination_heading_angle.GEO_COMPASS_current_heading);
   TEST_ASSERT_EQUAL_FLOAT(123.33, current_and_destination_heading_angle.GEO_COMPASS_desitination_heading);
+  TEST_ASSERT_EQUAL_FLOAT(145.67, current_and_destination_heading_angle.GEO_COMPASS_distance);
 }
 
 void test_can_bus_handler__process_all_received_messages_car_start_stop_command(void) {
@@ -167,7 +171,7 @@ void test_can_bus_handler__transmit_message(void) {
   gpio__set_Ignore();
   gpio__reset_Ignore();
   sjvalley_lcd__send_line_StubWithCallback(sjvalley_lcd__send_line_hijacked_stub);
-  can_bus_handler__transmit_message_in_50hz();
+  can_bus_handler__transmit_message_in_20hz();
 }
 
 void test_can_bus_handler__manage_mia_50hz(void) {
