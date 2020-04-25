@@ -8,6 +8,7 @@ static bool car_action_status = false;
 static bool car_headlight_status = false;
 static bool car_test_status = false;
 float debug_motor_speed = 0.0f;
+float debug_motor_speed_pwm = 0.0f;
 uint16_t debug_geo_compass_current_heading;
 uint16_t debug_geo_compass_destination_heading;
 uint8_t debug_geo_compass_distance;
@@ -173,6 +174,7 @@ void bridge_controller_handler__send_debug_info(void) {
   Debug Information Data Format -
   Car Action
   Motor Speed
+  Motor Speed PWM
   Ultrasonic left
   Ultrasonic right
   Ultrasonic back
@@ -193,10 +195,10 @@ void bridge_controller_handler__send_debug_info(void) {
   sensor_t sensor_values;
   ultrasonic_sensor_handler__get_all_sensor_values(&sensor_values);
 
-  sprintf(output_string, "%d,%f,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", car_action_status, debug_motor_speed, sensor_values.left,
-          sensor_values.right, sensor_values.back, sensor_values.front, debug_geo_compass_current_heading,
-          debug_geo_compass_destination_heading, debug_geo_compass_distance, debug_steer_move_speed,
-          debug_steer_direction);
+  sprintf(output_string, "%d,%f,%f,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", car_action_status, debug_motor_speed,
+          debug_motor_speed_pwm, sensor_values.left, sensor_values.right, sensor_values.back, sensor_values.front,
+          debug_geo_compass_current_heading, debug_geo_compass_destination_heading, debug_geo_compass_distance,
+          debug_steer_move_speed, debug_steer_direction);
 
   while (output_string[i] != '\0') {
     uart__put(UART__3, output_string[i], 0);

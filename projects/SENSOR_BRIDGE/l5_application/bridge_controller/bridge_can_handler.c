@@ -38,6 +38,7 @@ void bridge_can_handler__handle_all_incoming_messages(void) {
 
     if (dbc_decode_MOTOR_SPEED(&motor_speed_message, header, can_msg.data.bytes)) {
       debug_motor_speed = motor_speed_message.MOTOR_SPEED_info;
+      debug_motor_speed_pwm = motor_speed_message.MOTOR_SPEED_pwm;
     }
 
     if (dbc_decode_GEO_COMPASS(&geo_compass_message, header, can_msg.data.bytes)) {
