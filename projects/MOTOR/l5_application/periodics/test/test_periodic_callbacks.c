@@ -26,7 +26,7 @@ void test__periodic_callbacks__initialize(void) {
   gpio_s led0, led1, led2, led3;
   init_can_driver_Expect();
   init_pwm_Expect();
-  initialize_test_button_and_speed_sensor_interrupts_Expect();
+  initialize_speed_sensor_interrupt_Expect();
   rc_car_stop_state_Expect();
   periodic_callbacks__initialize();
 }

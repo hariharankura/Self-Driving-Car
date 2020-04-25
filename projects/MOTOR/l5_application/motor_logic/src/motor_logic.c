@@ -1,11 +1,24 @@
 #include "motor_logic.h"
+
 #include "board_io.h"
 #include "delay.h"
 #include "gpio.h"
-#include "pwm1.h"
+#include "speed_sensor.h"
 #include "stdio.h"
 
-static uint8_t reverse_counter = 0;
+static uint32_t reverse_counter = 0;
+static bool reverse_flag = 0;
+
+static float pwm_reverse = 14.07;
+static float pwm_neutral = 15;
+static float pwm_forward_default_low = 15.8;
+static float pwm_forward_default_high = 18;
+static float pwm_forward = 15.8;
+
+static float target_speed_mph, actual_speed_mph;
+
+static float low_speed_mph = 2;
+static float medium_speed_mph = 5;
 
 void init_pwm(void) {
   gpio__construct_as_output(GPIO__PORT_2, 0);
@@ -13,87 +26,6 @@ void init_pwm(void) {
   gpio__construct_with_function(GPIO__PORT_2, 0, GPIO__FUNCTION_1);
   gpio__construct_with_function(GPIO__PORT_2, 1, GPIO__FUNCTION_1);
   pwm1__init_single_edge(100);
-}
-
-void control_motor_steer(DRIVER_STEER_direction_e motor_steer) {
-  switch (motor_steer) {
-  case DRIVER_STEER_direction_HARD_LEFT:
-    pwm1__set_duty_cycle(PWM_SERVO, TURN_LEFT_90_DEGREES);
-    gpio__reset(board_io__get_led3());
-    gpio__set(board_io__get_led2());
-    // printf("Direction: HARD_LEFT\n");
-    break;
-  case DRIVER_STEER_direction_SOFT_LEFT:
-    pwm1__set_duty_cycle(PWM_SERVO, TURN_LEFT_20_DEGREES);
-    gpio__reset(board_io__get_led3());
-    gpio__set(board_io__get_led2());
-    // printf("Direction: SOFT_LEFT\n");
-    break;
-  case DRIVER_STEER_direction_STRAIGHT:
-    pwm1__set_duty_cycle(PWM_SERVO, STEER_STRAIGHT);
-    gpio__set(board_io__get_led3());
-    gpio__set(board_io__get_led2());
-    // printf("Direction: STRAIGHT\n");
-    break;
-  case DRIVER_STEER_direction_SOFT_RIGHT:
-    pwm1__set_duty_cycle(PWM_SERVO, TURN_RIGHT_20_DEGREES);
-    gpio__set(board_io__get_led3());
-    gpio__reset(board_io__get_led2());
-    // printf("Direction: SOFT_RIGHT\n");
-    break;
-  case DRIVER_STEER_direction_HARD_RIGHT:
-    pwm1__set_duty_cycle(PWM_SERVO, TURN_RIGHT_90_DEGREES);
-    gpio__set(board_io__get_led3());
-    gpio__reset(board_io__get_led2());
-    // printf("Direction: HARD_RIGHT\n");
-    break;
-  default:
-    break;
-  }
-}
-
-static void dc_motor_forward(int16_t motor_speed) {
-  reverse_counter = 0;
-  float duty_cycle = 15.5 + 0.2 * motor_speed;
-  pwm1__set_duty_cycle(PWM_MOTOR, duty_cycle);
-  gpio__reset(board_io__get_led1());
-  // printf("Speed msg: %d  Duty Cycle: %f\n\n", motor_speed, duty_cycle);
-}
-
-static void dc_motor_reverse(int16_t motor_speed) {
-  float duty_cycle = 14.17;
-
-  if (reverse_counter <= 3) {
-    pwm1__set_duty_cycle(PWM_MOTOR, 13.7);
-    // printf("REVERSE\n");
-  } else if (reverse_counter <= 5) {
-    pwm1__set_duty_cycle(PWM_MOTOR, 15);
-    // printf("STOP\n");
-  } else {
-    pwm1__set_duty_cycle(PWM_MOTOR, duty_cycle);
-    gpio__set(board_io__get_led1());
-    // printf("REVERSE\n");
-  }
-  // printf("Speed msg: %d  Duty Cycle: %f\n\n", motor_speed, duty_cycle);
-  reverse_counter++;
-}
-
-static void dc_motor_stop(int16_t motor_speed) {
-  reverse_counter = 0;
-  pwm1__set_duty_cycle(PWM_MOTOR, 15);
-  gpio__set(board_io__get_led1());
-  // printf("Speed msg: 0  Duty Cycle: 15\n\n");
-}
-
-void control_motor_speed(int16_t motor_speed) {
-
-  if (motor_speed == 0) {
-    dc_motor_stop(motor_speed);
-  } else if (motor_speed > 0) {
-    dc_motor_forward(motor_speed);
-  } else {
-    dc_motor_reverse(motor_speed);
-  }
 }
 
 void rc_car_stop_state(void) {
@@ -104,4 +36,165 @@ void rc_car_stop_state(void) {
 void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
   control_motor_steer(steer_data->DRIVER_STEER_direction);
   control_motor_speed(steer_data->DRIVER_STEER_move_speed);
+}
+
+static void apply_brake(uint8_t brake_count) {
+  switch (brake_count) {
+  case 0:
+    pwm1__set_duty_cycle(PWM_MOTOR, 15);
+    break;
+  case 1:
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+    pwm1__set_duty_cycle(PWM_MOTOR, 10);
+    break;
+  default:
+    pwm1__set_duty_cycle(PWM_MOTOR, 15);
+    break;
+  }
+}
+
+static float maintain_speed(float actual_speed, float target_speed) {
+  float diff = target_speed - actual_speed;
+
+  // if (diff > 0) {
+  //   pwm_forward += 0.004 * diff;
+  // } else {
+  //   pwm_forward -= 0.008 * diff;
+  // }
+
+  if (target_speed > actual_speed) {
+    pwm_forward += 0.002;
+  } else {
+    pwm_forward -= 0.004;
+  }
+
+  if ((actual_speed - target_speed_mph) > 3) {
+
+    pwm_forward = pwm_forward_default_low;
+    static uint8_t count = 0;
+    if (count < 7) {
+      apply_brake(count++);
+    } else {
+      count = 0;
+    }
+  }
+
+  // if (diff < -3) {
+  //   pwm_forward = pwm_forward_default_low;
+  //   static uint8_t count = 0;
+  //   if (count < 5) {
+  //     apply_brake(count++);
+  //   } else {
+  //     count = 0;
+  //   }
+  // }
+
+  if (pwm_forward > pwm_forward_default_high) {
+    pwm_forward = pwm_forward_default_high;
+  }
+  if (pwm_forward < pwm_forward_default_low) {
+    pwm_forward = pwm_forward_default_low;
+  }
+
+  return pwm_forward;
+}
+
+static void dc_motor_forward(int16_t motor_speed) {
+  reverse_counter = 0;
+  reverse_flag = false;
+
+  switch (motor_speed) {
+  case 1:
+    target_speed_mph = low_speed_mph;
+    break;
+
+  case 2:
+  default:
+    target_speed_mph = medium_speed_mph;
+    break;
+  }
+
+  actual_speed_mph = get_mph();
+
+  float pwm = maintain_speed(actual_speed_mph, target_speed_mph);
+
+  pwm1__set_duty_cycle(PWM_MOTOR, pwm);
+  gpio__set(board_io__get_led1());
+  gpio__set(board_io__get_led2());
+  gpio__reset(board_io__get_led3());
+}
+
+static void dc_motor_reverse(int16_t motor_speed) {
+  pwm_forward = pwm_forward_default_low;
+  reverse_flag = true;
+
+  if (reverse_counter <= 3) {
+    pwm1__set_duty_cycle(PWM_MOTOR, 10);
+  } else if (reverse_counter <= 5) {
+    pwm1__set_duty_cycle(PWM_MOTOR, 15);
+  } else {
+    pwm1__set_duty_cycle(PWM_MOTOR, pwm_reverse);
+    gpio__reset(board_io__get_led1());
+    gpio__set(board_io__get_led2());
+    gpio__set(board_io__get_led3());
+  }
+
+  reverse_counter++;
+}
+
+static void dc_motor_stop(int16_t motor_speed) {
+  pwm_forward = pwm_forward_default_low;
+  reverse_counter = 0;
+  reverse_flag = false;
+
+  pwm1__set_duty_cycle(PWM_MOTOR, pwm_neutral);
+  gpio__set(board_io__get_led1());
+  gpio__reset(board_io__get_led2());
+  gpio__set(board_io__get_led3());
+}
+
+float motor_speed_with_direction(void) {
+  float speed = get_mph();
+  if (reverse_flag) {
+    speed *= -1;
+  }
+  return speed;
+}
+
+float get_pwm_forward(void) { return pwm_forward; }
+
+void control_motor_speed(int16_t motor_speed) {
+  if (motor_speed == 0) {
+    dc_motor_stop(motor_speed);
+  } else if (motor_speed > 0) {
+    dc_motor_forward(motor_speed);
+  } else {
+    dc_motor_reverse(motor_speed);
+  }
+}
+
+void control_motor_steer(DRIVER_STEER_direction_e motor_steer) {
+  switch (motor_steer) {
+  case DRIVER_STEER_direction_HARD_LEFT:
+    pwm1__set_duty_cycle(PWM_SERVO, TURN_LEFT_90_DEGREES);
+    break;
+  case DRIVER_STEER_direction_SOFT_LEFT:
+    pwm1__set_duty_cycle(PWM_SERVO, TURN_LEFT_20_DEGREES);
+    break;
+  case DRIVER_STEER_direction_STRAIGHT:
+    pwm1__set_duty_cycle(PWM_SERVO, STEER_STRAIGHT);
+    break;
+  case DRIVER_STEER_direction_SOFT_RIGHT:
+    pwm1__set_duty_cycle(PWM_SERVO, TURN_RIGHT_20_DEGREES);
+    break;
+  case DRIVER_STEER_direction_HARD_RIGHT:
+    pwm1__set_duty_cycle(PWM_SERVO, TURN_RIGHT_90_DEGREES);
+    break;
+  default:
+    break;
+  }
 }

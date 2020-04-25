@@ -32,7 +32,7 @@ void init_can_driver(void) {
 
 void can_handler__reset_if_bus_off(void) {
   if (can__is_bus_off(CAN_BUS)) {
-    printf("Bus off...Resetting can bus\n");
+    // printf("Bus off...Resetting can bus\n");
     can__reset_bus(CAN_BUS);
   }
 }
@@ -58,7 +58,9 @@ void can_bus_handler__process_all_received_messages_in_20hz(void) {
 void can_bus_handler__transmit_message_in_10hz(void) {
   dbc_MOTOR_SPEED_s motor_speed = {};
   can__msg_t can_transmit_msg = {};
-  motor_speed.MOTOR_SPEED_info = get_mph();
+  motor_speed.MOTOR_SPEED_info = motor_speed_with_direction();
+  motor_speed.MOTOR_SPEED_pwm = get_pwm_forward();
+  // printf("mph: %f \n", motor_speed.MOTOR_SPEED_info);
   dbc_encode_and_send_MOTOR_SPEED(&can_transmit_msg, &motor_speed);
 }
 
