@@ -127,7 +127,7 @@ void accelerate_forward_mph(double target_speed_mph) {
       propotional = current_speed_mph / target_speed_mph;
       car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
     } else {
-      car_state.drive_pwm_value = NO_ACTION_PWM;
+      // car_state.drive_pwm_value = NO_ACTION_PWM;
     }
   } else if (UPHILL == terrain) {
     // printf(">DOWNHILL\n");
@@ -138,7 +138,7 @@ void accelerate_forward_mph(double target_speed_mph) {
       propotional = current_speed_mph / target_speed_mph;
       car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
     } else {
-      car_state.drive_pwm_value = NO_ACTION_PWM;
+      // car_state.drive_pwm_value = NO_ACTION_PWM;
     }
   } else if (DOWNHILL == terrain) {
     // printf(">FLAT\n");
@@ -149,7 +149,7 @@ void accelerate_forward_mph(double target_speed_mph) {
       propotional = current_speed_mph / target_speed_mph;
       car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
     } else {
-      car_state.drive_pwm_value = NO_ACTION_PWM;
+      // car_state.drive_pwm_value = NO_ACTION_PWM;
     }
   }
 
@@ -191,11 +191,12 @@ void stop_car() {}
 
 void accelerate_reverse_mph(double target_speed) {}
 
-void drive_motor(double pwm_value) {
+void drive_motor(float pwm_value) {
 
   // motor works on pwm input ranging from 10-20 dutycycle.
-  if (pwm_value >= 10 && pwm_value <= 20)
+  if (pwm_value > 9 && pwm_value < 21){
     pwm1__set_duty_cycle(PWM_MOTOR, pwm_value);
+  }
 }
 
 // pwm1__set_duty_cycle(PWM_MOTOR, 12);
