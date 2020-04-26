@@ -29,14 +29,14 @@ void periodic_callbacks__initialize(void) {
 void periodic_callbacks__1Hz(uint32_t callback_count) {}
 
 void periodic_callbacks__10Hz(uint32_t callback_count) {
-  if (0 == callback_count % 5) {
+  if (0 == (callback_count + 1 % 11)) {
     clear_rotations_in_windowtime();
   }
   can_bus_handler__transmit_message_in_10hz();
 }
 
 void periodic_callbacks__100Hz(uint32_t callback_count) {
-  if (callback_count % 5 == 0) {
+  if (0 == (callback_count + 1 % 6)) {
     if (get_motor_test_button_status()) {
       servo_and_dc_motor_tests(callback_count);
     } else {
