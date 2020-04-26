@@ -12,6 +12,7 @@
 #include "motor_self_test.h"
 #include "pwm1.h"
 #include "speed_sensor.h"
+#include "acceleration.h"
 
 /******************************************************************************
  * Your board will reset if the periodic function does not return within its deadline
@@ -23,6 +24,7 @@ void periodic_callbacks__initialize(void) {
   init_pwm();
   initialize_speed_sensor_interrupt();
   init_can_driver();
+  acceleration__init();
   rc_car_stop_state();
 }
 

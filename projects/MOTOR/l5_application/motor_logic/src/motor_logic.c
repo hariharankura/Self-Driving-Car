@@ -4,6 +4,9 @@
 #include "gpio.h"
 #include "speed_sensor.h"
 #include "stdio.h"
+#include "acceleration.h"
+
+typedef enum terrain_type{UPHILL=0, FLAT, DOWNHILL} terrain_type_t;
 
 void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
   control_motor_steer(steer_data->DRIVER_STEER_direction);
@@ -11,6 +14,7 @@ void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
 }
 
 void control_motor_steer(DRIVER_STEER_direction_e motor_steer) {
+
   switch (motor_steer) {
   case DRIVER_STEER_direction_HARD_LEFT:
     pwm1__set_duty_cycle(PWM_SERVO, TURN_LEFT_90_DEGREES);
@@ -46,7 +50,7 @@ void control_motor_speed(int16_t motor_speed) {
     case -2:
     case -1: accelerate_reverse_mph(NULL);
             break;
-    case 0: 
+    case 0:  stop_car();
             break;
     case 1: accelerate_forward_mph(5);
             break;
@@ -58,14 +62,42 @@ void control_motor_speed(int16_t motor_speed) {
     case 7: 
     case 8: 
     case 9: 
-    case 10: accelerate_forward_mph(5);
+    case 10: accelerate_forward_mph(7);
             break;
     
     default:
   }
+}
+
+void accelerate_forward_mph(uint8_t target_speed){
+
+  enum terrain_type terrain;
+  terrain = get_terrain_data();
+
+  if(UPHILL == terrain){
+
+  }else if(DOWNHILL == terrain){
+
+  }else if(FLAT == terrain){
+
+  }
+}
+
+terrain_type_t get_terrain_data(void){
+
+  acceleration__axis_data_s data =  acceleration__get_data();
+
+  printf("x = %d, y = %d, z = %d", data.x, data.y, data.z);
+
+}
 
 
-  if (motor_speed == 0) {
+
+
+
+pwm1__set_duty_cycle(PWM_MOTOR, 12);
+
+if (motor_speed == 0) {
     dc_motor_stop(motor_speed);
   } else if (motor_speed > 0 && motor_speed <= 10) {
     dc_motor_forward(motor_speed);
