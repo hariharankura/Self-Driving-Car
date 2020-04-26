@@ -99,10 +99,10 @@ void can_bus_handler__manage_mia_50hz(void) {
   }
 }
 
-bool dbc_send_can_message(void *argument, uint32_t message_id, const uint8_t bytes[8], uint8_t dlc) {
-  can__msg_t send_msg = {};
-  send_msg.msg_id = message_id;
-  send_msg.frame_fields.data_len = dlc;
-  memcpy(send_msg.data.bytes, bytes, dlc);
-  return can__tx(CAN_BUS, &send_msg, 0);
-}
+// bool dbc_send_can_message(void *argument, uint32_t message_id, const uint8_t bytes[8], uint8_t dlc) {
+//   can__msg_t send_msg = {};
+//   send_msg.msg_id = message_id;
+//   send_msg.frame_fields.data_len = dlc;
+//   memcpy(send_msg.data.bytes, bytes, dlc);
+//   return can__tx(CAN_BUS, &send_msg, 0);
+// }
