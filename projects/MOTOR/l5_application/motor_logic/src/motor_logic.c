@@ -17,8 +17,8 @@ static float pwm_forward = 15.8;
 
 static float target_speed_mph, actual_speed_mph;
 
-static float low_speed_mph = 2;
-static float medium_speed_mph = 5;
+static float low_speed_mph = 4;
+static float medium_speed_mph = 8;
 
 void init_pwm(void) {
   gpio__construct_as_output(GPIO__PORT_2, 0);
@@ -69,24 +69,22 @@ static float maintain_speed(float actual_speed, float target_speed) {
     pwm_forward -= 0.004;
   }
 
-  if ((actual_speed - target_speed_mph) > 3) {
-    pwm_forward = pwm_forward_default_low;
-    static uint8_t count = 0;
-    if (count < 5) {
-      apply_brake(count++);
-    } else {
-      count = 0;
-    }
-  }
+  // if ((actual_speed - target_speed_mph) > 3) {
+  //   pwm_forward = pwm_forward_default_low;
+  //   static uint8_t count = 0;
+  //   if (count == 0) {
+  //     count++;
+  //     return 10.0f;
+  //     // apply_brake(count++);
+  //   } else {
+  //     return pwm_forward_default_low;
+  //     count = 0;
+  //   }
+  // }
 
-  if ((actual_speed - target_speed_mph) > 7) {
-    pwm_forward = 15.5;
-    static uint8_t count = 0;
-    if (count < 10) {
-      apply_brake(count++);
-    } else {
-      count = 0;
-    }
+  if ((actual_speed - target_speed_mph) > 4) {
+    pwm_forward = pwm_forward_default_low;
+    return 10.0f;
   }
 
   if (pwm_forward > pwm_forward_default_high) {
