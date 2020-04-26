@@ -13,7 +13,8 @@ static const uint16_t CAN_BAUD_RATE = 100;
 static const uint16_t CAN_TRANSMIT_QUEUE_SIZE = 100;
 static const uint16_t CAN_RECEIVE_QUEUE_SIZE = 100;
 static const can__num_e CAN_BUS = can1;
-static uint32_t ids[] = {101, 200, 401, 600, 800};
+static const uint8_t DRIVER_EXPECTED_CAN_MESSAGES = 4; // must be even
+static uint32_t ids[] = {101, 200, 401, 600};
 
 static gpio_s CAN_BUS_OFF_STATUS_LED;
 static gpio_s MIA_OBSTACLE_STATUS_LED;
@@ -36,7 +37,7 @@ void full_can_bus_handler__reset_if_bus_off(void) {
   if (can__is_bus_off(CAN_BUS)) {
     can__reset_bus(CAN_BUS);
     gpio__reset(CAN_BUS_OFF_STATUS_LED);
-    printf("Buss off\n");
+    printf("Bus off\n");
     PROJECT_DEBUG__LCD_PRINTF(0, "CAN BUS OFF");
   } else {
     gpio__set(CAN_BUS_OFF_STATUS_LED);
@@ -45,38 +46,19 @@ void full_can_bus_handler__reset_if_bus_off(void) {
 }
 
 void full_can_bus_handler__add_all_can_entry(void) {
-  for (uint8_t i = 0; i < 5; i++) {
+  for (uint8_t i = 0; i < DRIVER_EXPECTED_CAN_MESSAGES; i += 2) {
     if (!can__fullcan_add_entry(CAN_BUS, can__generate_standard_id(CAN_BUS, ids[i]),
-                                can__generate_standard_id(CAN_BUS, ids[i] + 1))) {
+                                can__generate_standard_id(CAN_BUS, ids[i + 1]))) {
       printf("Add can entry failed\n");
     }
   }
-  if (10 != can__fullcan_get_num_entries()) {
+  if (DRIVER_EXPECTED_CAN_MESSAGES != can__fullcan_get_num_entries()) {
     printf("can entry not added\n");
-  }
-}
-
-void full_can_bus_handler__setup_filter(void) {
-  const can_std_id_t slist[] = {
-      can__generate_standard_id(can1, 101), can__generate_standard_id(can1, 200), // 2 entries
-      can__generate_standard_id(can1, 401), can__generate_standard_id(can1, 600)  // 2 entries
-  };
-  const can_std_grp_id_t sglist[] = {
-      {can__generate_standard_id(can1, 0x200), can__generate_standard_id(can1, 0x210)}, // Group 1
-      {can__generate_standard_id(can1, 0x220), can__generate_standard_id(can1, 0x230)}  // Group 2
-  };
-  const can_ext_id_t elist[] = {can__generate_extended_id(can1, 0x7500), can__generate_extended_id(can1, 0x8500)};
-  const can_ext_grp_id_t eglist[] = {
-      {can__generate_extended_id(can1, 0xA000), can__generate_extended_id(can1, 0xB000)}}; // Group 1
-  can__setup_filter(slist, 5, sglist, 2, elist, 2, eglist, 1);
-  if (!can__setup_filter(slist, 4, sglist, 2, elist, 2, eglist, 1)) {
-    printf("Setup filter failed\n");
   }
 }
 
 void full_can_bus_handler__init(void) {
   can__init(CAN_BUS, CAN_BAUD_RATE, CAN_RECEIVE_QUEUE_SIZE, CAN_TRANSMIT_QUEUE_SIZE, NULL, NULL);
-  full_can_bus_handler__setup_filter();
   can__reset_bus(CAN_BUS);
 
   full_can_bus_handler__add_all_can_entry();
