@@ -64,9 +64,10 @@ void test_can_bus_handler__process_all_received_messages(void) {
 }
 
 void test_can_bus_handler__transmit_message(void) {
-  // can__msg_t send_msg = {};
-  // motor_speed_with_direction_ExpectAndReturn(0);
-  // can__tx_ExpectAndReturn(can1, &send_msg, 0, true);
-  // can__tx_IgnoreArg_can_message_ptr();
-  // can_bus_handler__transmit_message_in_10hz();
+  can__msg_t send_msg = {};
+  motor_speed_with_direction_ExpectAndReturn(0);
+  get_pwm_forward_ExpectAndReturn(0);
+  can__tx_ExpectAndReturn(can1, &send_msg, 0, true);
+  can__tx_IgnoreArg_can_message_ptr();
+  can_bus_handler__transmit_message_in_10hz();
 }

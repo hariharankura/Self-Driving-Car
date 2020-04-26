@@ -20,6 +20,8 @@ static float target_speed_mph, current_speed_mph;
 static float low_speed_mph = 2;
 static float medium_speed_mph = 5;
 
+static uint32_t previous_rpm = 0, current_rpm = 0, absolute_difference_in_rpm = 0;
+
 void init_pwm(void) {
   gpio__construct_as_output(GPIO__PORT_2, 0);
   gpio__construct_as_output(GPIO__PORT_2, 1);
@@ -39,26 +41,38 @@ void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
 }
 
 static void apply_brake(uint8_t brake_count) {
-  switch (brake_count) {
-  case 0:
-  case 1:
+  if (brake_count < 2) {
     pwm1__set_duty_cycle(PWM_MOTOR, 15);
-    break;
-  case 2:
-  case 3:
-  case 4:
-  case 5:
-  case 6:
-  case 7:
-  case 8:
-  case 9:
-  case 10:
+  } else if (brake_count < 10) {
     pwm1__set_duty_cycle(PWM_MOTOR, 10);
-    break;
-  default:
-    pwm1__set_duty_cycle(PWM_MOTOR, 15);
-    break;
+  } else if (brake_count < 60) {
+    pwm1__set_duty_cycle(PWM_MOTOR, 12);
   }
+
+  // switch (brake_count) {
+
+  // case 0:
+  // case 1:
+  //   pwm1__set_duty_cycle(PWM_MOTOR, 15);
+  //   break;
+  // case 2:
+  // case 3:
+  // case 4:
+  // case 5:
+  // case 6:
+  // case 7:
+  // case 8:
+  // case 9:
+  // case 10:
+  // case 11:
+  // case 12:
+  // case 13:
+  // case 14:
+  //   pwm1__set_duty_cycle(PWM_MOTOR, 10);
+  //   break;
+  // default:
+  //   pwm1__set_duty_cycle(PWM_MOTOR, 15);
+  //   break;
 }
 
 static void maintain_speed() {
@@ -67,16 +81,36 @@ static void maintain_speed() {
     pwm_forward += 0.002;
   } else if (target_speed_mph < current_speed_mph) {
     pwm_forward -= 0.004;
+    while (current_speed_mph > target_speed_mph) {
+
+      current_rpm = get_rpm();
+
+      absolute_difference_in_rpm = sqrt(pow((current_rpm - previous_rpm), 2));
+
+      if (absolute_difference_in_rpm > 5) {
+        pwm1__set_duty_cycle(PWM_MOTOR, 10);
+        previous_rpm = current_rpm;
+      } else {
+        pwm1__set_duty_cycle(PWM_MOTOR, 13);
+      }
+    }
   }
 
-  // if ((current_speed_mph - target_speed_mph) > 3) {
+  //  if ((current_speed_mph - target_speed_mph) > 3) {
+  //   while(target_speed_mph != current_speed_mph){
+  //     pwm1__set_duty_cycle(PWM_MOTOR, pwm_forward);
+  //     pwm_forward -= 0.004;
+  //   }
+  // }
+
+  // if ((current_speed_mph - target_speed_mph) > 5) {
   //   pwm_forward = pwm_forward_default_low; // 15.8
-  //   // static uint8_t count = 0;
-  //   // if (count < 5) {
-  //   //   apply_brake(count++);
-  //   // } else {
-  //   //   count = 0;
-  //   // }
+  //   static uint8_t count = 0;
+  //   if (count < 60) {
+  //     apply_brake(count++);
+  //   } else {
+  //     count = 0;
+  //   }
   // }
 
   // if ((current_speed_mph - target_speed_mph) > 7) {
@@ -97,18 +131,23 @@ static void maintain_speed() {
   }
 }
 
+// test on 04/25
+// ramp length 30 feet
+// 4.21 to 5.62 on flat ground mph
+// 4.21 to 5.62 on uphill ground mph -> goes to 7 after uphill to flat transition but stables to 5 after 10 feet
+// 0 to 19 on downhill without braking
 static void dc_motor_forward(int16_t motor_speed) {
   reverse_counter = 0;
   reverse_flag = false;
 
   switch (motor_speed) {
   case 1:
-    target_speed_mph = low_speed_mph;     //2mph
+    target_speed_mph = low_speed_mph; // 2mph
     break;
 
   case 2:
   default:
-    target_speed_mph = medium_speed_mph;  //5mph
+    target_speed_mph = medium_speed_mph; // 5mph
     break;
   }
 
