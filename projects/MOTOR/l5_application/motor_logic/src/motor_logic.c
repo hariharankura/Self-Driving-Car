@@ -103,12 +103,12 @@ static void dc_motor_forward(int16_t motor_speed) {
 
   switch (motor_speed) {
   case 1:
-    target_speed_mph = low_speed_mph;
+    target_speed_mph = low_speed_mph;     //2mph
     break;
 
   case 2:
   default:
-    target_speed_mph = medium_speed_mph;
+    target_speed_mph = medium_speed_mph;  //5mph
     break;
   }
 
