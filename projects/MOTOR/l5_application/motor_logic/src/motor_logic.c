@@ -69,25 +69,25 @@ static void maintain_speed() {
     pwm_forward -= 0.004;
   }
 
-  if ((current_speed_mph - target_speed_mph) > 3) {
-    pwm_forward = pwm_forward_default_low; // 15.8
-    static uint8_t count = 0;
-    if (count < 5) {
-      apply_brake(count++);
-    } else {
-      count = 0;
-    }
-  }
+  // if ((current_speed_mph - target_speed_mph) > 3) {
+  //   pwm_forward = pwm_forward_default_low; // 15.8
+  //   // static uint8_t count = 0;
+  //   // if (count < 5) {
+  //   //   apply_brake(count++);
+  //   // } else {
+  //   //   count = 0;
+  //   // }
+  // }
 
-  if ((current_speed_mph - target_speed_mph) > 7) {
-    pwm_forward = 15.5;
-    static uint8_t count = 0;
-    if (count < 10) {
-      apply_brake(count++);
-    } else {
-      count = 0;
-    }
-  }
+  // if ((current_speed_mph - target_speed_mph) > 7) {
+  //   pwm_forward = 15.5;
+  //   // static uint8_t count = 0;
+  //   // if (count < 10) {
+  //   //   apply_brake(count++);
+  //   // } else {
+  //   //   count = 0;
+  //   // }
+  // }
 
   if (pwm_forward > pwm_forward_default_high) {
     pwm_forward = pwm_forward_default_high;
