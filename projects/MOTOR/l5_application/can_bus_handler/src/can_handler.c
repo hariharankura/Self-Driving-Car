@@ -50,10 +50,10 @@ void can_bus_handler__process_all_received_messages_in_20hz(void) {
     if (dbc_decode_DRIVER_STEER_SPEED(&steer_data, header, can_msg.data.bytes)) {
       // printf("Received msg\n");
       gpio__set(board_io__get_led0());
-      // motor_logic(&steer_data);
+      motor_logic(&steer_data);
     }
   }
-  motor_logic(&steer_data);
+  // motor_logic(&steer_data);
 }
 
 // void can_bus_handler__transmit_message_in_10hz(void) {

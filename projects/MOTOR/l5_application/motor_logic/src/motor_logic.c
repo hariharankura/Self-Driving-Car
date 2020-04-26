@@ -35,8 +35,8 @@ void init_pwm(void) {
 
 void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
   control_motor_steer(steer_data->DRIVER_STEER_direction);
-  // control_motor_speed(steer_data->DRIVER_STEER_move_speed);
-  control_motor_speed(2);
+  control_motor_speed(steer_data->DRIVER_STEER_move_speed);
+  // control_motor_speed(2);
 }
 
 void control_motor_steer(DRIVER_STEER_direction_e motor_steer) {
