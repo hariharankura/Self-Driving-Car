@@ -19,3 +19,5 @@ void control_motor_speed(int16_t motor_speed);
 void rc_car_stop_state(void);
 float motor_speed_with_direction(void);
 float get_pwm_forward(void);
+
+void dc_init(int call_back);

@@ -15,7 +15,7 @@ dbc_DRIVER_STEER_SPEED_s driver_logic__get_motor_command(void) {
     current_state = driving_algo__compute_heading();
     if (current_state.DRIVER_STEER_move_speed == DRIVER_STEER_move_REVERSE_at_SPEED &&
         last_state.DRIVER_STEER_move_speed == DRIVER_STEER_move_FORWARD_at_SPEED) {
-      current_state.DRIVER_STEER_move_speed = DRIVER_STEER_move_STOP;
+      // current_state.DRIVER_STEER_move_speed = DRIVER_STEER_move_STOP;
     }
   } else {
     current_state = STOP_COMMAND;

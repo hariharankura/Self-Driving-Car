@@ -36,7 +36,11 @@ void periodic_callbacks__10Hz(uint32_t callback_count) {
 }
 
 void periodic_callbacks__100Hz(uint32_t callback_count) {
+  static int c = 0;
   if (callback_count % 5 == 0) {
+    if (c < 3) {
+      dc_init(c++);
+    }
     if (get_motor_test_button_status()) {
       servo_and_dc_motor_tests(callback_count);
     } else {
