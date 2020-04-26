@@ -7,12 +7,12 @@
 #include "board_io.h"
 #include "gpio.h"
 
+#include "acceleration.h"
 #include "can_handler.h"
 #include "motor_logic.h"
 #include "motor_self_test.h"
 #include "pwm1.h"
 #include "speed_sensor.h"
-#include "acceleration.h"
 
 /******************************************************************************
  * Your board will reset if the periodic function does not return within its deadline
@@ -25,20 +25,20 @@ void periodic_callbacks__initialize(void) {
   initialize_speed_sensor_interrupt();
   init_can_driver();
   acceleration__init();
-  rc_car_stop_state();
+  // rc_car_stop_state();
 }
 
 void periodic_callbacks__1Hz(uint32_t callback_count) {}
 
 void periodic_callbacks__10Hz(uint32_t callback_count) {
-  if (0 == (callback_count + 1 % 11)) {
+  if (0 == ((callback_count + 1) % 11)) {
     clear_rotations_in_windowtime();
   }
-  can_bus_handler__transmit_message_in_10hz();
+  // can_bus_handler__transmit_message_in_10hz();
 }
 
 void periodic_callbacks__100Hz(uint32_t callback_count) {
-  if (0 == (callback_count + 1 % 6)) {
+  if (0 == ((callback_count + 1) % 6)) {
     if (get_motor_test_button_status()) {
       servo_and_dc_motor_tests(callback_count);
     } else {

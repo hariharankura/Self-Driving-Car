@@ -1,16 +1,42 @@
 #include "motor_logic.h"
+#include "acceleration.h"
 #include "board_io.h"
 #include "delay.h"
 #include "gpio.h"
 #include "speed_sensor.h"
 #include "stdio.h"
-#include "acceleration.h"
 
-typedef enum terrain_type{UPHILL=0, FLAT, DOWNHILL} terrain_type_t;
+#define START_PWM_VALUE 16.5
+#define PWM_INCREMENT_FACTOR 0.01
+#define PWM_DECREMENT_FACTOR 0.1
+#define NO_ACTION_PWM 15
+#define MIN_MOTOR_PWM_VALUE 10
+#define MAX_MOTOR_PWM_VALUE 20
+
+typedef enum state { START = 0, TARGET_SPEED_ACHEIVED } state_t;
+
+struct {
+  bool target_speed_acheived;
+  enum state trip_state;
+  double drive_pwm_value;
+} car_state;
+
+void init_pwm(void) {
+  gpio__construct_as_output(GPIO__PORT_2, 0);
+  gpio__construct_as_output(GPIO__PORT_2, 1);
+  gpio__construct_with_function(GPIO__PORT_2, 0, GPIO__FUNCTION_1);
+  gpio__construct_with_function(GPIO__PORT_2, 1, GPIO__FUNCTION_1);
+  pwm1__init_single_edge(100);
+
+  car_state.target_speed_acheived = false;
+  car_state.trip_state = START;
+  car_state.drive_pwm_value = START_PWM_VALUE;
+}
 
 void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
   control_motor_steer(steer_data->DRIVER_STEER_direction);
   control_motor_speed(steer_data->DRIVER_STEER_move_speed);
+  // control_motor_speed(2);
 }
 
 void control_motor_steer(DRIVER_STEER_direction_e motor_steer) {
@@ -38,85 +64,150 @@ void control_motor_steer(DRIVER_STEER_direction_e motor_steer) {
 
 void control_motor_speed(int16_t motor_speed) {
 
-  switch(motor_speed){
-    case -10:
-    case -9:
-    case -8:
-    case -7:
-    case -6:
-    case -5:
-    case -4:
-    case -3:
-    case -2:
-    case -1: accelerate_reverse_mph(NULL);
-            break;
-    case 0:  stop_car();
-            break;
-    case 1: accelerate_forward_mph(5);
-            break;
-    case 2: 
-    case 3: 
-    case 4: 
-    case 5: 
-    case 6: 
-    case 7: 
-    case 8: 
-    case 9: 
-    case 10: accelerate_forward_mph(7);
-            break;
-    
-    default:
+  switch (motor_speed) {
+  case -10:
+  case -9:
+  case -8:
+  case -7:
+  case -6:
+  case -5:
+  case -4:
+  case -3:
+  case -2:
+  case -1:
+    accelerate_reverse_mph(0);
+    break;
+  case 0:
+    stop_car();
+    break;
+  case 1:
+    accelerate_forward_mph(5);
+    break;
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+  case 9:
+  case 10:
+    accelerate_forward_mph(10);
+    break;
+  default:
+    break;
   }
 }
 
-void accelerate_forward_mph(uint8_t target_speed){
+void accelerate_forward_mph(double target_speed_mph) {
 
   enum terrain_type terrain;
+  double current_speed_mph;
+  double propotional;
+
   terrain = get_terrain_data();
+  current_speed_mph = get_mph();
 
-  if(UPHILL == terrain){
+  if (FLAT == terrain) {
+    // printf(">UPHILL\n");
+    // switch(car_state.trip_state){
 
-  }else if(DOWNHILL == terrain){
+    //   case START: drive_motor_input_pwm(car_state.drive_pwm_value);
+    //               if(car_state.target_speed_acheived == true)
+    //                 car_state.trip_state++;
+    //               break;
 
-  }else if(FLAT == terrain){
+    //   case TARGET_SPEED_ACHEIVED: drive_motor_input_pwm(car_state.drive_pwm_value);
 
+    // }
+    if (current_speed_mph < target_speed_mph) {
+      car_state.drive_pwm_value = car_state.drive_pwm_value + PWM_INCREMENT_FACTOR;
+    } else if (current_speed_mph > target_speed_mph) {
+      car_state.target_speed_acheived = true;
+      propotional = current_speed_mph / target_speed_mph;
+      car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
+    } else {
+      car_state.drive_pwm_value = NO_ACTION_PWM;
+    }
+  } else if (UPHILL == terrain) {
+    // printf(">DOWNHILL\n");
+    if (current_speed_mph < target_speed_mph) {
+      car_state.drive_pwm_value = car_state.drive_pwm_value + PWM_INCREMENT_FACTOR;
+    } else if (current_speed_mph > target_speed_mph) {
+      car_state.target_speed_acheived = true;
+      propotional = current_speed_mph / target_speed_mph;
+      car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
+    } else {
+      car_state.drive_pwm_value = NO_ACTION_PWM;
+    }
+  } else if (DOWNHILL == terrain) {
+    // printf(">FLAT\n");
+    if (current_speed_mph < target_speed_mph) {
+      car_state.drive_pwm_value = car_state.drive_pwm_value + PWM_INCREMENT_FACTOR;
+    } else if (current_speed_mph > target_speed_mph) {
+      car_state.target_speed_acheived = true;
+      propotional = current_speed_mph / target_speed_mph;
+      car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
+    } else {
+      car_state.drive_pwm_value = NO_ACTION_PWM;
+    }
   }
-}
 
-terrain_type_t get_terrain_data(void){
-
-  acceleration__axis_data_s data =  acceleration__get_data();
-
-  printf("x = %d, y = %d, z = %d", data.x, data.y, data.z);
-
-}
-
-
-
-
-
-pwm1__set_duty_cycle(PWM_MOTOR, 12);
-
-if (motor_speed == 0) {
-    dc_motor_stop(motor_speed);
-  } else if (motor_speed > 0 && motor_speed <= 10) {
-    dc_motor_forward(motor_speed);
-  } else if (motor_speed < 0 && motor_speed >= -10) {
-    dc_motor_reverse(motor_speed);
+  if (car_state.drive_pwm_value < MIN_MOTOR_PWM_VALUE) {
+    car_state.drive_pwm_value = MIN_MOTOR_PWM_VALUE;
+  } else if (car_state.drive_pwm_value > MAX_MOTOR_PWM_VALUE) {
+    car_state.drive_pwm_value = MAX_MOTOR_PWM_VALUE;
   }
+
+  drive_motor(car_state.drive_pwm_value);
 }
 
+terrain_type_t get_terrain_data(void) {
 
+  enum terrain_type terrain;
 
+  acceleration__axis_data_s data;
 
+  data = acceleration__get_data();
 
+  // printf("x = %d\n", data.x);
 
+  if (data.x >= -300 && data.x <= 300) {
+    // printf("FLAT\n", data.x);
+    terrain = FLAT;
+  }
+  if (data.x < -300) {
+    // printf("DOWNHILL\n", data.x);
+    terrain = DOWNHILL;
+  } else if (data.x > 300) {
+    // printf("UPHILL\n", data.x);
+    terrain = UPHILL;
+  }
 
+  return terrain;
+}
 
+void stop_car() {}
 
+void accelerate_reverse_mph(double target_speed) {}
 
+void drive_motor(double pwm_value) {
 
+  // motor works on pwm input ranging from 10-20 dutycycle.
+  if (pwm_value >= 10 && pwm_value <= 20)
+    pwm1__set_duty_cycle(PWM_MOTOR, pwm_value);
+}
 
+// pwm1__set_duty_cycle(PWM_MOTOR, 12);
+
+// if (motor_speed == 0) {
+//     dc_motor_stop(motor_speed);
+//   } else if (motor_speed > 0 && motor_speed <= 10) {
+//     dc_motor_forward(motor_speed);
+//   } else if (motor_speed < 0 && motor_speed >= -10) {
+//     dc_motor_reverse(motor_speed);
+//   }
+// }
 
 // static uint32_t reverse_counter = 0;
 // static bool reverse_flag = 0;
@@ -133,14 +224,6 @@ if (motor_speed == 0) {
 // static float medium_speed_mph = 5;
 
 // static uint32_t previous_rpm = 0, current_rpm = 0, absolute_difference_in_rpm = 0;
-
-// void init_pwm(void) {
-//   gpio__construct_as_output(GPIO__PORT_2, 0);
-//   gpio__construct_as_output(GPIO__PORT_2, 1);
-//   gpio__construct_with_function(GPIO__PORT_2, 0, GPIO__FUNCTION_1);
-//   gpio__construct_with_function(GPIO__PORT_2, 1, GPIO__FUNCTION_1);
-//   pwm1__init_single_edge(100);
-// }
 
 // void rc_car_stop_state(void) {
 //   control_motor_steer(DRIVER_STEER_direction_STRAIGHT);
@@ -312,4 +395,3 @@ if (motor_speed == 0) {
 // }
 
 // float get_pwm_forward(void) { return pwm_forward; }
-
