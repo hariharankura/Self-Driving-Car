@@ -35,8 +35,8 @@ void init_pwm(void) {
 
 void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
   control_motor_steer(steer_data->DRIVER_STEER_direction);
-  control_motor_speed(steer_data->DRIVER_STEER_move_speed);
-  // control_motor_speed(2);
+  // control_motor_speed(steer_data->DRIVER_STEER_move_speed);
+  control_motor_speed(2);
 }
 
 void control_motor_steer(DRIVER_STEER_direction_e motor_steer) {
@@ -95,6 +95,7 @@ void control_motor_speed(int16_t motor_speed) {
     accelerate_forward_mph(10);
     break;
   default:
+    accelerate_forward_mph(10);
     break;
   }
 }
@@ -194,9 +195,11 @@ void accelerate_reverse_mph(double target_speed) {}
 void drive_motor(float pwm_value) {
 
   // motor works on pwm input ranging from 10-20 dutycycle.
-  if (pwm_value > 9 && pwm_value < 21){
+  if (pwm_value > 9 && pwm_value < 21) {
     pwm1__set_duty_cycle(PWM_MOTOR, pwm_value);
   }
+
+  // printf("dutycyle = %f\n", pwm_value);
 }
 
 // pwm1__set_duty_cycle(PWM_MOTOR, 12);
