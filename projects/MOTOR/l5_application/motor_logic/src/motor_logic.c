@@ -134,7 +134,7 @@ void accelerate_forward_mph(double target_speed_mph) {
       propotional = current_speed_mph / target_speed_mph;
       car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
     } else {
-      car_state.drive_pwm_value = MOTOR_NEUTRAL_VALUE;
+      // car_state.drive_pwm_value = MOTOR_NEUTRAL_VALUE;
     }
   } else if (UPHILL == terrain) {
     // printf(">DOWNHILL\n");
@@ -145,7 +145,7 @@ void accelerate_forward_mph(double target_speed_mph) {
       propotional = current_speed_mph / target_speed_mph;
       car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
     } else {
-      car_state.drive_pwm_value = MOTOR_NEUTRAL_VALUE;
+      // car_state.drive_pwm_value = MOTOR_NEUTRAL_VALUE;
     }
   } else if (DOWNHILL == terrain) {
     // printf(">FLAT\n");
@@ -156,7 +156,7 @@ void accelerate_forward_mph(double target_speed_mph) {
       propotional = current_speed_mph / target_speed_mph;
       car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
     } else {
-      car_state.drive_pwm_value = MOTOR_NEUTRAL_VALUE;
+      // car_state.drive_pwm_value = MOTOR_NEUTRAL_VALUE;
     }
   }
 
