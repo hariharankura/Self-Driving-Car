@@ -15,7 +15,7 @@ static float pwm_forward_default_low = 15.8;
 static float pwm_forward_default_high = 18;
 static float pwm_forward = 15.8;
 
-static float target_speed_mph, actual_speed_mph;
+static float target_speed_mph, current_speed_mph;
 
 static float low_speed_mph = 2;
 static float medium_speed_mph = 5;
@@ -61,33 +61,33 @@ static void apply_brake(uint8_t brake_count) {
   }
 }
 
-static float maintain_speed(float actual_speed, float target_speed) {
+static void maintain_speed() {
 
-  if (target_speed > actual_speed) {
+  if (target_speed_mph > current_speed_mph) {
     pwm_forward += 0.002;
-  } else {
+  } else if (target_speed_mph < current_speed_mph) {
     pwm_forward -= 0.004;
   }
 
-  if ((actual_speed - target_speed_mph) > 3) {
-    pwm_forward = pwm_forward_default_low;
-    static uint8_t count = 0;
-    if (count < 5) {
-      apply_brake(count++);
-    } else {
-      count = 0;
-    }
-  }
+  // if ((current_speed_mph - target_speed_mph) > 3) {
+  //   pwm_forward = pwm_forward_default_low; // 15.8
+  //   // static uint8_t count = 0;
+  //   // if (count < 5) {
+  //   //   apply_brake(count++);
+  //   // } else {
+  //   //   count = 0;
+  //   // }
+  // }
 
-  if ((actual_speed - target_speed_mph) > 7) {
-    pwm_forward = 15.5;
-    static uint8_t count = 0;
-    if (count < 10) {
-      apply_brake(count++);
-    } else {
-      count = 0;
-    }
-  }
+  // if ((current_speed_mph - target_speed_mph) > 7) {
+  //   pwm_forward = 15.5;
+  //   // static uint8_t count = 0;
+  //   // if (count < 10) {
+  //   //   apply_brake(count++);
+  //   // } else {
+  //   //   count = 0;
+  //   // }
+  // }
 
   if (pwm_forward > pwm_forward_default_high) {
     pwm_forward = pwm_forward_default_high;
@@ -95,8 +95,6 @@ static float maintain_speed(float actual_speed, float target_speed) {
   if (pwm_forward < pwm_forward_default_low) {
     pwm_forward = pwm_forward_default_low;
   }
-
-  return pwm_forward;
 }
 
 static void dc_motor_forward(int16_t motor_speed) {
@@ -105,20 +103,21 @@ static void dc_motor_forward(int16_t motor_speed) {
 
   switch (motor_speed) {
   case 1:
-    target_speed_mph = low_speed_mph;
+    target_speed_mph = low_speed_mph;     //2mph
     break;
 
   case 2:
   default:
-    target_speed_mph = medium_speed_mph;
+    target_speed_mph = medium_speed_mph;  //5mph
     break;
   }
 
-  actual_speed_mph = get_mph();
+  current_speed_mph = get_mph();
 
-  float pwm = maintain_speed(actual_speed_mph, target_speed_mph);
+  maintain_speed();
 
-  pwm1__set_duty_cycle(PWM_MOTOR, pwm);
+  pwm1__set_duty_cycle(PWM_MOTOR, pwm_forward);
+
   gpio__set(board_io__get_led1());
   gpio__set(board_io__get_led2());
   gpio__reset(board_io__get_led3());
@@ -166,9 +165,9 @@ float get_pwm_forward(void) { return pwm_forward; }
 void control_motor_speed(int16_t motor_speed) {
   if (motor_speed == 0) {
     dc_motor_stop(motor_speed);
-  } else if (motor_speed > 0) {
+  } else if (motor_speed > 0 && motor_speed <= 10) {
     dc_motor_forward(motor_speed);
-  } else {
+  } else if (motor_speed < 0 && motor_speed >= -10) {
     dc_motor_reverse(motor_speed);
   }
 }
