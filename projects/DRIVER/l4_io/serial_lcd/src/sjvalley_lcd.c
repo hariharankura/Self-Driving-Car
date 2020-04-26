@@ -11,18 +11,18 @@ static const uint8_t BRIGHTNESS = 100;
 
 static gpio_s sjvalley_lcd_reset_pin;
 
-void sjvalley_lcd__uart_pin_function_set(void) {
-  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2);
-  gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2);
-  sjvalley_lcd_reset_pin = gpio__construct_with_function(GPIO__PORT_1, 23, GPIO__FUNCITON_0_IO_PIN);
-}
+// void sjvalley_lcd__uart_pin_function_set(void) {
+//   gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2);
+//   gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2);
+//   sjvalley_lcd_reset_pin = gpio__construct_with_function(GPIO__PORT_1, 23, GPIO__FUNCITON_0_IO_PIN);
+// }
 
-void sjvalley_lcd__uart_init(void) {
-  uart__init(SJVALLEY_LCD_UART, clock__get_peripheral_clock_hz(), 38400);
-  QueueHandle_t rxq_handle = xQueueCreate(32, sizeof(char));
-  QueueHandle_t txq_handle = xQueueCreate(32, sizeof(char)); // We don't send anything to the GPS
-  uart__enable_queues(SJVALLEY_LCD_UART, rxq_handle, txq_handle);
-}
+// void sjvalley_lcd__uart_init(void) {
+//   uart__init(SJVALLEY_LCD_UART, clock__get_peripheral_clock_hz(), 38400);
+//   QueueHandle_t rxq_handle = xQueueCreate(32, sizeof(char));
+//   QueueHandle_t txq_handle = xQueueCreate(32, sizeof(char)); // We don't send anything to the GPS
+//   uart__enable_queues(SJVALLEY_LCD_UART, rxq_handle, txq_handle);
+// }
 
 void sjvalley_lcd__clear_screen(void) {
   char *msg = "$CLR_SCR\n";
@@ -48,8 +48,18 @@ void sjvalley_lcd__communication_init(void) {
 }
 
 void sjvalley_lcd__init(void) {
-  sjvalley_lcd__uart_pin_function_set();
-  sjvalley_lcd__uart_init();
+
+  // sjvalley_lcd__uart_pin_function_set();
+  // sjvalley_lcd__uart_init();
+
+  gpio__construct_with_function(GPIO__PORT_4, 28, GPIO__FUNCTION_2);
+  gpio__construct_with_function(GPIO__PORT_4, 29, GPIO__FUNCTION_2);
+  sjvalley_lcd_reset_pin = gpio__construct_with_function(GPIO__PORT_1, 23, GPIO__FUNCITON_0_IO_PIN);
+
+  uart__init(SJVALLEY_LCD_UART, clock__get_peripheral_clock_hz(), 38400);
+  QueueHandle_t rxq_handle = xQueueCreate(32, sizeof(char));
+  QueueHandle_t txq_handle = xQueueCreate(32, sizeof(char)); // We don't send anything to the GPS
+  uart__enable_queues(SJVALLEY_LCD_UART, rxq_handle, txq_handle);
 }
 
 bool sjvalley_lcd__send_line(uint8_t line_number, char *line) {

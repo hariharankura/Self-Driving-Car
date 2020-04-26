@@ -145,6 +145,9 @@ void obstacle_avoidance__print_debug_data(void) {
   // debug data
   PROJECT_DEBUG__LCD_PRINTF(1, "Obs=%x", ultrasonic_data.obstacle_var);
   PROJECT_DEBUG__PRINTF("Obstacle_Data = %x", ultrasonic_data.obstacle_var);
+
+  PROJECT_DEBUG__LCD_PRINTF(2, "L=%x R=%x F=%x B=%x", sensor_data.SENSOR_USONARS_left, sensor_data.SENSOR_USONARS_right,
+                            sensor_data.SENSOR_USONARS_front, sensor_data.SENSOR_USONARS_back);
 }
 
 bool obstacle_avoidance__is_required() { return is_obstacle; }
