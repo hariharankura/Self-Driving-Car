@@ -65,7 +65,7 @@ void test_sensor_can_handler__transmit_messages_50hz(void) {
   ultrasonic_sensor_handler__get_filtered_sensor_value_front_ExpectAndReturn(sensor3);
   ultrasonic_sensor_handler__get_filtered_sensor_value_back_ExpectAndReturn(sensor4);
   ultrasonic_sensor_handler__set_all_sensor_values_Expect(sensor1, sensor2, sensor3, sensor4);
-  led_handler__diagnostic_test_object_detection_leds_for_each_sensor_Expect(sensor1, sensor2, sensor3, sensor4);
+  // led_handler__diagnostic_test_object_detection_leds_for_each_sensor_Expect(sensor1, sensor2, sensor3, sensor4);
 
   can__msg_t sensor_can_msg = {};
   const dbc_message_header_t sensor_header =
