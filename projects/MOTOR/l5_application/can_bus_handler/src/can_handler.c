@@ -56,16 +56,14 @@ void can_bus_handler__process_all_received_messages_in_20hz(void) {
   // motor_logic(&steer_data);
 }
 
-// void can_bus_handler__transmit_message_in_10hz(void) {
-//   dbc_MOTOR_SPEED_s motor_speed = {};
-//   can__msg_t can_transmit_msg = {};
-//   // motor_speed.MOTOR_SPEED_info = motor_speed_with_direction();
-//   // motor_speed.MOTOR_SPEED_pwm = get_pwm_forward();
-//   motor_speed.MOTOR_SPEED_info = 4646;
-//   motor_speed.MOTOR_SPEED_pwm = 4646;
-//   // printf("mph: %f \n", motor_speed.MOTOR_SPEED_info);
-//   dbc_encode_and_send_MOTOR_SPEED(&can_transmit_msg, &motor_speed);
-// }
+void can_bus_handler__transmit_message_in_10hz(void) {
+  dbc_MOTOR_SPEED_s motor_speed = {};
+  can__msg_t can_transmit_msg = {};
+  motor_speed.MOTOR_SPEED_info = get_motor_speed_info();
+  motor_speed.MOTOR_SPEED_pwm = get_motor_pwm();
+  // printf("mph: %f \n", motor_speed.MOTOR_SPEED_info);
+  dbc_encode_and_send_MOTOR_SPEED(&can_transmit_msg, &motor_speed);
+}
 
 void can_bus_handler__manage_mia_20hz(void) {
   const uint32_t mia_increment_value = 100;

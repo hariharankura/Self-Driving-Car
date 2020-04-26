@@ -40,3 +40,7 @@ void stop_car(void);
 void accelerate_reverse_mph(double target_speed);
 
 void drive_motor(float pwm_value);
+
+float get_motor_speed_info(void);
+
+float get_motor_pwm(void);

@@ -207,6 +207,16 @@ void drive_motor(float pwm_value) {
   // printf("dutycyle = %f\n", pwm_value);
 }
 
+float get_motor_speed_info(void) {
+  float speed = get_mph();
+  // if (reverse_flag) {
+  //   speed *= -1;
+  // }
+  return speed;
+}
+
+float get_motor_pwm(void) { return car_state.drive_pwm_value; }
+
 // pwm1__set_duty_cycle(PWM_MOTOR, 12);
 
 // if (motor_speed == 0) {
@@ -233,8 +243,6 @@ void drive_motor(float pwm_value) {
 // static float medium_speed_mph = 5;
 
 // static uint32_t previous_rpm = 0, current_rpm = 0, absolute_difference_in_rpm = 0;
-
-
 
 // void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
 //   control_motor_steer(steer_data->DRIVER_STEER_direction);
@@ -391,13 +399,3 @@ void drive_motor(float pwm_value) {
 //   gpio__reset(board_io__get_led2());
 //   gpio__set(board_io__get_led3());
 // }
-
-// float motor_speed_with_direction(void) {
-//   float speed = get_mph();
-//   if (reverse_flag) {
-//     speed *= -1;
-//   }
-//   return speed;
-// }
-
-// float get_pwm_forward(void) { return pwm_forward; }
