@@ -24,7 +24,7 @@ void bridge_controller_handler__initialize_bluetooth_module(void) {
   QueueHandle_t txq_handle = xQueueCreate(200, sizeof(unsigned char));
 
   // UART  Initialize
-  uart__init(UART__3, clock__get_peripheral_clock_hz(), 38400U);
+  uart__init(UART__3, clock__get_peripheral_clock_hz(), 9600U);
   uart__enable_queues(UART__3, rxq_handle, txq_handle);
 }
 
