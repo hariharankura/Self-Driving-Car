@@ -25,7 +25,7 @@ void periodic_callbacks__initialize(void) {
   initialize_speed_sensor_interrupt();
   init_can_driver();
   acceleration__init();
-  // rc_car_stop_state();
+  rc_car_stop_state();
 }
 
 void periodic_callbacks__1Hz(uint32_t callback_count) {}

@@ -23,6 +23,8 @@ typedef enum terrain_type { UPHILL = 0, FLAT, DOWNHILL } terrain_type_t;
 
 void init_pwm(void);
 
+void rc_car_stop_state(void);
+
 void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data);
 
 void control_motor_steer(DRIVER_STEER_direction_e motor_steer);

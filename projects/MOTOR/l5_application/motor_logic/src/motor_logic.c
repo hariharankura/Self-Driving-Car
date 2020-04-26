@@ -12,6 +12,7 @@
 #define NO_ACTION_PWM 15
 #define MIN_MOTOR_PWM_VALUE 10
 #define MAX_MOTOR_PWM_VALUE 20
+#define MOTOR_NEUTRAL_VALUE 15
 
 typedef enum state { START = 0, TARGET_SPEED_ACHEIVED } state_t;
 
@@ -31,6 +32,11 @@ void init_pwm(void) {
   car_state.target_speed_acheived = false;
   car_state.trip_state = START;
   car_state.drive_pwm_value = START_PWM_VALUE;
+}
+
+void rc_car_stop_state(void) {
+  control_motor_steer(DRIVER_STEER_direction_STRAIGHT);
+  drive_motor(MOTOR_NEUTRAL_VALUE);
 }
 
 void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
@@ -128,7 +134,7 @@ void accelerate_forward_mph(double target_speed_mph) {
       propotional = current_speed_mph / target_speed_mph;
       car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
     } else {
-      // car_state.drive_pwm_value = NO_ACTION_PWM;
+      car_state.drive_pwm_value = MOTOR_NEUTRAL_VALUE;
     }
   } else if (UPHILL == terrain) {
     // printf(">DOWNHILL\n");
@@ -139,7 +145,7 @@ void accelerate_forward_mph(double target_speed_mph) {
       propotional = current_speed_mph / target_speed_mph;
       car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
     } else {
-      // car_state.drive_pwm_value = NO_ACTION_PWM;
+      car_state.drive_pwm_value = MOTOR_NEUTRAL_VALUE;
     }
   } else if (DOWNHILL == terrain) {
     // printf(">FLAT\n");
@@ -150,7 +156,7 @@ void accelerate_forward_mph(double target_speed_mph) {
       propotional = current_speed_mph / target_speed_mph;
       car_state.drive_pwm_value = car_state.drive_pwm_value - (propotional * PWM_DECREMENT_FACTOR);
     } else {
-      // car_state.drive_pwm_value = NO_ACTION_PWM;
+      car_state.drive_pwm_value = MOTOR_NEUTRAL_VALUE;
     }
   }
 
@@ -198,7 +204,6 @@ void drive_motor(float pwm_value) {
   if (pwm_value > 9 && pwm_value < 21) {
     pwm1__set_duty_cycle(PWM_MOTOR, pwm_value);
   }
-
   // printf("dutycyle = %f\n", pwm_value);
 }
 
@@ -229,10 +234,7 @@ void drive_motor(float pwm_value) {
 
 // static uint32_t previous_rpm = 0, current_rpm = 0, absolute_difference_in_rpm = 0;
 
-// void rc_car_stop_state(void) {
-//   control_motor_steer(DRIVER_STEER_direction_STRAIGHT);
-//   control_motor_speed(0);
-// }
+
 
 // void motor_logic(dbc_DRIVER_STEER_SPEED_s *steer_data) {
 //   control_motor_steer(steer_data->DRIVER_STEER_direction);
