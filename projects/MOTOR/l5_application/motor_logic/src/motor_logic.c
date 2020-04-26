@@ -42,7 +42,7 @@ static void apply_brake(uint8_t brake_count) {
   switch (brake_count) {
   case 0:
   case 1:
-    pwm1__set_duty_cycle(PWM_MOTOR, 15);
+    pwm1__set_duty_cycle(PWM_MOTOR, 10);
     break;
   case 2:
   case 3:
@@ -53,7 +53,7 @@ static void apply_brake(uint8_t brake_count) {
   case 8:
   case 9:
   case 10:
-    pwm1__set_duty_cycle(PWM_MOTOR, 10);
+    pwm1__set_duty_cycle(PWM_MOTOR, 15);
     break;
   default:
     pwm1__set_duty_cycle(PWM_MOTOR, 15);
@@ -128,7 +128,7 @@ static void dc_motor_reverse(int16_t motor_speed) {
   pwm_forward = pwm_forward_default_low;
   reverse_flag = true;
 
-  if (reverse_counter <= 3) {
+  if (reverse_counter == 0) {
     pwm1__set_duty_cycle(PWM_MOTOR, 10);
   } else if (reverse_counter <= 5) {
     pwm1__set_duty_cycle(PWM_MOTOR, 15);
@@ -164,12 +164,26 @@ float motor_speed_with_direction(void) {
 float get_pwm_forward(void) { return pwm_forward; }
 
 void control_motor_speed(int16_t motor_speed) {
+  static uint64_t cb_count = 0;
+  static uint8_t brake_count = 0;
   if (motor_speed == 0) {
     dc_motor_stop(motor_speed);
+    cb_count = 0;
   } else if (motor_speed > 0) {
-    dc_motor_forward(motor_speed);
+    if (cb_count > 50 && cb_count < 150) {
+      // printf("Applying brake");
+      apply_brake(brake_count++);
+    } else if (cb_count > 150) {
+      brake_count = 0;
+      cb_count = 0;
+      // printf("STOP brake");
+    } else {
+      dc_motor_forward(motor_speed);
+    }
+    cb_count++;
   } else {
     dc_motor_reverse(motor_speed);
+    cb_count = 0;
   }
 }
 
