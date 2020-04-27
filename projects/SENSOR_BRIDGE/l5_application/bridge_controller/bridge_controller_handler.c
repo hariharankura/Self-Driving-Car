@@ -68,7 +68,7 @@ void bridge_controller_handler__parse_gps_data(const char *input_buffer, float *
       sscanf(input_buffer, "$GPGGA,%*f,%f,%c,%f,%c", &(data.latitude), &data.latitude_direction, &data.longitude,
              &data.longitude_direction);
 
-      // printf("%s\n", input_buffer);
+      printf("%s\n", input_buffer);
 
       // convert latitude and longitude to degrees and minutes
       bridge_controller_handler__convert_gps_data_to_degrees(&data);
