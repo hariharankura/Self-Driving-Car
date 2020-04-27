@@ -6,7 +6,6 @@
 
 static const uint8_t COMPASS_ADDRESS = 0xC0;
 static const uint8_t SLAVE_READ_ANGLE = 0x02;
-static const uint16_t NUMBER_OF_SAMPLES_COMPASS = 50;
 static uint8_t READ_ANGLE_DATA[2];
 static dbc_BRIDGE_GPS_s destination_gps_coordinates;
 static dbc_BRIDGE_GPS_s current_gps_coordinates;
@@ -30,15 +29,11 @@ static float compass__read_angle_from_i2c_cmps12(void) {
 static bool compass__check_if_cmps12_connected(void) { return i2c__detect(I2C__2, COMPASS_ADDRESS); }
 
 static float compass__read_current_angle(void) {
-  uint8_t counter = 1;
-  float avg_value = 0;
+  float current_angle = 0;
   if (compass__check_if_cmps12_connected()) {
-    while (counter++ % (NUMBER_OF_SAMPLES_COMPASS + 1)) {
-      avg_value += compass__read_angle_from_i2c_cmps12();
-    }
-    avg_value /= NUMBER_OF_SAMPLES_COMPASS;
+    current_angle = compass__read_angle_from_i2c_cmps12();
   }
-  return avg_value;
+  return current_angle;
 }
 
 static bool check_valid_source_destination_coordinates(dbc_BRIDGE_GPS_s *l_current_gps_coordinates,
@@ -85,15 +80,16 @@ static float compass__calculate_destination_angle(dbc_BRIDGE_GPS_s l_current_gps
   return bearing;
 }
 
-static float compass__calculate_destination_distance(dbc_BRIDGE_GPS_s current_gps_coordinates,
-                                                     dbc_BRIDGE_GPS_s destination_gps_coordinates) {
+static float compass__calculate_destination_distance(dbc_BRIDGE_GPS_s l_current_gps_coordinates,
+                                                     dbc_BRIDGE_GPS_s l_destination_gps_coordinates) {
   float distance = 0.0f;
-  if (check_valid_source_destination_coordinates(&current_gps_coordinates, &destination_gps_coordinates)) {
-    convert_source_destination_to_radian(&current_gps_coordinates, &destination_gps_coordinates);
-    float lat_diff = destination_gps_coordinates.BRIDGE_GPS_latitude - current_gps_coordinates.BRIDGE_GPS_latitude;
-    float lon_diff = destination_gps_coordinates.BRIDGE_GPS_longitude - current_gps_coordinates.BRIDGE_GPS_longitude;
-    float a = pow(sin(lat_diff / 2), 2) + cos(current_gps_coordinates.BRIDGE_GPS_latitude) *
-                                              cos(destination_gps_coordinates.BRIDGE_GPS_latitude) *
+  if (check_valid_source_destination_coordinates(&l_current_gps_coordinates, &l_destination_gps_coordinates)) {
+    convert_source_destination_to_radian(&l_current_gps_coordinates, &l_destination_gps_coordinates);
+    float lat_diff = l_destination_gps_coordinates.BRIDGE_GPS_latitude - l_current_gps_coordinates.BRIDGE_GPS_latitude;
+    float lon_diff =
+        l_destination_gps_coordinates.BRIDGE_GPS_longitude - l_current_gps_coordinates.BRIDGE_GPS_longitude;
+    float a = pow(sin(lat_diff / 2), 2) + cos(l_current_gps_coordinates.BRIDGE_GPS_latitude) *
+                                              cos(l_destination_gps_coordinates.BRIDGE_GPS_latitude) *
                                               pow(sin(lon_diff / 2), 2);
     float c = 2 * atan2(sqrt(a), sqrt(1 - a));
     distance = 6371 * 1000 * c;
@@ -108,5 +104,7 @@ dbc_GEO_COMPASS_s compass__get_current_and_destination_heading(void) {
   compass_data.GEO_COMPASS_current_heading = compass__read_current_angle();
   compass_data.GEO_COMPASS_desitination_heading =
       compass__calculate_destination_angle(current_gps_coordinates, destination_gps_coordinates);
+  compass_data.GEO_COMPASS_distance =
+      compass__calculate_destination_distance(current_gps_coordinates, destination_gps_coordinates);
   return compass_data;
 }

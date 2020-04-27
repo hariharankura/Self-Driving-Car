@@ -9,6 +9,7 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
+#include "board_io.h"
 #include "clock.h"
 #include <gpio.h>
 #include <stdio.h>
@@ -46,25 +47,37 @@ static void gps__process_and_save_latitude_longitude(gps_coordinates_t *temp_coo
     temp_coordinates->latitude *= -1;
   }
 }
+static bool gps__lock_led(uint8_t gps_valid_check) {
+  bool flag = false;
+  gpio_s led_op = board_io__get_led3();
+  if (gps_valid_check == 1) {
+    gpio__set(led_op);
+    flag = true;
+  } else {
+    gpio__reset(led_op);
+  }
 
+  return flag;
+}
 static bool gps__parse_nema_string(char *gps_nema_string, gps_coordinates_t *temp_coordinates) {
   bool return_value = false;
   double latitude = 0;
   double longitude = 0;
-  uint8_t gps_valid;
+  int8_t gps_valid;
   char lat_direction = 'N';
   char long_direction = 'E';
-  printf("line = %s\n", gps_nema_string);
   if (*gps_nema_string == '$') {
     if (NULL != strstr(gps_nema_string, "$GPGGA")) {
-      printf("%s\n", gps_nema_string);
       sl_string__scanf(gps_nema_string, "$GPGGA, %*f, %lf, %c, %lf, %c, %hhd, %*s", &latitude, &lat_direction,
                        &longitude, &long_direction, &gps_valid);
+      printf("GPS Valid = %d\n", gps_valid);
+      printf("GPGA = %s\n", gps_nema_string);
+      gps__lock_led(gps_valid);
       gps__process_and_save_latitude_longitude(temp_coordinates, latitude, lat_direction, longitude, long_direction);
       return_value = (gps_valid > 0);
     }
   }
-  // printf("%f:%f\n%f:%f\n", latitude, temp_coordinates->latitude, longitude, temp_coordinates->longitude);
+  printf("%f:%f\n", temp_coordinates->latitude, temp_coordinates->longitude);
   return return_value;
 }
 
