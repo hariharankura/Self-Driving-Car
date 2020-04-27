@@ -7,6 +7,7 @@
 #include "Mockuart.h"
 
 #include "Mockqueue.h"
+#include "Mockultrasonic_sensor_handler.h"
 
 #include "bridge_buffer.h"
 #include "bridge_controller_handler.h"
@@ -15,7 +16,7 @@ void test_bridge_controller_handler__initialize_bluetooth_module() {
 
   gpio_s gpio_data;
   clock__get_peripheral_clock_hz_ExpectAndReturn(96 * 1000 * 1000U);
-  uart__init_Expect(UART__3, 96 * 1000U * 1000, 38400);
+  uart__init_Expect(UART__3, 96 * 1000U * 1000, 9600);
   QueueHandle_t rxq_handle;
   QueueHandle_t txq_handle;
   xQueueCreate_ExpectAndReturn(200, sizeof(unsigned char), rxq_handle);
