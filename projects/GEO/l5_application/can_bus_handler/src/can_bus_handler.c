@@ -40,12 +40,15 @@ void can_bus_handler__reset_if_bus_off(void) {
 
 void can_bus_handler__process_all_received_messages_in_1hz(void) {
   can__msg_t can_receive_msg = {};
+  dbc_CAR_ACTION_s car_action = {};
   while (can__rx(CAN_BUS, &can_receive_msg, 0)) {
     const dbc_message_header_t header = {.message_id = can_receive_msg.msg_id,
                                          .message_dlc = can_receive_msg.frame_fields.data_len};
     if (dbc_decode_BRIDGE_GPS(&detination_gps, header, can_receive_msg.data.bytes)) {
       compass__set_destination_gps(&detination_gps);
       gpio__set(board_io__get_led0());
+    } else if (dbc_decode_CAR_ACTION(&car_action, header, can_receive_msg.data.bytes)) {
+      printf("Car action = %d\n", car_action.CAR_ACTION_cmd);
     }
   }
 }
@@ -60,6 +63,7 @@ bool dbc_send_can_message(void *argument, uint32_t message_id, const uint8_t byt
   can__msg_t send_msg = {};
   send_msg.msg_id = message_id;
   send_msg.frame_fields.data_len = dlc;
+  printf("Sent\n");
   memcpy(send_msg.data.bytes, bytes, dlc);
   return can__tx(CAN_BUS, &send_msg, 0);
 }
