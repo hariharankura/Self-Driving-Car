@@ -8,9 +8,9 @@
 
 float debug_motor_speed = 0.0f;
 float debug_motor_speed_pwm = 0.0f;
-uint16_t debug_geo_compass_current_heading;
-uint16_t debug_geo_compass_destination_heading;
-uint8_t debug_geo_compass_distance;
+float debug_geo_compass_current_heading;
+float debug_geo_compass_destination_heading;
+float debug_geo_compass_distance;
 int debug_steer_move_speed;
 DRIVER_STEER_direction_e debug_steer_direction;
 

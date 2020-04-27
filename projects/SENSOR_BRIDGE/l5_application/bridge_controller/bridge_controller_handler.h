@@ -12,9 +12,9 @@
 
 extern float debug_motor_speed;
 extern float debug_motor_speed_pwm;
-extern uint16_t debug_geo_compass_current_heading;
-extern uint16_t debug_geo_compass_destination_heading;
-extern uint8_t debug_geo_compass_distance;
+extern float debug_geo_compass_current_heading;
+extern float debug_geo_compass_destination_heading;
+extern float debug_geo_compass_distance;
 extern int debug_steer_move_speed;
 extern DRIVER_STEER_direction_e debug_steer_direction;
 
