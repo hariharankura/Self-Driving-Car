@@ -3,6 +3,7 @@
 #include "Mockbridge_can_handler.h"
 #include "Mockbridge_controller_handler.h"
 #include "Mockcan_bus_initializer.h"
+#include "Mockdiagnostic_tests.h"
 #include "Mockled_handler.h"
 #include "Mocksensor_can_handler.h"
 #include "Mockultrasonic_sensor_handler.h"
@@ -28,6 +29,7 @@ void test__periodic_callbacks__1Hz(void) {
 
 void test__periodic_callbacks__10Hz(void) {
   bridge_can_handler__transmit_messages_10hz_Expect();
+  diagnostic_tests__light_1_led_per_sensor_when_obstacle_detected_10hz_Expect();
   periodic_callbacks__10Hz(0);
 }
 
