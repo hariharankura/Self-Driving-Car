@@ -12,6 +12,8 @@ extern void main(void);
 static void entry_point__halt(void);
 static void entry_point__handle_crash_report(void);
 
+//doing some random test-midterm study
+
 void entry_point(void) {
   startup__initialize_ram();
   startup__initialize_fpu();
