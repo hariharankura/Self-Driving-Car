@@ -4,6 +4,7 @@
 
 static int8_t TOLERANCE_DIRECTION_POSITIVE = 10;
 static int8_t TOLERANCE_DIRECTION_NEGATIVE = -10;
+static const uint8_t MINIMUM_DISTACE_RANGE = 5;
 
 static dbc_GEO_COMPASS_s current_and_destination_heading_angle;
 
@@ -35,15 +36,28 @@ static void driving_algo__get_gps_heading_direction(dbc_DRIVER_STEER_SPEED_s *dr
   }
 }
 
+static bool driving_algo__is_destination_reached(void) {
+  bool return_val = false;
+  if (current_and_destination_heading_angle.GEO_COMPASS_distance < MINIMUM_DISTACE_RANGE) {
+    return_val = true;
+  }
+  return return_val;
+}
+
 dbc_DRIVER_STEER_SPEED_s driving_algo__compute_heading() {
   dbc_DRIVER_STEER_SPEED_s driving_direction;
-  if (obstacle_avoidance__is_required()) {
-    // gpio__reset(board_io__get_led1());
-    obstacle_avoidance__get_direction(&driving_direction); // follow ultrasonic direction
+  if (driving_algo__is_destination_reached()) {
+    driving_direction.DRIVER_STEER_direction = DRIVER_STEER_direction_STRAIGHT;
+    driving_direction.DRIVER_STEER_move_speed = DRIVER_STEER_move_STOP;
   } else {
-    driving_algo__get_gps_heading_direction(&driving_direction);
-    // gpio__set(board_io__get_led1());
+    if (obstacle_avoidance__is_required()) {
+      // gpio__reset(board_io__get_led1());
+      obstacle_avoidance__get_direction(&driving_direction); // follow ultrasonic direction
+    } else {
+      driving_algo__get_gps_heading_direction(&driving_direction);
+      // gpio__set(board_io__get_led1());
+    }
+    light_up_direction_led(driving_direction);
   }
-  light_up_direction_led(driving_direction);
   return driving_direction;
 }
