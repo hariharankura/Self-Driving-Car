@@ -17,8 +17,6 @@ void sensor_can_handler__transmit_messages_1hz(void) {
   front_sensor = ultrasonic_sensor_handler__get_filtered_sensor_value_front();
   back_sensor = ultrasonic_sensor_handler__get_filtered_sensor_value_back();
   ultrasonic_sensor_handler__set_all_sensor_values(left_sensor, right_sensor, front_sensor, back_sensor);
-  led_handler__diagnostic_test_object_detection_leds_for_each_sensor(left_sensor, right_sensor, front_sensor,
-                                                                     back_sensor);
 
   ultrasonic_sensors_struct.SENSOR_USONARS_left = left_sensor;
   ultrasonic_sensors_struct.SENSOR_USONARS_right = right_sensor;
@@ -50,16 +48,11 @@ void sensor_can_handler__transmit_messages_10hz(void) {
   front_sensor = ultrasonic_sensor_handler__get_filtered_sensor_value_front();
   back_sensor = ultrasonic_sensor_handler__get_filtered_sensor_value_back();
   ultrasonic_sensor_handler__set_all_sensor_values(left_sensor, right_sensor, front_sensor, back_sensor);
-  led_handler__diagnostic_test_object_detection_leds_for_each_sensor(left_sensor, right_sensor, front_sensor,
-                                                                     back_sensor);
 
   ultrasonic_sensors_struct.SENSOR_USONARS_left = left_sensor;
   ultrasonic_sensors_struct.SENSOR_USONARS_right = right_sensor;
   ultrasonic_sensors_struct.SENSOR_USONARS_front = front_sensor;
   ultrasonic_sensors_struct.SENSOR_USONARS_back = back_sensor;
-  /*printf("sensor values: left = %icm, front = %icm, right = %icm, back = %icm\n",
-         ultrasonic_sensors_struct.SENSOR_USONARS_left, ultrasonic_sensors_struct.SENSOR_USONARS_front,
-         ultrasonic_sensors_struct.SENSOR_USONARS_right, ultrasonic_sensors_struct.SENSOR_USONARS_back);*/
 
   can__msg_t sensor_can_msg = {};
   const dbc_message_header_t sensor_header =
@@ -86,8 +79,6 @@ void sensor_can_handler__transmit_messages_50hz(void) {
   front_sensor = ultrasonic_sensor_handler__get_filtered_sensor_value_front();
   back_sensor = ultrasonic_sensor_handler__get_filtered_sensor_value_back();
   ultrasonic_sensor_handler__set_all_sensor_values(left_sensor, right_sensor, front_sensor, back_sensor);
-  led_handler__diagnostic_test_object_detection_leds_for_each_sensor(left_sensor, right_sensor, front_sensor,
-                                                                     back_sensor);
 
   ultrasonic_sensors_struct.SENSOR_USONARS_left = left_sensor;
   ultrasonic_sensors_struct.SENSOR_USONARS_right = right_sensor;

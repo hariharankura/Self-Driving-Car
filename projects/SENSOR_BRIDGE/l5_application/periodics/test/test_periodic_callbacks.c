@@ -3,6 +3,7 @@
 #include "Mockbridge_can_handler.h"
 #include "Mockbridge_controller_handler.h"
 #include "Mockcan_bus_initializer.h"
+#include "Mockdiagnostic_tests.h"
 #include "Mockled_handler.h"
 #include "Mocksensor_can_handler.h"
 #include "Mockultrasonic_sensor_handler.h"

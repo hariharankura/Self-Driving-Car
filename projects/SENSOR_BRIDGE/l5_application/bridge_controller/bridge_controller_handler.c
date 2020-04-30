@@ -4,7 +4,16 @@
 #include <string.h>
 
 static int address_count = 0;
-static bool status = false;
+static bool car_action_status = false;
+static bool car_headlight_status = false;
+static bool car_test_status = false;
+float debug_motor_speed = 0.0f;
+float debug_motor_speed_pwm = 0.0f;
+float debug_geo_compass_current_heading;
+float debug_geo_compass_destination_heading;
+float debug_geo_compass_distance;
+int debug_steer_move_speed;
+DRIVER_STEER_direction_e debug_steer_direction;
 
 void bridge_controller_handler__initialize_bluetooth_module(void) {
 
@@ -15,7 +24,7 @@ void bridge_controller_handler__initialize_bluetooth_module(void) {
   QueueHandle_t txq_handle = xQueueCreate(200, sizeof(unsigned char));
 
   // UART  Initialize
-  uart__init(UART__3, clock__get_peripheral_clock_hz(), 38400U);
+  uart__init(UART__3, clock__get_peripheral_clock_hz(), 9600U);
   uart__enable_queues(UART__3, rxq_handle, txq_handle);
 }
 
@@ -59,7 +68,7 @@ void bridge_controller_handler__parse_gps_data(const char *input_buffer, float *
       sscanf(input_buffer, "$GPGGA,%*f,%f,%c,%f,%c", &(data.latitude), &data.latitude_direction, &data.longitude,
              &data.longitude_direction);
 
-      // printf("%s\n", input_buffer);
+      printf("%s\n", input_buffer);
 
       // convert latitude and longitude to degrees and minutes
       bridge_controller_handler__convert_gps_data_to_degrees(&data);
@@ -147,24 +156,51 @@ bool bridge_controller_handler__get_start_stop_condition() {
     char message[30];
     int i = 0;
     if (sl_string__contains(gps_buffer, "START")) {
-      status = true;
+      car_action_status = true;
       printf("True\n");
-      strcpy(message, "Start Received");
-      while (message[i] != '\0') {
-        uart__put(UART__3, message[i], 0);
-        ++i;
-      }
 
     } else if (sl_string__contains(gps_buffer, "STOP")) {
-      status = false;
+      car_action_status = false;
       printf("False\n");
-      strcpy(message, "Stop Received");
-      while (message[i] != '\0') {
-        uart__put(UART__3, message[i], 0);
-        ++i;
-      }
     }
     clear_buffer();
   }
-  return status;
+  return car_action_status;
+}
+
+void bridge_controller_handler__send_debug_info(void) {
+
+  /*
+  Debug Information Data Format -
+  Car Action
+  Motor Speed
+  Motor Speed PWM
+  Ultrasonic left
+  Ultrasonic right
+  Ultrasonic back
+  Ultrasonic front
+  Geo compass current heading
+  Geo compass destination heading
+  Geo compass compass distance
+  Driver Steer Speed
+  Driver Steer Direction
+
+  //TODO -
+  Test Button
+  Headlight
+  */
+
+  char output_string[100];
+  int i = 0;
+  sensor_t sensor_values;
+  ultrasonic_sensor_handler__get_all_sensor_values(&sensor_values);
+
+  snprintf(output_string, 100, "%d,%f,%f,%d,%d,%d,%d,%.2f,%.2f,%.2f,%d,%d\n", car_action_status, debug_motor_speed,
+           debug_motor_speed_pwm, sensor_values.left, sensor_values.right, sensor_values.back, sensor_values.front,
+           debug_geo_compass_current_heading, debug_geo_compass_destination_heading, debug_geo_compass_distance,
+           debug_steer_move_speed, debug_steer_direction);
+  while (output_string[i] != '\0') {
+    uart__put(UART__3, output_string[i], 0);
+    ++i;
+  }
 }

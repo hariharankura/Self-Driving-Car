@@ -3,6 +3,7 @@
 #include "bridge_can_handler.h"
 #include "bridge_controller_handler.h"
 #include "can_bus_initializer.h"
+#include "diagnostic_tests.h"
 #include "led_handler.h"
 #include "sensor_can_handler.h"
 #include "ultrasonic_sensor_handler.h"
