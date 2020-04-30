@@ -6,6 +6,7 @@
 #include "can_bus.h"
 #include "gpio.h"
 #include "motor_logic.h"
+#include "motor_self_test.h"
 #include "project.h"
 #include "speed_sensor.h"
 
@@ -32,13 +33,14 @@ void init_can_driver(void) {
 
 void can_handler__reset_if_bus_off(void) {
   if (can__is_bus_off(CAN_BUS)) {
-    printf("Bus off...Resetting can bus\n");
+    // printf("Bus off...Resetting can bus\n");
     can__reset_bus(CAN_BUS);
   }
 }
 
 void can_bus_handler__process_all_received_messages_in_20hz(void) {
   can__msg_t can_msg = {};
+  dbc_TEST_BUTTON_s test_button;
 
   // Receive all messages
   while (can__rx(CAN_BUS, &can_msg, 0)) {
@@ -48,9 +50,12 @@ void can_bus_handler__process_all_received_messages_in_20hz(void) {
     };
 
     if (dbc_decode_DRIVER_STEER_SPEED(&steer_data, header, can_msg.data.bytes)) {
-      // printf("Received msg\n");
       gpio__set(board_io__get_led0());
       motor_logic(&steer_data);
+    } else if (dbc_decode_TEST_BUTTON(&test_button, header, can_msg.data.bytes)) {
+      if (test_button.TEST_BUTTON_press == 1) {
+        set_motor_test_button_status(1);
+      }
     }
   }
 }
@@ -58,7 +63,8 @@ void can_bus_handler__process_all_received_messages_in_20hz(void) {
 void can_bus_handler__transmit_message_in_10hz(void) {
   dbc_MOTOR_SPEED_s motor_speed = {};
   can__msg_t can_transmit_msg = {};
-  motor_speed.MOTOR_SPEED_info = get_mph();
+  motor_speed.MOTOR_SPEED_info = motor_speed_with_direction();
+  motor_speed.MOTOR_SPEED_pwm = get_pwm_forward();
   dbc_encode_and_send_MOTOR_SPEED(&can_transmit_msg, &motor_speed);
 }
 
