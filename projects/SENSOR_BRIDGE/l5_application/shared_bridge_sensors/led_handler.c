@@ -20,12 +20,7 @@ void led_handler__diagnostic_test_object_detection_led3(sensor_t sensor_values) 
   }
 }
 
-<<<<<<< HEAD
 void led_handler__diagnostic_test_object_detection_leds_for_each_sensor(sensor_t sensor_values) {
-=======
-void led_handler__diagnostic_test_object_detection_leds_for_each_sensor(uint16_t left_sensor, uint16_t right_sensor,
-                                                                        uint16_t front_sensor, uint16_t back_sensor) {
->>>>>>> sensor module changes
   uint16_t threshold_in_cm = 110;
 
   if (sensor_values.left <= threshold_in_cm) {

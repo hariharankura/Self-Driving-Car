@@ -121,9 +121,5 @@ void test_led_handler__diagnostic_test_object_detection_leds_for_each_sensor(voi
 
   board_io__get_led0_ExpectAndReturn(led0);
   gpio__set_Expect(led0);
-<<<<<<< HEAD
   led_handler__diagnostic_test_object_detection_leds_for_each_sensor(sensor_values);
-=======
-  led_handler__diagnostic_test_object_detection_leds_for_each_sensor(150, 117, 110, 120);
->>>>>>> sensor module changes
 }
