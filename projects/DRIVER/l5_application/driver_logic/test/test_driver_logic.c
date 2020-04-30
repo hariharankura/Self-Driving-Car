@@ -14,4 +14,5 @@ void test__driver_logic__set_car_mode(void) {
   dbc_CAR_ACTION_s car_action = {};
   car_action.CAR_ACTION_cmd = 1;
   driver_logic__set_car_mode(car_action);
+  TEST_ASSERT_EQUAL_UINT8(1, CAR_IN_START_MODE);
 }

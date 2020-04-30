@@ -1,10 +1,12 @@
 #include "driving_algo.h"
 #include "driver_diagnostics.h"
-// #include "obstacle_avoidance.h"
+#include "gpio.h"
 
 static int8_t TOLERANCE_DIRECTION_POSITIVE = 10;
 static int8_t TOLERANCE_DIRECTION_NEGATIVE = -10;
 static const uint8_t MINIMUM_DISTACE_RANGE = 5;
+
+static const gpio_s DRIVE_MODE_STATUS_LED = {GPIO__PORT_1, 24};
 
 static dbc_GEO_COMPASS_s current_and_destination_heading_angle;
 
@@ -51,11 +53,11 @@ dbc_DRIVER_STEER_SPEED_s driving_algo__compute_heading() {
     driving_direction.DRIVER_STEER_move_speed = DRIVER_STEER_move_STOP;
   } else {
     if (obstacle_avoidance__is_required()) {
-      // gpio__reset(board_io__get_led1());
+      gpio__reset(DRIVE_MODE_STATUS_LED);
       obstacle_avoidance__get_direction(&driving_direction); // follow ultrasonic direction
     } else {
       driving_algo__get_gps_heading_direction(&driving_direction);
-      // gpio__set(board_io__get_led1());
+      gpio__set(DRIVE_MODE_STATUS_LED);
     }
     light_up_direction_led(driving_direction);
   }
