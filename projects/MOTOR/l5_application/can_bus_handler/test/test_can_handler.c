@@ -6,6 +6,7 @@
 #include "Mockcan_bus.h"
 #include "Mockgpio.h"
 #include "Mockmotor_logic.h"
+#include "Mockmotor_self_test.h"
 #include "Mockspeed_sensor.h"
 
 #include "can_handler.h"
@@ -38,7 +39,8 @@ void test_can_dbc_handler__reset_if_bus_off(void) {
   can_handler__reset_if_bus_off();
 }
 
-bool can__rx_hijacked_mock(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms, int callback_count) {
+bool can__rx_steer_and_speed_hijacked_mock(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms,
+                                           int callback_count) {
   bool return_flag = false;
   printf("Callback_count = %d\n", callback_count);
   if (callback_count == 0) {
@@ -51,11 +53,11 @@ bool can__rx_hijacked_mock(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout
   return return_flag;
 }
 
-void test_can_bus_handler__process_all_received_messages(void) {
+void test_can_bus_handler__process_all_received_messages_steer_and_speed(void) {
   can__msg_t can_receive_msg = {};
   dbc_DRIVER_STEER_SPEED_s steer_data = {};
   gpio_s test_led;
-  can__rx_StubWithCallback(can__rx_hijacked_mock);
+  can__rx_StubWithCallback(can__rx_steer_and_speed_hijacked_mock);
   motor_logic_Expect(&steer_data);
   motor_logic_IgnoreArg_steer_data();
   board_io__get_led0_ExpectAndReturn(test_led);
@@ -63,9 +65,51 @@ void test_can_bus_handler__process_all_received_messages(void) {
   can_bus_handler__process_all_received_messages_in_20hz();
 }
 
+bool can__rx_test_button_pressed_hijacked_mock(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms,
+                                               int callback_count) {
+  bool return_flag = false;
+  printf("Callback_count = %d\n", callback_count);
+  if (callback_count == 0) {
+    msg_ptr->frame_fields.data_len = 1;
+    msg_ptr->msg_id = 700;
+    msg_ptr->data.bytes[0] = 1;
+    return_flag = true;
+  }
+  return return_flag;
+}
+
+void test_can_bus_handler__process_all_received_messages_test_button_pressed(void) {
+  can__msg_t can_receive_msg = {};
+  dbc_TEST_BUTTON_s test_button;
+  can__rx_StubWithCallback(can__rx_test_button_pressed_hijacked_mock);
+  set_motor_test_button_status_Expect(1);
+  can_bus_handler__process_all_received_messages_in_20hz();
+}
+
+bool can__rx_test_button_not_pressed_hijacked_mock(can__num_e can, can__msg_t *msg_ptr, uint32_t timeout_ms,
+                                                   int callback_count) {
+  bool return_flag = false;
+  printf("Callback_count = %d\n", callback_count);
+  if (callback_count == 0) {
+    msg_ptr->frame_fields.data_len = 1;
+    msg_ptr->msg_id = 700;
+    msg_ptr->data.bytes[0] = 0;
+    return_flag = true;
+  }
+  return return_flag;
+}
+
+void test_can_bus_handler__process_all_received_messages_test_button_not_pressed(void) {
+  can__msg_t can_receive_msg = {};
+  dbc_TEST_BUTTON_s test_button;
+  can__rx_StubWithCallback(can__rx_test_button_not_pressed_hijacked_mock);
+  can_bus_handler__process_all_received_messages_in_20hz();
+}
+
 void test_can_bus_handler__transmit_message(void) {
   can__msg_t send_msg = {};
-  get_mph_ExpectAndReturn(0);
+  motor_speed_with_direction_ExpectAndReturn(0);
+  get_pwm_forward_ExpectAndReturn(0);
   can__tx_ExpectAndReturn(can1, &send_msg, 0, true);
   can__tx_IgnoreArg_can_message_ptr();
   can_bus_handler__transmit_message_in_10hz();
