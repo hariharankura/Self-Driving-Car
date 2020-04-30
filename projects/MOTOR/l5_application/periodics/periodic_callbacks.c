@@ -1,8 +1,8 @@
 #include "periodic_callbacks.h"
 
-#include "stdbool.h"
-#include "stdint.h"
-#include "stdio.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "board_io.h"
 #include "gpio.h"
@@ -21,7 +21,7 @@
 void periodic_callbacks__initialize(void) {
   // This method is invoked once when the periodic tasks are created
   init_pwm();
-  initialize_test_button_and_speed_sensor_interrupts();
+  initialize_speed_sensor_and_test_button_interrupts();
   init_can_driver();
   rc_car_stop_state();
 }
@@ -29,7 +29,7 @@ void periodic_callbacks__initialize(void) {
 void periodic_callbacks__1Hz(uint32_t callback_count) {}
 
 void periodic_callbacks__10Hz(uint32_t callback_count) {
-  if (0 == callback_count % 10) {
+  if (0 == callback_count % 5) {
     clear_rotations_in_windowtime();
   }
   can_bus_handler__transmit_message_in_10hz();
@@ -40,7 +40,6 @@ void periodic_callbacks__100Hz(uint32_t callback_count) {
     if (get_motor_test_button_status()) {
       servo_and_dc_motor_tests(callback_count);
     } else {
-      // printf("periodic callbacks and test button not pressed\n");
       can_bus_handler__process_all_received_messages_in_20hz();
       can_bus_handler__manage_mia_20hz();
     }
