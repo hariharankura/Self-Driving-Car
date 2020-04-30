@@ -29,10 +29,6 @@ void test__periodic_callbacks__1Hz(void) {
 
 void test__periodic_callbacks__10Hz(void) {
   bridge_can_handler__transmit_messages_10hz_Expect();
-<<<<<<< HEAD
-  diagnostic_tests__light_1_led_per_sensor_when_obstacle_detected_10hz_Expect();
-=======
->>>>>>> sensor module changes
   periodic_callbacks__10Hz(0);
 }
 
